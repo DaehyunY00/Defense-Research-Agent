@@ -1,0 +1,33 @@
+{
+  "weights": {
+    "policy_relevance": 0.2,
+    "timeliness": 0.1,
+    "novelty": 0.2,
+    "public_evidence_sufficiency": 0.15,
+    "policy_impact": 0.15,
+    "feasibility": 0.1,
+    "output_fit": 0.1
+  },
+  "penalties": {
+    "direct_duplicate": 20.0,
+    "official_material_missing": 12.0,
+    "scope_too_broad": 8.0,
+    "foreign_case_only": 6.0,
+    "insufficient_evidence_ids": 10.0,
+    "low_confidence": 8.0,
+    "missing_criterion": 5.0
+  },
+  "thresholds": {
+    "minimum_evidence_ids": 2,
+    "low_confidence": 0.5,
+    "direct_title_similarity": 0.96,
+    "high_score_without_evidence": 60.0
+  },
+  "diversity": {
+    "enabled": true,
+    "domain_repeat_penalty": 6.0,
+    "country_repeat_penalty": 4.0,
+    "output_repeat_penalty": 3.0,
+    "horizon_repeat_penalty": 2.0
+  }
+}

@@ -1,0 +1,8 @@
+project_id                = "your-gcp-project-id"
+region                    = "asia-northeast3"
+app_image                 = "asia-northeast3-docker.pkg.dev/your-gcp-project-id/defense-research/defense-research-agent@sha256:REPLACE"
+anthropic_secret_version  = "1"
+api_invoker_members       = ["user:researcher@example.com"]
+corpus_manifest_object    = "corpus/manifests/REPLACE.json"
+deletion_protection       = false
+max_api_instances         = 5

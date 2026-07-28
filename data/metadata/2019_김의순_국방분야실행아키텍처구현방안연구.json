@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "filename": "2019_김의순_국방분야실행아키텍처구현방안연구.pdf",
+    "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_김의순_국방분야실행아키텍처구현방안연구.pdf",
+    "category": "Brief",
+    "num_pages": 4,
+    "file_size_mb": 5.83,
+    "processed_date": "2026-02-02T23:30:07.190415",
+    "total_chars": 145,
+    "avg_chars_per_page": 36
+  },
+  "full_text": "김의순 책임연구위원, 홍수민 전문연구원\n군사발전연구센터\n\n\n\n\n\n1  데이터, SW 등을 공공클라우드와 같은 원격 환경이 아닌 국방부에서 보유한 데이터 센터의 서버에 직접 설치해 운영하고, 이를 위해 시스템 구축부터 운영까지를 \n모두 수행하는 형태를 의미함",
+  "page_texts": [
+    {
+      "page": 1,
+      "text": "김의순 책임연구위원, 홍수민 전문연구원\n군사발전연구센터",
+      "char_count": 30
+    },
+    {
+      "page": 2,
+      "text": "",
+      "char_count": 0
+    },
+    {
+      "page": 3,
+      "text": "",
+      "char_count": 0
+    },
+    {
+      "page": 4,
+      "text": "1  데이터, SW 등을 공공클라우드와 같은 원격 환경이 아닌 국방부에서 보유한 데이터 센터의 서버에 직접 설치해 운영하고, 이를 위해 시스템 구축부터 운영까지를 \n모두 수행하는 형태를 의미함",
+      "char_count": 107
+    }
+  ]
+}

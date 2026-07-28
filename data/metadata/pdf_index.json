@@ -1,0 +1,3714 @@
+{
+  "total_documents": 370,
+  "failed_documents": 0,
+  "processed_date": "2026-02-02T23:30:18.949037",
+  "category_stats": {
+    "국방논단": 100,
+    "국방정책연구": 59,
+    "Brief": 173,
+    "연구보고서": 38
+  },
+  "documents": [
+    {
+      "filename": "2024_곽지희_초급간부선발시AI면접의발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_곽지희_초급간부선발시AI면접의발전방향.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:29:59.904633",
+      "total_chars": 11578,
+      "avg_chars_per_page": 1053
+    },
+    {
+      "filename": "2024_권남연_전시우리군성과기반군수지원의지속지원성향상을위한발전.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_권남연_전시우리군성과기반군수지원의지속지원성향상을위한발전.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 0.4,
+      "processed_date": "2026-02-02T23:29:59.924409",
+      "total_chars": 10127,
+      "avg_chars_per_page": 1266
+    },
+    {
+      "filename": "2024_권현진_군간부획득영향요인과정책효과에대한인식.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_권현진_군간부획득영향요인과정책효과에대한인식.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 0.84,
+      "processed_date": "2026-02-02T23:29:59.992672",
+      "total_chars": 19759,
+      "avg_chars_per_page": 1235
+    },
+    {
+      "filename": "2024_김동범_방산수출성과와전망분석을통한정책제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김동범_방산수출성과와전망분석을통한정책제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.53,
+      "processed_date": "2026-02-02T23:30:00.018132",
+      "total_chars": 13370,
+      "avg_chars_per_page": 1114
+    },
+    {
+      "filename": "2024_김미희_중대재해처벌법과군특수성.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김미희_중대재해처벌법과군특수성.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.67,
+      "processed_date": "2026-02-02T23:30:00.078138",
+      "total_chars": 12795,
+      "avg_chars_per_page": 1163
+    },
+    {
+      "filename": "2024_김병주_글로벌무기체계구매사례와국내구매제도개선을위한시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김병주_글로벌무기체계구매사례와국내구매제도개선을위한시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:00.138209",
+      "total_chars": 11926,
+      "avg_chars_per_page": 1084
+    },
+    {
+      "filename": "2024_김상백_효율적무인수송체계적용제언과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김상백_효율적무인수송체계적용제언과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.69,
+      "processed_date": "2026-02-02T23:30:00.166135",
+      "total_chars": 14471,
+      "avg_chars_per_page": 1206
+    },
+    {
+      "filename": "2024_김성태_국방사이버전문인력의전문성판단개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김성태_국방사이버전문인력의전문성판단개선방안.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 0.95,
+      "processed_date": "2026-02-02T23:30:00.232286",
+      "total_chars": 14258,
+      "avg_chars_per_page": 891
+    },
+    {
+      "filename": "2024_김성학_합동경쟁개념에대한고찰.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김성학_합동경쟁개념에대한고찰.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 0.61,
+      "processed_date": "2026-02-02T23:30:00.253239",
+      "total_chars": 9898,
+      "avg_chars_per_page": 1237
+    },
+    {
+      "filename": "2024_김영곤_대만의병역제도및병력운영현황과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김영곤_대만의병역제도및병력운영현황과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:00.318985",
+      "total_chars": 12930,
+      "avg_chars_per_page": 1078
+    },
+    {
+      "filename": "2024_김영곤_학군장교(ROTC)지원율하락요인과개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김영곤_학군장교(ROTC)지원율하락요인과개선방안.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:00.385069",
+      "total_chars": 14518,
+      "avg_chars_per_page": 1210
+    },
+    {
+      "filename": "2024_김종국_정밀유도포탄의세계적현황및적정소요량설정방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김종국_정밀유도포탄의세계적현황및적정소요량설정방향.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:00.414760",
+      "total_chars": 14383,
+      "avg_chars_per_page": 1199
+    },
+    {
+      "filename": "2024_김지수_NATO조달체계란무엇이고어떻게접근할것인가.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김지수_NATO조달체계란무엇이고어떻게접근할것인가.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:00.451663",
+      "total_chars": 21586,
+      "avg_chars_per_page": 1349
+    },
+    {
+      "filename": "2024_김진호_미군의RSF전략에대응하는국방MRO발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_김진호_미군의RSF전략에대응하는국방MRO발전방향.pdf",
+      "category": "국방논단",
+      "num_pages": 14,
+      "file_size_mb": 0.59,
+      "processed_date": "2026-02-02T23:30:00.482633",
+      "total_chars": 17158,
+      "avg_chars_per_page": 1226
+    },
+    {
+      "filename": "2024_나상욱_국방부문의지속가능성(Sustainability)및에너지효율성향상정책검토.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_나상욱_국방부문의지속가능성(Sustainability)및에너지효율성향상정책검토.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:00.513656",
+      "total_chars": 18030,
+      "avg_chars_per_page": 1502
+    },
+    {
+      "filename": "2024_나상욱_유무인복합체계(MUM-T)발전방향에대한소고.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_나상욱_유무인복합체계(MUM-T)발전방향에대한소고.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.55,
+      "processed_date": "2026-02-02T23:30:00.541734",
+      "total_chars": 13957,
+      "avg_chars_per_page": 1163
+    },
+    {
+      "filename": "2024_노인규_글로벌사우스의부상과한국의대외정책적과제.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_노인규_글로벌사우스의부상과한국의대외정책적과제.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:00.573184",
+      "total_chars": 18633,
+      "avg_chars_per_page": 1553
+    },
+    {
+      "filename": "2024_두진호_ 우크라이나 전쟁 전훈 분석-주요무기체계피해율을중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_두진호_ 우크라이나 전쟁 전훈 분석-주요무기체계피해율을중심으로.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.98,
+      "processed_date": "2026-02-02T23:30:00.601892",
+      "total_chars": 11575,
+      "avg_chars_per_page": 1052
+    },
+    {
+      "filename": "2024_박지연_군의스트레스관리방안에대한제언-스트레스마인드셋을중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_박지연_군의스트레스관리방안에대한제언-스트레스마인드셋을중심으로.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.5,
+      "processed_date": "2026-02-02T23:30:00.631464",
+      "total_chars": 13129,
+      "avg_chars_per_page": 1094
+    },
+    {
+      "filename": "2024_서영보_북한의핵위협대응을위한현실적방안에대한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_서영보_북한의핵위협대응을위한현실적방안에대한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.42,
+      "processed_date": "2026-02-02T23:30:00.659478",
+      "total_chars": 14395,
+      "avg_chars_per_page": 1200
+    },
+    {
+      "filename": "2024_손순아_연구인프라보강사업추진절차개선방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_손순아_연구인프라보강사업추진절차개선방향.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:00.684957",
+      "total_chars": 12221,
+      "avg_chars_per_page": 1018
+    },
+    {
+      "filename": "2024_손윤진_군민간조리원채용률저하에대한소고.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_손윤진_군민간조리원채용률저하에대한소고.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 0.51,
+      "processed_date": "2026-02-02T23:30:00.705045",
+      "total_chars": 7562,
+      "avg_chars_per_page": 945
+    },
+    {
+      "filename": "2024_신용주_미군의사이버훈련동향및시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_신용주_미군의사이버훈련동향및시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:00.763006",
+      "total_chars": 10403,
+      "avg_chars_per_page": 946
+    },
+    {
+      "filename": "2024_심송보_군복지지출최근동향과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_심송보_군복지지출최근동향과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.81,
+      "processed_date": "2026-02-02T23:30:00.821006",
+      "total_chars": 9748,
+      "avg_chars_per_page": 812
+    },
+    {
+      "filename": "2024_양지원_국방우주력의핵심전략자산위성공격무기.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_양지원_국방우주력의핵심전략자산위성공격무기.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:00.853640",
+      "total_chars": 17088,
+      "avg_chars_per_page": 1424
+    },
+    {
+      "filename": "2024_양혜령_국방과학화경계시스템의한계점및개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_양혜령_국방과학화경계시스템의한계점및개선방안.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 0.67,
+      "processed_date": "2026-02-02T23:30:00.872560",
+      "total_chars": 7856,
+      "avg_chars_per_page": 982
+    },
+    {
+      "filename": "2024_오혜_법체계내군무원역할및신분반영현황과명문화방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_오혜_법체계내군무원역할및신분반영현황과명문화방안.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.44,
+      "processed_date": "2026-02-02T23:30:00.903040",
+      "total_chars": 16870,
+      "avg_chars_per_page": 1406
+    },
+    {
+      "filename": "2024_유기현_2개의전쟁무엇을배울것인가.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_유기현_2개의전쟁무엇을배울것인가.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:00.966113",
+      "total_chars": 14253,
+      "avg_chars_per_page": 1188
+    },
+    {
+      "filename": "2024_유기현_통합억제군사적쟁점과과제.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_유기현_통합억제군사적쟁점과과제.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:01.001653",
+      "total_chars": 21108,
+      "avg_chars_per_page": 1319
+    },
+    {
+      "filename": "2024_이남석_기후변화와전투준비태세-선진국의대응과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_이남석_기후변화와전투준비태세-선진국의대응과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 14,
+      "file_size_mb": 0.92,
+      "processed_date": "2026-02-02T23:30:01.071056",
+      "total_chars": 16614,
+      "avg_chars_per_page": 1187
+    },
+    {
+      "filename": "2024_이동윤_초급간부모집홍보활동의관점전환을위한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_이동윤_초급간부모집홍보활동의관점전환을위한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:01.108122",
+      "total_chars": 10318,
+      "avg_chars_per_page": 1290
+    },
+    {
+      "filename": "2024_이선미_비대면상담의군도입을위한제언화상상담을중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_이선미_비대면상담의군도입을위한제언화상상담을중심으로.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:01.168465",
+      "total_chars": 13437,
+      "avg_chars_per_page": 1222
+    },
+    {
+      "filename": "2024_이장욱_대북확성기재개후북한의새로운대응시사와우리의대응방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_이장욱_대북확성기재개후북한의새로운대응시사와우리의대응방향.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 0.39,
+      "processed_date": "2026-02-02T23:30:01.187025",
+      "total_chars": 8849,
+      "avg_chars_per_page": 1106
+    },
+    {
+      "filename": "2024_이재욱_영국군사력건설체계와한국적수용방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_이재욱_영국군사력건설체계와한국적수용방향.pdf",
+      "category": "국방논단",
+      "num_pages": 10,
+      "file_size_mb": 0.5,
+      "processed_date": "2026-02-02T23:30:01.206164",
+      "total_chars": 10407,
+      "avg_chars_per_page": 1041
+    },
+    {
+      "filename": "2024_이종화_전략적소통발전양상고찰을통한내러티브개념정립.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_이종화_전략적소통발전양상고찰을통한내러티브개념정립.pdf",
+      "category": "국방논단",
+      "num_pages": 9,
+      "file_size_mb": 0.39,
+      "processed_date": "2026-02-02T23:30:01.225507",
+      "total_chars": 10241,
+      "avg_chars_per_page": 1138
+    },
+    {
+      "filename": "2024_이현무_핵심기술과제기획절차개선방안에관한소고.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_이현무_핵심기술과제기획절차개선방안에관한소고.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:01.248055",
+      "total_chars": 12449,
+      "avg_chars_per_page": 1132
+    },
+    {
+      "filename": "2024_임재혁_미군의암호발전동향과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_임재혁_미군의암호발전동향과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.86,
+      "processed_date": "2026-02-02T23:30:01.273057",
+      "total_chars": 13618,
+      "avg_chars_per_page": 1135
+    },
+    {
+      "filename": "2024_정재웅_NATO규정을통해본지하형탄약고구조개선방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_정재웅_NATO규정을통해본지하형탄약고구조개선방향.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:01.333903",
+      "total_chars": 14062,
+      "avg_chars_per_page": 1172
+    },
+    {
+      "filename": "2024_정하교_AI자율무기체계시험평가의도전요인과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_정하교_AI자율무기체계시험평가의도전요인과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.43,
+      "processed_date": "2026-02-02T23:30:01.358948",
+      "total_chars": 13276,
+      "avg_chars_per_page": 1207
+    },
+    {
+      "filename": "2024_조성림_미군데이터분석플랫폼구축사례와시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_조성림_미군데이터분석플랫폼구축사례와시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.54,
+      "processed_date": "2026-02-02T23:30:01.383938",
+      "total_chars": 12199,
+      "avg_chars_per_page": 1017
+    },
+    {
+      "filename": "2024_조홍일_정밀유도포탄의세계적현황및적정소요량설정방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_조홍일_정밀유도포탄의세계적현황및적정소요량설정방향.pdf",
+      "category": "국방논단",
+      "num_pages": 15,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:01.451208",
+      "total_chars": 19804,
+      "avg_chars_per_page": 1320
+    },
+    {
+      "filename": "2024_지평기_전투수행의동기부대응집력에대한소고.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_지평기_전투수행의동기부대응집력에대한소고.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:01.508378",
+      "total_chars": 11820,
+      "avg_chars_per_page": 1075
+    },
+    {
+      "filename": "2024_진아연_국방과학기술국제협력에대한미국의관점변화와시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_진아연_국방과학기술국제협력에대한미국의관점변화와시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.46,
+      "processed_date": "2026-02-02T23:30:01.536399",
+      "total_chars": 18126,
+      "avg_chars_per_page": 1510
+    },
+    {
+      "filename": "2024_최수동_미국국방기획관리체계(PPBES)개혁과정책적제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_최수동_미국국방기획관리체계(PPBES)개혁과정책적제언.pdf",
+      "category": "국방논단",
+      "num_pages": 19,
+      "file_size_mb": 0.82,
+      "processed_date": "2026-02-02T23:30:01.578263",
+      "total_chars": 24934,
+      "avg_chars_per_page": 1312
+    },
+    {
+      "filename": "2024_홍석수_ 미국의기술패권경쟁에대한실증분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_홍석수_ 미국의기술패권경쟁에대한실증분석.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:01.641083",
+      "total_chars": 13891,
+      "avg_chars_per_page": 1158
+    },
+    {
+      "filename": "2024_홍석수_국방전력운영사업사전타당성검토발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_홍석수_국방전력운영사업사전타당성검토발전방향.pdf",
+      "category": "국방논단",
+      "num_pages": 14,
+      "file_size_mb": 0.85,
+      "processed_date": "2026-02-02T23:30:01.705781",
+      "total_chars": 16775,
+      "avg_chars_per_page": 1198
+    },
+    {
+      "filename": "2024_홍숙지_군다문화정책발전방향에대한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_홍숙지_군다문화정책발전방향에대한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:01.763784",
+      "total_chars": 13000,
+      "avg_chars_per_page": 1083
+    },
+    {
+      "filename": "2024_황인빈_유럽연합방위산업전략(EDIS)주요내용과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_황인빈_유럽연합방위산업전략(EDIS)주요내용과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.43,
+      "processed_date": "2026-02-02T23:30:01.790564",
+      "total_chars": 15698,
+      "avg_chars_per_page": 1308
+    },
+    {
+      "filename": "2024_황인빈_호주방위산업개발전략(DIDS)주요내용과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2024_황인빈_호주방위산업개발전략(DIDS)주요내용과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.42,
+      "processed_date": "2026-02-02T23:30:01.817096",
+      "total_chars": 17316,
+      "avg_chars_per_page": 1443
+    },
+    {
+      "filename": "2025_강소영_에너지전환의시대,지속가능한해양안보와해상풍력발전을위한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_강소영_에너지전환의시대,지속가능한해양안보와해상풍력발전을위한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 3.06,
+      "processed_date": "2026-02-02T23:30:01.843529",
+      "total_chars": 15691,
+      "avg_chars_per_page": 1308
+    },
+    {
+      "filename": "2025_강인호_독일국가안보및방위산업전략(NSDIS)의주요내용과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_강인호_독일국가안보및방위산업전략(NSDIS)의주요내용과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:01.867509",
+      "total_chars": 15094,
+      "avg_chars_per_page": 1258
+    },
+    {
+      "filename": "2025_고현호_5세대(5G)이동통신전국망시대우리군이준비해야할것들.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_고현호_5세대(5G)이동통신전국망시대우리군이준비해야할것들.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.83,
+      "processed_date": "2026-02-02T23:30:01.926661",
+      "total_chars": 13766,
+      "avg_chars_per_page": 1147
+    },
+    {
+      "filename": "2025_곽지희_초급간부후보생선발면접관운영발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_곽지희_초급간부후보생선발면접관운영발전방안.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 0.43,
+      "processed_date": "2026-02-02T23:30:01.943420",
+      "total_chars": 7936,
+      "avg_chars_per_page": 992
+    },
+    {
+      "filename": "2025_권남연_한미함정건조및MRO협력방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_권남연_한미함정건조및MRO협력방향.pdf",
+      "category": "국방논단",
+      "num_pages": 15,
+      "file_size_mb": 1.24,
+      "processed_date": "2026-02-02T23:30:02.012238",
+      "total_chars": 20148,
+      "avg_chars_per_page": 1343
+    },
+    {
+      "filename": "2025_권현진_군가산복무자확보를위한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_권현진_군가산복무자확보를위한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 1.32,
+      "processed_date": "2026-02-02T23:30:02.074411",
+      "total_chars": 13862,
+      "avg_chars_per_page": 1155
+    },
+    {
+      "filename": "2025_김길남_미군의JADC2추진을통해보는한국군지휘통제발전방향 .pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_김길남_미군의JADC2추진을통해보는한국군지휘통제발전방향 .pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 1.53,
+      "processed_date": "2026-02-02T23:30:02.137012",
+      "total_chars": 15282,
+      "avg_chars_per_page": 1274
+    },
+    {
+      "filename": "2025_김다빈_다계층통합네트워크구축을위한SD-WAN기술적용사례와고려사항.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_김다빈_다계층통합네트워크구축을위한SD-WAN기술적용사례와고려사항.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 1.27,
+      "processed_date": "2026-02-02T23:30:02.161544",
+      "total_chars": 14487,
+      "avg_chars_per_page": 1207
+    },
+    {
+      "filename": "2025_김동범_트럼프정부의출범과한국방위산업의대응전략.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_김동범_트럼프정부의출범과한국방위산업의대응전략.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:02.186846",
+      "total_chars": 14353,
+      "avg_chars_per_page": 1196
+    },
+    {
+      "filename": "2025_김성학_미래위협에대응하기위한합동기획체계발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_김성학_미래위협에대응하기위한합동기획체계발전방향.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 1.3,
+      "processed_date": "2026-02-02T23:30:02.204172",
+      "total_chars": 9145,
+      "avg_chars_per_page": 1143
+    },
+    {
+      "filename": "2025_김성현_주간정신전력교육에관한내면화평가자체평가.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_김성현_주간정신전력교육에관한내면화평가자체평가.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.61,
+      "processed_date": "2026-02-02T23:30:02.237286",
+      "total_chars": 19968,
+      "avg_chars_per_page": 1664
+    },
+    {
+      "filename": "2025_김영곤_중견간부이탈증가의원인과개선방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_김영곤_중견간부이탈증가의원인과개선방향.pdf",
+      "category": "국방논단",
+      "num_pages": 10,
+      "file_size_mb": 0.55,
+      "processed_date": "2026-02-02T23:30:02.257752",
+      "total_chars": 9549,
+      "avg_chars_per_page": 955
+    },
+    {
+      "filename": "2025_김진형_부대기획의필요성및절차적발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_김진형_부대기획의필요성및절차적발전방향.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 1.11,
+      "processed_date": "2026-02-02T23:30:02.332802",
+      "total_chars": 12110,
+      "avg_chars_per_page": 1009
+    },
+    {
+      "filename": "2025_김푸름_지속가능한국제평화유지활동을위한무형전력강화.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_김푸름_지속가능한국제평화유지활동을위한무형전력강화.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.52,
+      "processed_date": "2026-02-02T23:30:02.363277",
+      "total_chars": 18041,
+      "avg_chars_per_page": 1503
+    },
+    {
+      "filename": "2025_남지우_무기체계운영유지비분석업무발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_남지우_무기체계운영유지비분석업무발전방안.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.5,
+      "processed_date": "2026-02-02T23:30:02.386360",
+      "total_chars": 13173,
+      "avg_chars_per_page": 1098
+    },
+    {
+      "filename": "2025_민광기_국방AI기술발전에따른효율적국방인력운영을위한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_민광기_국방AI기술발전에따른효율적국방인력운영을위한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 9,
+      "file_size_mb": 0.5,
+      "processed_date": "2026-02-02T23:30:02.406874",
+      "total_chars": 10393,
+      "avg_chars_per_page": 1155
+    },
+    {
+      "filename": "2025_박상현_ F-35성능개량을통해보는차세대전투기발전에대한시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_박상현_ F-35성능개량을통해보는차세대전투기발전에대한시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:02.470271",
+      "total_chars": 13149,
+      "avg_chars_per_page": 1096
+    },
+    {
+      "filename": "2025_박세현_수소에너지기술의국방분야적용현황과발전과제.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_박세현_수소에너지기술의국방분야적용현황과발전과제.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 2.58,
+      "processed_date": "2026-02-02T23:30:02.533501",
+      "total_chars": 15076,
+      "avg_chars_per_page": 1256
+    },
+    {
+      "filename": "2025_박재혁_JADC2개념구현을위한한국군지휘통제체계발전제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_박재혁_JADC2개념구현을위한한국군지휘통제체계발전제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 1.73,
+      "processed_date": "2026-02-02T23:30:02.556659",
+      "total_chars": 12584,
+      "avg_chars_per_page": 1049
+    },
+    {
+      "filename": "2025_박지훈_승리이론관점에서바라본러시아-우크라이나전쟁.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_박지훈_승리이론관점에서바라본러시아-우크라이나전쟁.pdf",
+      "category": "국방논단",
+      "num_pages": 15,
+      "file_size_mb": 0.86,
+      "processed_date": "2026-02-02T23:30:02.582734",
+      "total_chars": 16219,
+      "avg_chars_per_page": 1081
+    },
+    {
+      "filename": "2025_박찬빈_군심리검사체계AI기술적용에대한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_박찬빈_군심리검사체계AI기술적용에대한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.8,
+      "processed_date": "2026-02-02T23:30:02.605804",
+      "total_chars": 12727,
+      "avg_chars_per_page": 1061
+    },
+    {
+      "filename": "2025_서영보_한반도안정화작전의쟁점사항에대한논고.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_서영보_한반도안정화작전의쟁점사항에대한논고.pdf",
+      "category": "국방논단",
+      "num_pages": 10,
+      "file_size_mb": 1.2,
+      "processed_date": "2026-02-02T23:30:02.663749",
+      "total_chars": 11285,
+      "avg_chars_per_page": 1128
+    },
+    {
+      "filename": "2025_선미선_국방공급망회복탄력성강화전략제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_선미선_국방공급망회복탄력성강화전략제언.pdf",
+      "category": "국방논단",
+      "num_pages": 14,
+      "file_size_mb": 1.29,
+      "processed_date": "2026-02-02T23:30:02.725458",
+      "total_chars": 14103,
+      "avg_chars_per_page": 1007
+    },
+    {
+      "filename": "2025_손윤진_방위력개선패키지시설사업발전방향에대한소고.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_손윤진_방위력개선패키지시설사업발전방향에대한소고.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 1.22,
+      "processed_date": "2026-02-02T23:30:02.782959",
+      "total_chars": 10687,
+      "avg_chars_per_page": 972
+    },
+    {
+      "filename": "2025_안석기_한국군정년제도변화필요성과방향에대한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_안석기_한국군정년제도변화필요성과방향에대한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:02.809194",
+      "total_chars": 15284,
+      "avg_chars_per_page": 1274
+    },
+    {
+      "filename": "2025_엄희송_국방초거대AI(ArtificialIntelligence)구현방안에대한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_엄희송_국방초거대AI(ArtificialIntelligence)구현방안에대한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 1.72,
+      "processed_date": "2026-02-02T23:30:02.836943",
+      "total_chars": 17203,
+      "avg_chars_per_page": 1075
+    },
+    {
+      "filename": "2025_오혜_2040년첨단과학기술분야군무원인력소요방법론개념정립.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_오혜_2040년첨단과학기술분야군무원인력소요방법론개념정립.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 0.63,
+      "processed_date": "2026-02-02T23:30:02.865582",
+      "total_chars": 15978,
+      "avg_chars_per_page": 999
+    },
+    {
+      "filename": "2025_유대현_국방M&S분야의LLM적용방안과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_유대현_국방M&S분야의LLM적용방안과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 1.26,
+      "processed_date": "2026-02-02T23:30:02.932636",
+      "total_chars": 18594,
+      "avg_chars_per_page": 1162
+    },
+    {
+      "filename": "2025_유준우_우리군근무분야민간위탁발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_유준우_우리군근무분야민간위탁발전방향.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.81,
+      "processed_date": "2026-02-02T23:30:02.957631",
+      "total_chars": 15317,
+      "avg_chars_per_page": 1276
+    },
+    {
+      "filename": "2025_은주희_정신전력교육의효과적인방법에관한논의.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_은주희_정신전력교육의효과적인방법에관한논의.pdf",
+      "category": "국방논단",
+      "num_pages": 10,
+      "file_size_mb": 1.07,
+      "processed_date": "2026-02-02T23:30:03.016564",
+      "total_chars": 11066,
+      "avg_chars_per_page": 1107
+    },
+    {
+      "filename": "2025_이남석_중국의기후변화대응전략과함의-글로벌영향력확대를중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_이남석_중국의기후변화대응전략과함의-글로벌영향력확대를중심으로.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 1.21,
+      "processed_date": "2026-02-02T23:30:03.039326",
+      "total_chars": 13620,
+      "avg_chars_per_page": 1238
+    },
+    {
+      "filename": "2025_이선미_군내폭력대응방안을위한새로운접근방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_이선미_군내폭력대응방안을위한새로운접근방향.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:03.065095",
+      "total_chars": 15817,
+      "avg_chars_per_page": 1318
+    },
+    {
+      "filename": "2025_이재준_군사인공지능개발에서민간알고리즘공급망구축필요성.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_이재준_군사인공지능개발에서민간알고리즘공급망구축필요성.pdf",
+      "category": "국방논단",
+      "num_pages": 10,
+      "file_size_mb": 0.82,
+      "processed_date": "2026-02-02T23:30:03.089160",
+      "total_chars": 14679,
+      "avg_chars_per_page": 1468
+    },
+    {
+      "filename": "2025_이현지_국방인력구조설계는어떻게해야하나.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_이현지_국방인력구조설계는어떻게해야하나.pdf",
+      "category": "국방논단",
+      "num_pages": 20,
+      "file_size_mb": 0.89,
+      "processed_date": "2026-02-02T23:30:03.159429",
+      "total_chars": 22415,
+      "avg_chars_per_page": 1121
+    },
+    {
+      "filename": "2025_정재웅_용산공원토양오염위해성논쟁을통해돌아본.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_정재웅_용산공원토양오염위해성논쟁을통해돌아본.pdf",
+      "category": "국방논단",
+      "num_pages": 10,
+      "file_size_mb": 0.55,
+      "processed_date": "2026-02-02T23:30:03.183821",
+      "total_chars": 11430,
+      "avg_chars_per_page": 1143
+    },
+    {
+      "filename": "2025_조봉재_ 방위력개선사업심층검토제도효율화방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_조봉재_ 방위력개선사업심층검토제도효율화방안.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.79,
+      "processed_date": "2026-02-02T23:30:03.208550",
+      "total_chars": 14211,
+      "avg_chars_per_page": 1184
+    },
+    {
+      "filename": "2025_조은일_ 일본의차세대전투기공동개발과방산협력.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_조은일_ 일본의차세대전투기공동개발과방산협력.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.81,
+      "processed_date": "2026-02-02T23:30:03.268775",
+      "total_chars": 13328,
+      "avg_chars_per_page": 1111
+    },
+    {
+      "filename": "2025_지평기_미해병대의리더십교범변화.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_지평기_미해병대의리더십교범변화.pdf",
+      "category": "국방논단",
+      "num_pages": 8,
+      "file_size_mb": 0.44,
+      "processed_date": "2026-02-02T23:30:03.289235",
+      "total_chars": 10620,
+      "avg_chars_per_page": 1328
+    },
+    {
+      "filename": "2025_차명환_국방기획시나리오작성을위한대규모언어모델(LLM)적용방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_차명환_국방기획시나리오작성을위한대규모언어모델(LLM)적용방안.pdf",
+      "category": "국방논단",
+      "num_pages": 9,
+      "file_size_mb": 0.74,
+      "processed_date": "2026-02-02T23:30:03.309049",
+      "total_chars": 11590,
+      "avg_chars_per_page": 1288
+    },
+    {
+      "filename": "2025_최공영_방산수출포스트세일즈를위한군의역할과과제.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_최공영_방산수출포스트세일즈를위한군의역할과과제.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.97,
+      "processed_date": "2026-02-02T23:30:03.331886",
+      "total_chars": 13536,
+      "avg_chars_per_page": 1128
+    },
+    {
+      "filename": "2025_최수동_무기체계연구개발사업계약의발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_최수동_무기체계연구개발사업계약의발전방향.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 0.86,
+      "processed_date": "2026-02-02T23:30:03.365512",
+      "total_chars": 23411,
+      "avg_chars_per_page": 1463
+    },
+    {
+      "filename": "2025_최수동_무기체계탐색개발단계의개념및복수연구개발의발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_최수동_무기체계탐색개발단계의개념및복수연구개발의발전방향.pdf",
+      "category": "국방논단",
+      "num_pages": 16,
+      "file_size_mb": 1.1,
+      "processed_date": "2026-02-02T23:30:03.404305",
+      "total_chars": 24084,
+      "avg_chars_per_page": 1505
+    },
+    {
+      "filename": "2025_편도후_해외주요군의전파관리동향및시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_편도후_해외주요군의전파관리동향및시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 1.58,
+      "processed_date": "2026-02-02T23:30:03.465432",
+      "total_chars": 12423,
+      "avg_chars_per_page": 1129
+    },
+    {
+      "filename": "2025_현익재_병과체계의이해와정책발전에관한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_현익재_병과체계의이해와정책발전에관한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 15,
+      "file_size_mb": 0.74,
+      "processed_date": "2026-02-02T23:30:03.528145",
+      "total_chars": 16131,
+      "avg_chars_per_page": 1075
+    },
+    {
+      "filename": "2025_홍석수_드론의원활한획득을위한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_홍석수_드론의원활한획득을위한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.84,
+      "processed_date": "2026-02-02T23:30:03.555378",
+      "total_chars": 17612,
+      "avg_chars_per_page": 1468
+    },
+    {
+      "filename": "2025_홍숙지_사관학교교육체계발전방향에대한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_홍숙지_사관학교교육체계발전방향에대한제언.pdf",
+      "category": "국방논단",
+      "num_pages": 10,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:03.577996",
+      "total_chars": 10996,
+      "avg_chars_per_page": 1100
+    },
+    {
+      "filename": "2025_황인빈_네덜란드2025-2029방위산업및혁신전략의주요내용과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_황인빈_네덜란드2025-2029방위산업및혁신전략의주요내용과시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.69,
+      "processed_date": "2026-02-02T23:30:03.602588",
+      "total_chars": 13993,
+      "avg_chars_per_page": 1272
+    },
+    {
+      "filename": "2025_황인빈_유럽연합대비태세2030의주요내용과한국방산수출에대한시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2025_황인빈_유럽연합대비태세2030의주요내용과한국방산수출에대한시사점.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 1.17,
+      "processed_date": "2026-02-02T23:30:03.666782",
+      "total_chars": 15740,
+      "avg_chars_per_page": 1312
+    },
+    {
+      "filename": "2026_우제웅_민간군사기업을활용한방산수출포스트세일즈전략.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2026_우제웅_민간군사기업을활용한방산수출포스트세일즈전략.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 0.78,
+      "processed_date": "2026-02-02T23:30:03.688103",
+      "total_chars": 12575,
+      "avg_chars_per_page": 1143
+    },
+    {
+      "filename": "2026_이선미_초급간부지원율제고를위한모집홍보개선방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2026_이선미_초급간부지원율제고를위한모집홍보개선방향.pdf",
+      "category": "국방논단",
+      "num_pages": 11,
+      "file_size_mb": 1.2,
+      "processed_date": "2026-02-02T23:30:03.747132",
+      "total_chars": 10853,
+      "avg_chars_per_page": 987
+    },
+    {
+      "filename": "2026_이정은_군조직진단도구개발을위한제언_외국군사례를중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방논단/2026_이정은_군조직진단도구개발을위한제언_외국군사례를중심으로.pdf",
+      "category": "국방논단",
+      "num_pages": 12,
+      "file_size_mb": 0.94,
+      "processed_date": "2026-02-02T23:30:03.767915",
+      "total_chars": 11502,
+      "avg_chars_per_page": 958
+    },
+    {
+      "filename": "2023_김성한_국제연대에기초한자강(自彊)의길과학기술기반의국방안보확립.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2023_김성한_국제연대에기초한자강(自彊)의길과학기술기반의국방안보확립.pdf",
+      "category": "국방정책연구",
+      "num_pages": 18,
+      "file_size_mb": 0.43,
+      "processed_date": "2026-02-02T23:30:03.801624",
+      "total_chars": 21698,
+      "avg_chars_per_page": 1205
+    },
+    {
+      "filename": "2023_김정원_공군간부및군무원의성공을위한노력이조직행동에미치는영향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2023_김정원_공군간부및군무원의성공을위한노력이조직행동에미치는영향.pdf",
+      "category": "국방정책연구",
+      "num_pages": 37,
+      "file_size_mb": 0.56,
+      "processed_date": "2026-02-02T23:30:03.866198",
+      "total_chars": 51082,
+      "avg_chars_per_page": 1381
+    },
+    {
+      "filename": "2023_김진호_미래전에대비한한국군인지전발전방향인지전개념전개양상그리.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2023_김진호_미래전에대비한한국군인지전발전방향인지전개념전개양상그리.pdf",
+      "category": "국방정책연구",
+      "num_pages": 40,
+      "file_size_mb": 1.0,
+      "processed_date": "2026-02-02T23:30:03.929620",
+      "total_chars": 43693,
+      "avg_chars_per_page": 1092
+    },
+    {
+      "filename": "2023_박지민_우주작전수행을위한우주정보지원방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2023_박지민_우주작전수행을위한우주정보지원방안.pdf",
+      "category": "국방정책연구",
+      "num_pages": 35,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:03.987311",
+      "total_chars": 45077,
+      "avg_chars_per_page": 1288
+    },
+    {
+      "filename": "2023_이만석_북한의핵강압전략과한국의대응방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2023_이만석_북한의핵강압전략과한국의대응방안.pdf",
+      "category": "국방정책연구",
+      "num_pages": 32,
+      "file_size_mb": 0.93,
+      "processed_date": "2026-02-02T23:30:04.036521",
+      "total_chars": 35524,
+      "avg_chars_per_page": 1110
+    },
+    {
+      "filename": "2023_이형로_해군함정의장비유지비추정연구군직정비비를중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2023_이형로_해군함정의장비유지비추정연구군직정비비를중심으로.pdf",
+      "category": "국방정책연구",
+      "num_pages": 23,
+      "file_size_mb": 0.63,
+      "processed_date": "2026-02-02T23:30:04.070205",
+      "total_chars": 21691,
+      "avg_chars_per_page": 943
+    },
+    {
+      "filename": "2023_지효근_국방무관의외교적역할과발전방안연구레바논주재국방무관단사례.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2023_지효근_국방무관의외교적역할과발전방안연구레바논주재국방무관단사례.pdf",
+      "category": "국방정책연구",
+      "num_pages": 24,
+      "file_size_mb": 0.44,
+      "processed_date": "2026-02-02T23:30:04.110338",
+      "total_chars": 27702,
+      "avg_chars_per_page": 1154
+    },
+    {
+      "filename": "2024_강신욱_연합작전에서의상호운용성개념및한국군발전방안한미연합.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_강신욱_연합작전에서의상호운용성개념및한국군발전방안한미연합.pdf",
+      "category": "국방정책연구",
+      "num_pages": 29,
+      "file_size_mb": 0.46,
+      "processed_date": "2026-02-02T23:30:04.156304",
+      "total_chars": 33066,
+      "avg_chars_per_page": 1140
+    },
+    {
+      "filename": "2024_고경윤_미국우주사령부재창설및우주군창설입법과정의쟁점분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_고경윤_미국우주사령부재창설및우주군창설입법과정의쟁점분석.pdf",
+      "category": "국방정책연구",
+      "num_pages": 28,
+      "file_size_mb": 0.5,
+      "processed_date": "2026-02-02T23:30:04.206406",
+      "total_chars": 37656,
+      "avg_chars_per_page": 1345
+    },
+    {
+      "filename": "2024_곽한성_LCC분석및몬테카를로시뮬레이션을활용한노후군주거시설재건축리.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_곽한성_LCC분석및몬테카를로시뮬레이션을활용한노후군주거시설재건축리.pdf",
+      "category": "국방정책연구",
+      "num_pages": 39,
+      "file_size_mb": 0.65,
+      "processed_date": "2026-02-02T23:30:04.262137",
+      "total_chars": 35137,
+      "avg_chars_per_page": 901
+    },
+    {
+      "filename": "2024_김선준_인공지능(머신러닝)을활용한대함무기효과추정방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_김선준_인공지능(머신러닝)을활용한대함무기효과추정방안연구.pdf",
+      "category": "국방정책연구",
+      "num_pages": 30,
+      "file_size_mb": 1.42,
+      "processed_date": "2026-02-02T23:30:04.301677",
+      "total_chars": 24893,
+      "avg_chars_per_page": 830
+    },
+    {
+      "filename": "2024_김선홍_미국의저위력핵전력억제논리와전망.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_김선홍_미국의저위력핵전력억제논리와전망.pdf",
+      "category": "국방정책연구",
+      "num_pages": 35,
+      "file_size_mb": 0.8,
+      "processed_date": "2026-02-02T23:30:04.355325",
+      "total_chars": 39392,
+      "avg_chars_per_page": 1125
+    },
+    {
+      "filename": "2024_김신숙_인구감소시기강한국방을위한병역제도설계군인력정책의질적.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_김신숙_인구감소시기강한국방을위한병역제도설계군인력정책의질적.pdf",
+      "category": "국방정책연구",
+      "num_pages": 26,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:04.400489",
+      "total_chars": 30797,
+      "avg_chars_per_page": 1184
+    },
+    {
+      "filename": "2024_김자희_북한의암호화폐탈취에대한국제법적대응책검토해킹백을통한사이.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_김자희_북한의암호화폐탈취에대한국제법적대응책검토해킹백을통한사이.pdf",
+      "category": "국방정책연구",
+      "num_pages": 31,
+      "file_size_mb": 0.57,
+      "processed_date": "2026-02-02T23:30:04.452689",
+      "total_chars": 37252,
+      "avg_chars_per_page": 1202
+    },
+    {
+      "filename": "2024_김정민_중국회색지대전략의기원과적용비대칭성점진주의모호성을중심.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_김정민_중국회색지대전략의기원과적용비대칭성점진주의모호성을중심.pdf",
+      "category": "국방정책연구",
+      "num_pages": 23,
+      "file_size_mb": 0.45,
+      "processed_date": "2026-02-02T23:30:04.492927",
+      "total_chars": 26766,
+      "avg_chars_per_page": 1164
+    },
+    {
+      "filename": "2024_남기성_한미재래식핵통합(CNI)구현을위한한국군항공우주력발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_남기성_한미재래식핵통합(CNI)구현을위한한국군항공우주력발전방향.pdf",
+      "category": "국방정책연구",
+      "num_pages": 34,
+      "file_size_mb": 0.55,
+      "processed_date": "2026-02-02T23:30:04.548639",
+      "total_chars": 40366,
+      "avg_chars_per_page": 1187
+    },
+    {
+      "filename": "2024_류인석_닉슨-포드행정부의한국군현대화정책고찰한반도에서의이중억제저.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_류인석_닉슨-포드행정부의한국군현대화정책고찰한반도에서의이중억제저.pdf",
+      "category": "국방정책연구",
+      "num_pages": 31,
+      "file_size_mb": 0.53,
+      "processed_date": "2026-02-02T23:30:04.602649",
+      "total_chars": 38936,
+      "avg_chars_per_page": 1256
+    },
+    {
+      "filename": "2024_박원호_군사훈련으로인한민군갈등해소및협력방안연구상무대훈련장.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_박원호_군사훈련으로인한민군갈등해소및협력방안연구상무대훈련장.pdf",
+      "category": "국방정책연구",
+      "num_pages": 29,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:04.646891",
+      "total_chars": 29723,
+      "avg_chars_per_page": 1025
+    },
+    {
+      "filename": "2024_선동익_합동성과전문성그리고조직설계.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_선동익_합동성과전문성그리고조직설계.pdf",
+      "category": "국방정책연구",
+      "num_pages": 29,
+      "file_size_mb": 0.45,
+      "processed_date": "2026-02-02T23:30:04.698522",
+      "total_chars": 38714,
+      "avg_chars_per_page": 1335
+    },
+    {
+      "filename": "2024_안준형_사이버기술의발전과무력충돌시민간인보호.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_안준형_사이버기술의발전과무력충돌시민간인보호.pdf",
+      "category": "국방정책연구",
+      "num_pages": 28,
+      "file_size_mb": 0.53,
+      "processed_date": "2026-02-02T23:30:04.746967",
+      "total_chars": 36408,
+      "avg_chars_per_page": 1300
+    },
+    {
+      "filename": "2024_오상훈_사회심리학군사이론관점에서의인지전수행개념연구이스라엘하마스ᄆ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_오상훈_사회심리학군사이론관점에서의인지전수행개념연구이스라엘하마스ᄆ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 44,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:04.818470",
+      "total_chars": 50404,
+      "avg_chars_per_page": 1146
+    },
+    {
+      "filename": "2024_이강경_국방혁신4.0과연계된육군의혁신전략.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_이강경_국방혁신4.0과연계된육군의혁신전략.pdf",
+      "category": "국방정책연구",
+      "num_pages": 35,
+      "file_size_mb": 0.55,
+      "processed_date": "2026-02-02T23:30:04.880740",
+      "total_chars": 44962,
+      "avg_chars_per_page": 1285
+    },
+    {
+      "filename": "2024_이광원_공군조종사의주관적과잉자격과정보은폐냉소주의의매개효과및안전.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_이광원_공군조종사의주관적과잉자격과정보은폐냉소주의의매개효과및안전.pdf",
+      "category": "국방정책연구",
+      "num_pages": 38,
+      "file_size_mb": 0.57,
+      "processed_date": "2026-02-02T23:30:04.944234",
+      "total_chars": 49470,
+      "avg_chars_per_page": 1302
+    },
+    {
+      "filename": "2024_이동현_국내방위산업의ESG경영현황과개선방안에대한고찰.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_이동현_국내방위산업의ESG경영현황과개선방안에대한고찰.pdf",
+      "category": "국방정책연구",
+      "num_pages": 33,
+      "file_size_mb": 0.64,
+      "processed_date": "2026-02-02T23:30:04.998318",
+      "total_chars": 35661,
+      "avg_chars_per_page": 1081
+    },
+    {
+      "filename": "2024_이준희_김정일의당에서김정은의당으로조선로동당7기정치국인선변화연ᄀ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_이준희_김정일의당에서김정은의당으로조선로동당7기정치국인선변화연ᄀ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 57,
+      "file_size_mb": 0.66,
+      "processed_date": "2026-02-02T23:30:05.086504",
+      "total_chars": 66468,
+      "avg_chars_per_page": 1166
+    },
+    {
+      "filename": "2024_장양규_김정은정권의열병식변화와확대의도.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_장양규_김정은정권의열병식변화와확대의도.pdf",
+      "category": "국방정책연구",
+      "num_pages": 38,
+      "file_size_mb": 0.58,
+      "processed_date": "2026-02-02T23:30:05.150122",
+      "total_chars": 46792,
+      "avg_chars_per_page": 1231
+    },
+    {
+      "filename": "2024_최종현_AI국방정보시스템도입시예상되는AI고유보안취약점분석및보안가이드.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_최종현_AI국방정보시스템도입시예상되는AI고유보안취약점분석및보안가이드.pdf",
+      "category": "국방정책연구",
+      "num_pages": 27,
+      "file_size_mb": 0.45,
+      "processed_date": "2026-02-02T23:30:05.196101",
+      "total_chars": 32270,
+      "avg_chars_per_page": 1195
+    },
+    {
+      "filename": "2024_홍경하_순서형영과잉가산자료특징을가지는과학화전투훈련자료에대한적.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2024_홍경하_순서형영과잉가산자료특징을가지는과학화전투훈련자료에대한적.pdf",
+      "category": "국방정책연구",
+      "num_pages": 23,
+      "file_size_mb": 0.46,
+      "processed_date": "2026-02-02T23:30:05.234248",
+      "total_chars": 24061,
+      "avg_chars_per_page": 1046
+    },
+    {
+      "filename": "2025_김민관_북한의대남심리전변화분석2016년대남전단과2024년오물풍선비교를ᄌ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_김민관_북한의대남심리전변화분석2016년대남전단과2024년오물풍선비교를ᄌ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 34,
+      "file_size_mb": 0.58,
+      "processed_date": "2026-02-02T23:30:05.281421",
+      "total_chars": 32731,
+      "avg_chars_per_page": 963
+    },
+    {
+      "filename": "2025_김병채_국내외안보불안정성이국방예산에미치는영향분석및국방기획ᄀ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_김병채_국내외안보불안정성이국방예산에미치는영향분석및국방기획ᄀ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 48,
+      "file_size_mb": 1.36,
+      "processed_date": "2026-02-02T23:30:05.350244",
+      "total_chars": 52191,
+      "avg_chars_per_page": 1087
+    },
+    {
+      "filename": "2025_김병채_수상함장비유지비분석방법론연구획득단계와의연계및비용인자ᄋ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_김병채_수상함장비유지비분석방법론연구획득단계와의연계및비용인자ᄋ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 34,
+      "file_size_mb": 0.79,
+      "processed_date": "2026-02-02T23:30:05.399945",
+      "total_chars": 32419,
+      "avg_chars_per_page": 954
+    },
+    {
+      "filename": "2025_김상백_중장기장비유지비추정연구항공장비를중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_김상백_중장기장비유지비추정연구항공장비를중심으로.pdf",
+      "category": "국방정책연구",
+      "num_pages": 25,
+      "file_size_mb": 1.26,
+      "processed_date": "2026-02-02T23:30:05.439787",
+      "total_chars": 24707,
+      "avg_chars_per_page": 988
+    },
+    {
+      "filename": "2025_김영범_공군조종사의부정적피드백이피드백수용에미치는영향수치심과심ᄅ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_김영범_공군조종사의부정적피드백이피드백수용에미치는영향수치심과심ᄅ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 38,
+      "file_size_mb": 0.62,
+      "processed_date": "2026-02-02T23:30:05.499034",
+      "total_chars": 47305,
+      "avg_chars_per_page": 1245
+    },
+    {
+      "filename": "2025_김재국_미국확장억제와보장의단절나토(NATO)동맹국의보장인식을중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_김재국_미국확장억제와보장의단절나토(NATO)동맹국의보장인식을중심으로.pdf",
+      "category": "국방정책연구",
+      "num_pages": 36,
+      "file_size_mb": 0.67,
+      "processed_date": "2026-02-02T23:30:05.556688",
+      "total_chars": 45224,
+      "avg_chars_per_page": 1256
+    },
+    {
+      "filename": "2025_김재엽_유럽의국방자립과핵억지력의역할독자핵우산은가능한가.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_김재엽_유럽의국방자립과핵억지력의역할독자핵우산은가능한가.pdf",
+      "category": "국방정책연구",
+      "num_pages": 24,
+      "file_size_mb": 0.46,
+      "processed_date": "2026-02-02T23:30:05.600894",
+      "total_chars": 31135,
+      "avg_chars_per_page": 1297
+    },
+    {
+      "filename": "2025_김정혁_한국군의적정상비병력규모에관한연구현대전쟁사례의최소계획ᄇ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_김정혁_한국군의적정상비병력규모에관한연구현대전쟁사례의최소계획ᄇ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 33,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:05.650453",
+      "total_chars": 34226,
+      "avg_chars_per_page": 1037
+    },
+    {
+      "filename": "2025_남궁우용_AI과학기술강군구현을위한군의역할강화국방연구개발(R&D)효율서.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_남궁우용_AI과학기술강군구현을위한군의역할강화국방연구개발(R&D)효율서.pdf",
+      "category": "국방정책연구",
+      "num_pages": 30,
+      "file_size_mb": 0.64,
+      "processed_date": "2026-02-02T23:30:05.699379",
+      "total_chars": 34056,
+      "avg_chars_per_page": 1135
+    },
+    {
+      "filename": "2025_박재홍_군인은왜위법명령에복종하는가1212군사반란과처벌인식오류.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_박재홍_군인은왜위법명령에복종하는가1212군사반란과처벌인식오류.pdf",
+      "category": "국방정책연구",
+      "num_pages": 26,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:05.741256",
+      "total_chars": 27683,
+      "avg_chars_per_page": 1065
+    },
+    {
+      "filename": "2025_배진석_우크라이나의해양통제작전교훈및시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_배진석_우크라이나의해양통제작전교훈및시사점.pdf",
+      "category": "국방정책연구",
+      "num_pages": 26,
+      "file_size_mb": 0.43,
+      "processed_date": "2026-02-02T23:30:05.782802",
+      "total_chars": 32132,
+      "avg_chars_per_page": 1236
+    },
+    {
+      "filename": "2025_백재옥_중장기장비유지비추정및전망방법연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_백재옥_중장기장비유지비추정및전망방법연구.pdf",
+      "category": "국방정책연구",
+      "num_pages": 26,
+      "file_size_mb": 0.59,
+      "processed_date": "2026-02-02T23:30:05.824615",
+      "total_chars": 27604,
+      "avg_chars_per_page": 1062
+    },
+    {
+      "filename": "2025_송세찬_상업위성의군사적활용가능성과정책적시사점美우주군TacSRT사례분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_송세찬_상업위성의군사적활용가능성과정책적시사점美우주군TacSRT사례분석.pdf",
+      "category": "국방정책연구",
+      "num_pages": 21,
+      "file_size_mb": 1.46,
+      "processed_date": "2026-02-02T23:30:05.858077",
+      "total_chars": 22466,
+      "avg_chars_per_page": 1070
+    },
+    {
+      "filename": "2025_안준형_방문부대협정의유형과특성파견국과접수국간관계설정사례비교ᄇ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_안준형_방문부대협정의유형과특성파견국과접수국간관계설정사례비교ᄇ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 26,
+      "file_size_mb": 0.46,
+      "processed_date": "2026-02-02T23:30:05.904368",
+      "total_chars": 32949,
+      "avg_chars_per_page": 1267
+    },
+    {
+      "filename": "2025_이재욱_병역자원감소에관한정책적쟁점과해법.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_이재욱_병역자원감소에관한정책적쟁점과해법.pdf",
+      "category": "국방정책연구",
+      "num_pages": 28,
+      "file_size_mb": 0.44,
+      "processed_date": "2026-02-02T23:30:05.947247",
+      "total_chars": 30677,
+      "avg_chars_per_page": 1096
+    },
+    {
+      "filename": "2025_이표규_1970년대에티오피아-소련동맹형성요인분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_이표규_1970년대에티오피아-소련동맹형성요인분석.pdf",
+      "category": "국방정책연구",
+      "num_pages": 31,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:06.000457",
+      "total_chars": 37591,
+      "avg_chars_per_page": 1213
+    },
+    {
+      "filename": "2025_이현엽_육군간부들의스트레스유형분석및자살행동과우울증과의관련성ᄋ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_이현엽_육군간부들의스트레스유형분석및자살행동과우울증과의관련성ᄋ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 40,
+      "file_size_mb": 0.57,
+      "processed_date": "2026-02-02T23:30:06.068311",
+      "total_chars": 51130,
+      "avg_chars_per_page": 1278
+    },
+    {
+      "filename": "2025_장석준_북한군병영생활을통해본김정일-김정은시대당군관계변화‘ᄋ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_장석준_북한군병영생활을통해본김정일-김정은시대당군관계변화‘ᄋ.pdf",
+      "category": "국방정책연구",
+      "num_pages": 37,
+      "file_size_mb": 0.64,
+      "processed_date": "2026-02-02T23:30:06.128688",
+      "total_chars": 46029,
+      "avg_chars_per_page": 1244
+    },
+    {
+      "filename": "2025_장용_북한핵사용에대비한한미의전쟁수행과재래식-핵전력통합(CNI)운용에.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_장용_북한핵사용에대비한한미의전쟁수행과재래식-핵전력통합(CNI)운용에.pdf",
+      "category": "국방정책연구",
+      "num_pages": 28,
+      "file_size_mb": 0.69,
+      "processed_date": "2026-02-02T23:30:06.171050",
+      "total_chars": 30663,
+      "avg_chars_per_page": 1095
+    },
+    {
+      "filename": "2025_장재규_한국군인연금제도변화분석과전망경로진화의관점에서.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_장재규_한국군인연금제도변화분석과전망경로진화의관점에서.pdf",
+      "category": "국방정책연구",
+      "num_pages": 25,
+      "file_size_mb": 0.44,
+      "processed_date": "2026-02-02T23:30:06.209972",
+      "total_chars": 24941,
+      "avg_chars_per_page": 998
+    },
+    {
+      "filename": "2025_정성원_원자력추진잠수함(SSBN)기반한국형핵공유체제의가능성과전략적가.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_정성원_원자력추진잠수함(SSBN)기반한국형핵공유체제의가능성과전략적가.pdf",
+      "category": "국방정책연구",
+      "num_pages": 28,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:06.257545",
+      "total_chars": 33862,
+      "avg_chars_per_page": 1209
+    },
+    {
+      "filename": "2025_정수용_미해병대ForceDesign2030추진현황분석미해병대공식간행문서를중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_정수용_미해병대ForceDesign2030추진현황분석미해병대공식간행문서를중심으로.pdf",
+      "category": "국방정책연구",
+      "num_pages": 35,
+      "file_size_mb": 0.58,
+      "processed_date": "2026-02-02T23:30:06.313795",
+      "total_chars": 44309,
+      "avg_chars_per_page": 1266
+    },
+    {
+      "filename": "2025_주명희_DEA-SBM을적용한육군군수부대의운영효율성분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_주명희_DEA-SBM을적용한육군군수부대의운영효율성분석.pdf",
+      "category": "국방정책연구",
+      "num_pages": 28,
+      "file_size_mb": 0.52,
+      "processed_date": "2026-02-02T23:30:06.356074",
+      "total_chars": 29076,
+      "avg_chars_per_page": 1038
+    },
+    {
+      "filename": "2025_최순원_접적지역내지역예비군운용방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2025_최순원_접적지역내지역예비군운용방안연구.pdf",
+      "category": "국방정책연구",
+      "num_pages": 27,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:06.398340",
+      "total_chars": 28873,
+      "avg_chars_per_page": 1069
+    },
+    {
+      "filename": "2026_강정일_동맹이론으로본북한의러우전쟁참전동인.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2026_강정일_동맹이론으로본북한의러우전쟁참전동인.pdf",
+      "category": "국방정책연구",
+      "num_pages": 32,
+      "file_size_mb": 0.55,
+      "processed_date": "2026-02-02T23:30:06.447641",
+      "total_chars": 38919,
+      "avg_chars_per_page": 1216
+    },
+    {
+      "filename": "2026_김강현_군직무별인력활용을위한신분판단기준연구공무직근로자와미.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2026_김강현_군직무별인력활용을위한신분판단기준연구공무직근로자와미.pdf",
+      "category": "국방정책연구",
+      "num_pages": 37,
+      "file_size_mb": 0.78,
+      "processed_date": "2026-02-02T23:30:06.513301",
+      "total_chars": 39933,
+      "avg_chars_per_page": 1079
+    },
+    {
+      "filename": "2026_류인석_한국의국방전략진단과발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2026_류인석_한국의국방전략진단과발전방향.pdf",
+      "category": "국방정책연구",
+      "num_pages": 36,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:06.565064",
+      "total_chars": 39596,
+      "avg_chars_per_page": 1100
+    },
+    {
+      "filename": "2026_민용기_국방분야아웃소싱성공요인에관한실증분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2026_민용기_국방분야아웃소싱성공요인에관한실증분석.pdf",
+      "category": "국방정책연구",
+      "num_pages": 36,
+      "file_size_mb": 0.52,
+      "processed_date": "2026-02-02T23:30:06.622767",
+      "total_chars": 42760,
+      "avg_chars_per_page": 1188
+    },
+    {
+      "filename": "2026_신치범_앨빈토플러의통찰에기반한AsymmetricK-RMA와AWI의공진화에관한연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2026_신치범_앨빈토플러의통찰에기반한AsymmetricK-RMA와AWI의공진화에관한연구.pdf",
+      "category": "국방정책연구",
+      "num_pages": 26,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:06.664619",
+      "total_chars": 31612,
+      "avg_chars_per_page": 1216
+    },
+    {
+      "filename": "2026_이재욱_국방부직할부대개편에관한정책적쟁점과제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2026_이재욱_국방부직할부대개편에관한정책적쟁점과제언.pdf",
+      "category": "국방정책연구",
+      "num_pages": 35,
+      "file_size_mb": 0.6,
+      "processed_date": "2026-02-02T23:30:06.729063",
+      "total_chars": 41713,
+      "avg_chars_per_page": 1192
+    },
+    {
+      "filename": "2026_최정현_이란핵합의(JCPOA)의동학비가역성개념을통해본JCPOA의합의와중단.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/국방정책연구/2026_최정현_이란핵합의(JCPOA)의동학비가역성개념을통해본JCPOA의합의와중단.pdf",
+      "category": "국방정책연구",
+      "num_pages": 41,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:06.803078",
+      "total_chars": 54248,
+      "avg_chars_per_page": 1323
+    },
+    {
+      "filename": "2019_이상경_한국의국방연구개발역량강화방안정책·제도인력조직예산부문ᄌ.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_이상경_한국의국방연구개발역량강화방안정책·제도인력조직예산부문ᄌ.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.75,
+      "processed_date": "2026-02-02T23:30:06.937817",
+      "total_chars": 29,
+      "avg_chars_per_page": 7
+    },
+    {
+      "filename": "2019_최수동_국방정책에부합한군사력건설을위한한국의국방기획지침(DPG)발저.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_최수동_국방정책에부합한군사력건설을위한한국의국방기획지침(DPG)발저.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.24,
+      "processed_date": "2026-02-02T23:30:07.068894",
+      "total_chars": 37,
+      "avg_chars_per_page": 9
+    },
+    {
+      "filename": "2019_김의순_국방분야실행아키텍처구현방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_김의순_국방분야실행아키텍처구현방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.83,
+      "processed_date": "2026-02-02T23:30:07.190415",
+      "total_chars": 145,
+      "avg_chars_per_page": 36
+    },
+    {
+      "filename": "2019_김의순_전장관리정보체계운영및유지보수방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_김의순_전장관리정보체계운영및유지보수방안.pdf",
+      "category": "Brief",
+      "num_pages": 5,
+      "file_size_mb": 5.58,
+      "processed_date": "2026-02-02T23:30:07.305831",
+      "total_chars": 51,
+      "avg_chars_per_page": 10
+    },
+    {
+      "filename": "2019_류기현_한국군탐색구조임무발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_류기현_한국군탐색구조임무발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.34,
+      "processed_date": "2026-02-02T23:30:07.409562",
+      "total_chars": 36,
+      "avg_chars_per_page": 9
+    },
+    {
+      "filename": "2019_박문언_군인권평가지표및평가체계개선방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_박문언_군인권평가지표및평가체계개선방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.06,
+      "processed_date": "2026-02-02T23:30:07.532194",
+      "total_chars": 30,
+      "avg_chars_per_page": 8
+    },
+    {
+      "filename": "2019_심광신_무기효과데이터개발관리발전방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_심광신_무기효과데이터개발관리발전방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.21,
+      "processed_date": "2026-02-02T23:30:07.639751",
+      "total_chars": 26,
+      "avg_chars_per_page": 6
+    },
+    {
+      "filename": "2019_유승근_정보작전모의모델개발방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_유승근_정보작전모의모델개발방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 4.82,
+      "processed_date": "2026-02-02T23:30:07.739140",
+      "total_chars": 25,
+      "avg_chars_per_page": 6
+    },
+    {
+      "filename": "2019_이성윤_효율적인함정외주정비추진방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_이성윤_효율적인함정외주정비추진방안.pdf",
+      "category": "Brief",
+      "num_pages": 5,
+      "file_size_mb": 5.13,
+      "processed_date": "2026-02-02T23:30:07.843265",
+      "total_chars": 58,
+      "avg_chars_per_page": 12
+    },
+    {
+      "filename": "2019_이수진_2018년세계분쟁총평과한반도안보에의시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_이수진_2018년세계분쟁총평과한반도안보에의시사점.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.29,
+      "processed_date": "2026-02-02T23:30:07.975502",
+      "total_chars": 28,
+      "avg_chars_per_page": 7
+    },
+    {
+      "filename": "2019_이은정_2018국방인력운영분석과전망사업개관.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_이은정_2018국방인력운영분석과전망사업개관.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.62,
+      "processed_date": "2026-02-02T23:30:08.075213",
+      "total_chars": 28,
+      "avg_chars_per_page": 7
+    },
+    {
+      "filename": "2019_이창형_군사개혁후의중국인민해방군연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_이창형_군사개혁후의중국인민해방군연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 4.74,
+      "processed_date": "2026-02-02T23:30:08.169459",
+      "total_chars": 116,
+      "avg_chars_per_page": 29
+    },
+    {
+      "filename": "2019_이현지_간부복무제도개선방안연구복무연장제도개선을중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_이현지_간부복무제도개선방안연구복무연장제도개선을중심으로.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.36,
+      "processed_date": "2026-02-02T23:30:08.280408",
+      "total_chars": 28,
+      "avg_chars_per_page": 7
+    },
+    {
+      "filename": "2019_조성림_효율적인전력업무수행을위한국방획득정보시스템구축방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_조성림_효율적인전력업무수행을위한국방획득정보시스템구축방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.23,
+      "processed_date": "2026-02-02T23:30:08.407099",
+      "total_chars": 43,
+      "avg_chars_per_page": 11
+    },
+    {
+      "filename": "2019_홍숙지_2018국방사회조사통계사업.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2019_홍숙지_2018국방사회조사통계사업.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.08,
+      "processed_date": "2026-02-02T23:30:08.533404",
+      "total_chars": 146,
+      "avg_chars_per_page": 36
+    },
+    {
+      "filename": "2020_김성학_국방기획관리체계내역할을고려한국방전시정책서발전방향연.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_김성학_국방기획관리체계내역할을고려한국방전시정책서발전방향연.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 4.66,
+      "processed_date": "2026-02-02T23:30:08.627720",
+      "total_chars": 61,
+      "avg_chars_per_page": 15
+    },
+    {
+      "filename": "2020_김영도_국방사이버전문인력획득및양성을위한직무체계수립및활용방.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_김영도_국방사이버전문인력획득및양성을위한직무체계수립및활용방.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:08.644259",
+      "total_chars": 5006,
+      "avg_chars_per_page": 1252
+    },
+    {
+      "filename": "2020_고현호_재난안전통신망을활용한국방모바일업무발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_고현호_재난안전통신망을활용한국방모바일업무발전방향연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:08.659755",
+      "total_chars": 4788,
+      "avg_chars_per_page": 1197
+    },
+    {
+      "filename": "2020_김규현_과학기술전문사관의효율적인사관리방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_김규현_과학기술전문사관의효율적인사관리방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:08.675256",
+      "total_chars": 5341,
+      "avg_chars_per_page": 1335
+    },
+    {
+      "filename": "2020_김성태_국방정보자원관리체제발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_김성태_국방정보자원관리체제발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.12,
+      "processed_date": "2026-02-02T23:30:08.784713",
+      "total_chars": 25,
+      "avg_chars_per_page": 6
+    },
+    {
+      "filename": "2020_김영봉_스마트국방환경의사이버보안정책방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_김영봉_스마트국방환경의사이버보안정책방향연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.79,
+      "processed_date": "2026-02-02T23:30:08.802179",
+      "total_chars": 4671,
+      "avg_chars_per_page": 1168
+    },
+    {
+      "filename": "2020_김인국_해군사관학교생도양성체계혁신방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_김인국_해군사관학교생도양성체계혁신방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:08.817976",
+      "total_chars": 5182,
+      "avg_chars_per_page": 1296
+    },
+    {
+      "filename": "2020_김종회_소형무인항공기평가모델구축.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_김종회_소형무인항공기평가모델구축.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.63,
+      "processed_date": "2026-02-02T23:30:08.934678",
+      "total_chars": 46,
+      "avg_chars_per_page": 12
+    },
+    {
+      "filename": "2020_김진형_PTD(단계별위협배분)를적용한전시탄약소요기준개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_김진형_PTD(단계별위협배분)를적용한전시탄약소요기준개선방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.15,
+      "processed_date": "2026-02-02T23:30:09.064275",
+      "total_chars": 60,
+      "avg_chars_per_page": 15
+    },
+    {
+      "filename": "2020_남기헌_방위산업수출활성화를위한방산전시회관리체계발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_남기헌_방위산업수출활성화를위한방산전시회관리체계발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 4.96,
+      "processed_date": "2026-02-02T23:30:09.165875",
+      "total_chars": 52,
+      "avg_chars_per_page": 13
+    },
+    {
+      "filename": "2020_문홍구_과학적의사결정지원을위한군수빅데이터기반발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_문홍구_과학적의사결정지원을위한군수빅데이터기반발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 4.88,
+      "processed_date": "2026-02-02T23:30:09.267018",
+      "total_chars": 28,
+      "avg_chars_per_page": 7
+    },
+    {
+      "filename": "2020_박동호_군인자녀학습지원을위한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_박동호_군인자녀학습지원을위한제언.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 4.8,
+      "processed_date": "2026-02-02T23:30:09.365931",
+      "total_chars": 39,
+      "avg_chars_per_page": 10
+    },
+    {
+      "filename": "2020_박준수_방산국제협력정책발전에관한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_박준수_방산국제협력정책발전에관한제언.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.1,
+      "processed_date": "2026-02-02T23:30:09.493252",
+      "total_chars": 37,
+      "avg_chars_per_page": 9
+    },
+    {
+      "filename": "2020_박찬빈_병무청인지능력검사개선연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_박찬빈_병무청인지능력검사개선연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.78,
+      "processed_date": "2026-02-02T23:30:09.509915",
+      "total_chars": 4596,
+      "avg_chars_per_page": 1149
+    },
+    {
+      "filename": "2020_박창권_Post-INF시대의지역내전략경쟁변화방향과전략적시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_박창권_Post-INF시대의지역내전략경쟁변화방향과전략적시사점.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:09.525813",
+      "total_chars": 5313,
+      "avg_chars_per_page": 1328
+    },
+    {
+      "filename": "2020_박태현_4차산업혁명시대의국방소프트웨어발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_박태현_4차산업혁명시대의국방소프트웨어발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.24,
+      "processed_date": "2026-02-02T23:30:09.633507",
+      "total_chars": 24,
+      "avg_chars_per_page": 6
+    },
+    {
+      "filename": "2020_서영보_한국군주도의전구작전기획을위한모의분석능력고도화연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_서영보_한국군주도의전구작전기획을위한모의분석능력고도화연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.13,
+      "processed_date": "2026-02-02T23:30:09.783266",
+      "total_chars": 46,
+      "avg_chars_per_page": 12
+    },
+    {
+      "filename": "2020_선미선_무기체계운영유지비분석방법표준화연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_선미선_무기체계운영유지비분석방법표준화연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:09.801196",
+      "total_chars": 4967,
+      "avg_chars_per_page": 1242
+    },
+    {
+      "filename": "2020_선미선_해공군무기체계운영유지비자료관리체계발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_선미선_해공군무기체계운영유지비자료관리체계발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:09.818086",
+      "total_chars": 4841,
+      "avg_chars_per_page": 1210
+    },
+    {
+      "filename": "2020_선병근_국방비축제도개선연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_선병근_국방비축제도개선연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.66,
+      "processed_date": "2026-02-02T23:30:09.937703",
+      "total_chars": 29,
+      "avg_chars_per_page": 7
+    },
+    {
+      "filename": "2020_신다윗_귀화자병역의무화타당성검토와시행방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_신다윗_귀화자병역의무화타당성검토와시행방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:09.954155",
+      "total_chars": 4937,
+      "avg_chars_per_page": 1234
+    },
+    {
+      "filename": "2020_심광신_한국군부수적피해평가능력발전방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_심광신_한국군부수적피해평가능력발전방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.53,
+      "processed_date": "2026-02-02T23:30:10.070080",
+      "total_chars": 26,
+      "avg_chars_per_page": 6
+    },
+    {
+      "filename": "2020_심송보_국방시설신개축예산의효율적배분방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_심송보_국방시설신개축예산의효율적배분방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.83,
+      "processed_date": "2026-02-02T23:30:10.085874",
+      "total_chars": 4500,
+      "avg_chars_per_page": 1125
+    },
+    {
+      "filename": "2020_심승배_국방정보시스템에대한시험평가절차개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_심승배_국방정보시스템에대한시험평가절차개선방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:10.101245",
+      "total_chars": 4576,
+      "avg_chars_per_page": 1144
+    },
+    {
+      "filename": "2020_심승배_전장관리체계에서의공개소프트웨어적용방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_심승배_전장관리체계에서의공개소프트웨어적용방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.92,
+      "processed_date": "2026-02-02T23:30:10.224850",
+      "total_chars": 25,
+      "avg_chars_per_page": 6
+    },
+    {
+      "filename": "2020_안병오_재난에도안전한국방지휘통신망통합운용구조발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_안병오_재난에도안전한국방지휘통신망통합운용구조발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:10.241006",
+      "total_chars": 5054,
+      "avg_chars_per_page": 1264
+    },
+    {
+      "filename": "2020_안병오_중장기합동지휘통제·통신발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_안병오_중장기합동지휘통제·통신발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.78,
+      "processed_date": "2026-02-02T23:30:10.258435",
+      "total_chars": 5165,
+      "avg_chars_per_page": 1291
+    },
+    {
+      "filename": "2020_안석기_군의조직경쟁력강화를위한한국군균형인사발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_안석기_군의조직경쟁력강화를위한한국군균형인사발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:10.274497",
+      "total_chars": 5106,
+      "avg_chars_per_page": 1276
+    },
+    {
+      "filename": "2020_양영철_국방과학기술정책성과관리방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_양영철_국방과학기술정책성과관리방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.99,
+      "processed_date": "2026-02-02T23:30:10.398944",
+      "total_chars": 58,
+      "avg_chars_per_page": 14
+    },
+    {
+      "filename": "2020_양영철_한국의방위산업연례분석2019.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_양영철_한국의방위산업연례분석2019.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:10.414597",
+      "total_chars": 4724,
+      "avg_chars_per_page": 1181
+    },
+    {
+      "filename": "2020_유승근_국방환경변화에따른국방M&S발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_유승근_국방환경변화에따른국방M&S발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.27,
+      "processed_date": "2026-02-02T23:30:10.546796",
+      "total_chars": 54,
+      "avg_chars_per_page": 14
+    },
+    {
+      "filename": "2020_윤형노_해양무인체계획득발전을위한정책제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_윤형노_해양무인체계획득발전을위한정책제언.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.99,
+      "processed_date": "2026-02-02T23:30:10.673628",
+      "total_chars": 37,
+      "avg_chars_per_page": 9
+    },
+    {
+      "filename": "2020_이남석_군시설물유지보수비집행관리개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이남석_군시설물유지보수비집행관리개선방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 6.47,
+      "processed_date": "2026-02-02T23:30:10.809020",
+      "total_chars": 26,
+      "avg_chars_per_page": 6
+    },
+    {
+      "filename": "2020_이상경_국방중기계획수립시방위산업육성을위해고려할사항.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이상경_국방중기계획수립시방위산업육성을위해고려할사항.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.68,
+      "processed_date": "2026-02-02T23:30:10.933641",
+      "total_chars": 52,
+      "avg_chars_per_page": 13
+    },
+    {
+      "filename": "2020_이성윤_2019-2033국방군수정책추진방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이성윤_2019-2033국방군수정책추진방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.89,
+      "processed_date": "2026-02-02T23:30:10.951514",
+      "total_chars": 5685,
+      "avg_chars_per_page": 1421
+    },
+    {
+      "filename": "2020_이영학_미중경쟁이북핵문제에미치는영향및시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이영학_미중경쟁이북핵문제에미치는영향및시사점.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:10.967309",
+      "total_chars": 4560,
+      "avg_chars_per_page": 1140
+    },
+    {
+      "filename": "2020_이윤호_국방M&S체계시험평가발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이윤호_국방M&S체계시험평가발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.98,
+      "processed_date": "2026-02-02T23:30:11.095758",
+      "total_chars": 59,
+      "avg_chars_per_page": 15
+    },
+    {
+      "filename": "2020_이윤호_병교육훈련을위한게임체계.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이윤호_병교육훈련을위한게임체계.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.113229",
+      "total_chars": 5100,
+      "avg_chars_per_page": 1275
+    },
+    {
+      "filename": "2020_이은아_수리부속재고관리모형개발연구(2019).pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이은아_수리부속재고관리모형개발연구(2019).pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.89,
+      "processed_date": "2026-02-02T23:30:11.131656",
+      "total_chars": 4545,
+      "avg_chars_per_page": 1136
+    },
+    {
+      "filename": "2020_이은정_2019국방인력운영분석과전망.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이은정_2019국방인력운영분석과전망.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 1.17,
+      "processed_date": "2026-02-02T23:30:11.150455",
+      "total_chars": 4533,
+      "avg_chars_per_page": 1133
+    },
+    {
+      "filename": "2020_이재욱_전력소요결정지원체계구축방안구상.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이재욱_전력소요결정지원체계구축방안구상.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.167111",
+      "total_chars": 5047,
+      "avg_chars_per_page": 1262
+    },
+    {
+      "filename": "2020_이준호_육군무기체계운영유지비자료관리체계발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이준호_육군무기체계운영유지비자료관리체계발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:11.184121",
+      "total_chars": 5121,
+      "avg_chars_per_page": 1280
+    },
+    {
+      "filename": "2020_이중구_북한비핵화-체제보장프로세스추진방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이중구_북한비핵화-체제보장프로세스추진방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.71,
+      "processed_date": "2026-02-02T23:30:11.306114",
+      "total_chars": 26,
+      "avg_chars_per_page": 6
+    },
+    {
+      "filename": "2020_이창형_한반도비핵화및평화체제를위한한중협력방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이창형_한반도비핵화및평화체제를위한한중협력방향연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:11.321054",
+      "total_chars": 4701,
+      "avg_chars_per_page": 1175
+    },
+    {
+      "filename": "2020_이현지_국방인력유형별합리적활용기준.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이현지_국방인력유형별합리적활용기준.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.336959",
+      "total_chars": 4889,
+      "avg_chars_per_page": 1222
+    },
+    {
+      "filename": "2020_이형로_2019수리부속수요예측모형개발연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_이형로_2019수리부속수요예측모형개발연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.86,
+      "processed_date": "2026-02-02T23:30:11.353493",
+      "total_chars": 4330,
+      "avg_chars_per_page": 1082
+    },
+    {
+      "filename": "2020_임재혁_우주작전지휘통제체계로서한국군C4I발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_임재혁_우주작전지휘통제체계로서한국군C4I발전방향연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.369467",
+      "total_chars": 5169,
+      "avg_chars_per_page": 1292
+    },
+    {
+      "filename": "2020_장지홍_무기체계관리운영체계구축방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_장지홍_무기체계관리운영체계구축방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.78,
+      "processed_date": "2026-02-02T23:30:11.487917",
+      "total_chars": 186,
+      "avg_chars_per_page": 46
+    },
+    {
+      "filename": "2020_전성진_직업군인주거안정을위한주거지원개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_전성진_직업군인주거안정을위한주거지원개선방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.503581",
+      "total_chars": 4800,
+      "avg_chars_per_page": 1200
+    },
+    {
+      "filename": "2020_정제령_전력기획체계발전방안능력평가를중심으로.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_정제령_전력기획체계발전방안능력평가를중심으로.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.79,
+      "processed_date": "2026-02-02T23:30:11.520437",
+      "total_chars": 4415,
+      "avg_chars_per_page": 1104
+    },
+    {
+      "filename": "2020_조성림_지능형군사정보발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_조성림_지능형군사정보발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 1.06,
+      "processed_date": "2026-02-02T23:30:11.536200",
+      "total_chars": 4105,
+      "avg_chars_per_page": 1026
+    },
+    {
+      "filename": "2020_지평기_사기측정결과활용체계발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_지평기_사기측정결과활용체계발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:11.550671",
+      "total_chars": 3853,
+      "avg_chars_per_page": 963
+    },
+    {
+      "filename": "2020_최수동_국직부대의군책임운영기관지정타당성및기대효과분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_최수동_국직부대의군책임운영기관지정타당성및기대효과분석.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 5.39,
+      "processed_date": "2026-02-02T23:30:11.666211",
+      "total_chars": 348,
+      "avg_chars_per_page": 87
+    },
+    {
+      "filename": "2020_최인수_스마트국방혁신을위한국방디지털전환추진방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_최인수_스마트국방혁신을위한국방디지털전환추진방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:11.682651",
+      "total_chars": 5426,
+      "avg_chars_per_page": 1356
+    },
+    {
+      "filename": "2020_홍숙지_2019국방사회조사통계사업.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2020_홍숙지_2019국방사회조사통계사업.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.82,
+      "processed_date": "2026-02-02T23:30:11.697393",
+      "total_chars": 4715,
+      "avg_chars_per_page": 1179
+    },
+    {
+      "filename": "2021_강석율_미국의인도-태평양전략과중동전략의연계성및시사점연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_강석율_미국의인도-태평양전략과중동전략의연계성및시사점연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.74,
+      "processed_date": "2026-02-02T23:30:11.713003",
+      "total_chars": 4917,
+      "avg_chars_per_page": 1229
+    },
+    {
+      "filename": "2021_강소영_주한미군기지반환지연의사회경제적영향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_강소영_주한미군기지반환지연의사회경제적영향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.728596",
+      "total_chars": 4421,
+      "avg_chars_per_page": 1105
+    },
+    {
+      "filename": "2021_김경곤_국가재난관리와연계한국방재난대응체계발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_김경곤_국가재난관리와연계한국방재난대응체계발전방향연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:11.743275",
+      "total_chars": 4331,
+      "avg_chars_per_page": 1083
+    },
+    {
+      "filename": "2021_김규현_국방개혁에따른군무원정책발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_김규현_국방개혁에따른군무원정책발전방향연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:11.757816",
+      "total_chars": 4648,
+      "avg_chars_per_page": 1162
+    },
+    {
+      "filename": "2021_김성진_사용자안전성을고려한무기체계획득업무개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_김성진_사용자안전성을고려한무기체계획득업무개선방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:11.772500",
+      "total_chars": 5029,
+      "avg_chars_per_page": 1257
+    },
+    {
+      "filename": "2021_김성진_상용드론의확보및운영방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_김성진_상용드론의확보및운영방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.788616",
+      "total_chars": 5061,
+      "avg_chars_per_page": 1265
+    },
+    {
+      "filename": "2021_김영도_군수기술정보의효율적관리활용을위한정보화발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_김영도_군수기술정보의효율적관리활용을위한정보화발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:11.804047",
+      "total_chars": 5555,
+      "avg_chars_per_page": 1389
+    },
+    {
+      "filename": "2021_김영봉_스마트국방혁신촉진을위한국방정보화추진체제발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_김영봉_스마트국방혁신촉진을위한국방정보화추진체제발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.820285",
+      "total_chars": 4433,
+      "avg_chars_per_page": 1108
+    },
+    {
+      "filename": "2021_김재동_미래군수환경에부합한인가저장품목선정체계개선연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_김재동_미래군수환경에부합한인가저장품목선정체계개선연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.79,
+      "processed_date": "2026-02-02T23:30:11.838069",
+      "total_chars": 4424,
+      "avg_chars_per_page": 1106
+    },
+    {
+      "filename": "2021_김진호_민군협력발전을위한군수산업연합회설립및활용방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_김진호_민군협력발전을위한군수산업연합회설립및활용방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.854105",
+      "total_chars": 4817,
+      "avg_chars_per_page": 1204
+    },
+    {
+      "filename": "2021_남기헌_2020년도국방과학기술정책과방위산업연례분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_남기헌_2020년도국방과학기술정책과방위산업연례분석.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:11.869591",
+      "total_chars": 5310,
+      "avg_chars_per_page": 1328
+    },
+    {
+      "filename": "2021_문홍구_2020수리부속소요산정모형개발연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_문홍구_2020수리부속소요산정모형개발연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:11.884022",
+      "total_chars": 4247,
+      "avg_chars_per_page": 1062
+    },
+    {
+      "filename": "2021_박대광_우주선진국간지구저궤도초대형군집위성구축경쟁의정책적합의.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_박대광_우주선진국간지구저궤도초대형군집위성구축경쟁의정책적합의.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:11.899028",
+      "total_chars": 5027,
+      "avg_chars_per_page": 1257
+    },
+    {
+      "filename": "2021_박대광_하노이이후최선의대남접근법에대한북한의신념체계와정책적함의.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_박대광_하노이이후최선의대남접근법에대한북한의신념체계와정책적함의.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:11.915030",
+      "total_chars": 4993,
+      "avg_chars_per_page": 1248
+    },
+    {
+      "filename": "2021_박문언_장병의자율과책임확대를위한지휘책임제도재정립연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_박문언_장병의자율과책임확대를위한지휘책임제도재정립연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:11.931650",
+      "total_chars": 4905,
+      "avg_chars_per_page": 1226
+    },
+    {
+      "filename": "2021_박준수_방위산업의새로운도약을위한혁신생태계발전연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_박준수_방위산업의새로운도약을위한혁신생태계발전연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.76,
+      "processed_date": "2026-02-02T23:30:11.947569",
+      "total_chars": 4886,
+      "avg_chars_per_page": 1222
+    },
+    {
+      "filename": "2021_박지훈_한국군공중중계전력발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_박지훈_한국군공중중계전력발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:11.961787",
+      "total_chars": 4093,
+      "avg_chars_per_page": 1023
+    },
+    {
+      "filename": "2021_박찬빈_병무청인지능력검사개선연구(Ⅱ).pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_박찬빈_병무청인지능력검사개선연구(Ⅱ).pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.68,
+      "processed_date": "2026-02-02T23:30:11.975602",
+      "total_chars": 4679,
+      "avg_chars_per_page": 1170
+    },
+    {
+      "filename": "2021_박홍석_연구개발사업개발시험평가신뢰성강화방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_박홍석_연구개발사업개발시험평가신뢰성강화방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:11.990047",
+      "total_chars": 4413,
+      "avg_chars_per_page": 1103
+    },
+    {
+      "filename": "2021_서영보_전시보충소요기준산정업무발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_서영보_전시보충소요기준산정업무발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.005126",
+      "total_chars": 4476,
+      "avg_chars_per_page": 1119
+    },
+    {
+      "filename": "2021_선미선_2020공군무기체계운영유지비분석방법연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_선미선_2020공군무기체계운영유지비분석방법연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.74,
+      "processed_date": "2026-02-02T23:30:12.020957",
+      "total_chars": 5427,
+      "avg_chars_per_page": 1357
+    },
+    {
+      "filename": "2021_선미선_2020해군무기체계운영유지비분석방법연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_선미선_2020해군무기체계운영유지비분석방법연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:12.038033",
+      "total_chars": 5773,
+      "avg_chars_per_page": 1443
+    },
+    {
+      "filename": "2021_선병근_국방전력지원체계획득업무발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_선병근_국방전력지원체계획득업무발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:12.053018",
+      "total_chars": 4855,
+      "avg_chars_per_page": 1214
+    },
+    {
+      "filename": "2021_선병근_조달청을통한국방조달업무발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_선병근_조달청을통한국방조달업무발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.067563",
+      "total_chars": 4094,
+      "avg_chars_per_page": 1024
+    },
+    {
+      "filename": "2021_신다윗_군문화예술실태와추진과제.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_신다윗_군문화예술실태와추진과제.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:12.083965",
+      "total_chars": 4617,
+      "avg_chars_per_page": 1154
+    },
+    {
+      "filename": "2021_심송보_전력운영분야효율성추정을위한제언.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_심송보_전력운영분야효율성추정을위한제언.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.098527",
+      "total_chars": 3718,
+      "avg_chars_per_page": 930
+    },
+    {
+      "filename": "2021_심승배_국방정보화법개정을통한디지털국방구현.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_심승배_국방정보화법개정을통한디지털국방구현.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:12.114859",
+      "total_chars": 4906,
+      "avg_chars_per_page": 1226
+    },
+    {
+      "filename": "2021_심승배_국방정보화추진성과분석관리방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_심승배_국방정보화추진성과분석관리방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:12.132539",
+      "total_chars": 4661,
+      "avg_chars_per_page": 1165
+    },
+    {
+      "filename": "2021_안병오_미국의新C4I정책과연계한연합C4I체계발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_안병오_미국의新C4I정책과연계한연합C4I체계발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:12.147722",
+      "total_chars": 5087,
+      "avg_chars_per_page": 1272
+    },
+    {
+      "filename": "2021_안석기_미래환경변화에부합된국방인사정책발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_안석기_미래환경변화에부합된국방인사정책발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:12.165668",
+      "total_chars": 5531,
+      "avg_chars_per_page": 1383
+    },
+    {
+      "filename": "2021_양영철_국방전력발전업무훈령체계정비방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_양영철_국방전력발전업무훈령체계정비방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.181176",
+      "total_chars": 5532,
+      "avg_chars_per_page": 1383
+    },
+    {
+      "filename": "2021_양영철_미국중간단계획득제도(MTA)를고려한획득체계개선방안제안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_양영철_미국중간단계획득제도(MTA)를고려한획득체계개선방안제안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:12.198083",
+      "total_chars": 5095,
+      "avg_chars_per_page": 1274
+    },
+    {
+      "filename": "2021_오병훈_드론봇전투체계후속군수지원방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_오병훈_드론봇전투체계후속군수지원방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:12.212862",
+      "total_chars": 5024,
+      "avg_chars_per_page": 1256
+    },
+    {
+      "filename": "2021_우제웅_국방부프로그램성과관리를위한성과목표및지표연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_우제웅_국방부프로그램성과관리를위한성과목표및지표연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.227588",
+      "total_chars": 5418,
+      "avg_chars_per_page": 1354
+    },
+    {
+      "filename": "2021_유승근_감염병위협의군사적피해분석방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_유승근_감염병위협의군사적피해분석방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.68,
+      "processed_date": "2026-02-02T23:30:12.241106",
+      "total_chars": 4226,
+      "avg_chars_per_page": 1056
+    },
+    {
+      "filename": "2021_이상국_중국군의합동작전구성요소와주요무기체계.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_이상국_중국군의합동작전구성요소와주요무기체계.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:12.257198",
+      "total_chars": 4039,
+      "avg_chars_per_page": 1010
+    },
+    {
+      "filename": "2021_이성윤_군시설관리에민간인력의효율적활용.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_이성윤_군시설관리에민간인력의효율적활용.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.74,
+      "processed_date": "2026-02-02T23:30:12.272688",
+      "total_chars": 4551,
+      "avg_chars_per_page": 1138
+    },
+    {
+      "filename": "2021_이승우_한국군의무기추천역량강화를위한한국형합동무기추천체계.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_이승우_한국군의무기추천역량강화를위한한국형합동무기추천체계.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.74,
+      "processed_date": "2026-02-02T23:30:12.288224",
+      "total_chars": 4449,
+      "avg_chars_per_page": 1112
+    },
+    {
+      "filename": "2021_이준호_2020육군무기체계운영유지비분석방법연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_이준호_2020육군무기체계운영유지비분석방법연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:12.304969",
+      "total_chars": 6565,
+      "avg_chars_per_page": 1641
+    },
+    {
+      "filename": "2021_이중구_경제집중노선에따른북한의남북군비통제입장전망.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_이중구_경제집중노선에따른북한의남북군비통제입장전망.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:12.321244",
+      "total_chars": 5344,
+      "avg_chars_per_page": 1336
+    },
+    {
+      "filename": "2021_이중구_미중관계에따른남북한대응전략변화연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_이중구_미중관계에따른남북한대응전략변화연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:12.337377",
+      "total_chars": 4842,
+      "avg_chars_per_page": 1210
+    },
+    {
+      "filename": "2021_이호령_김정은시대의권력엘리트변화와특징.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_이호령_김정은시대의권력엘리트변화와특징.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:12.352737",
+      "total_chars": 4490,
+      "avg_chars_per_page": 1122
+    },
+    {
+      "filename": "2021_정제령_작전효과관점에서의국방AI발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_정제령_작전효과관점에서의국방AI발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.369628",
+      "total_chars": 4915,
+      "avg_chars_per_page": 1229
+    },
+    {
+      "filename": "2021_조비연_국방백서발간심층연구발간목적주기분량및형태검토.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_조비연_국방백서발간심층연구발간목적주기분량및형태검토.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:12.385473",
+      "total_chars": 5552,
+      "avg_chars_per_page": 1388
+    },
+    {
+      "filename": "2021_지평기_사기측정개선연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_지평기_사기측정개선연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.400102",
+      "total_chars": 4093,
+      "avg_chars_per_page": 1023
+    },
+    {
+      "filename": "2021_최인수_국방사이버작전능력평가체계연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_최인수_국방사이버작전능력평가체계연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:12.416771",
+      "total_chars": 4415,
+      "avg_chars_per_page": 1104
+    },
+    {
+      "filename": "2021_홍석수_국방전력운영사업사전타당성검토및심층평가제도발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_홍석수_국방전력운영사업사전타당성검토및심층평가제도발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:12.433330",
+      "total_chars": 5217,
+      "avg_chars_per_page": 1304
+    },
+    {
+      "filename": "2021_홍숙지_2020국방사회조사통계사업.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_홍숙지_2020국방사회조사통계사업.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.78,
+      "processed_date": "2026-02-02T23:30:12.447294",
+      "total_chars": 4248,
+      "avg_chars_per_page": 1062
+    },
+    {
+      "filename": "2021_홍우택_북한의핵사용의지평가체계.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_홍우택_북한의핵사용의지평가체계.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:12.462740",
+      "total_chars": 4732,
+      "avg_chars_per_page": 1183
+    },
+    {
+      "filename": "2021_홍정희_한국군전장환경에서의데이터중심정보공유개선방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2021_홍정희_한국군전장환경에서의데이터중심정보공유개선방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.77,
+      "processed_date": "2026-02-02T23:30:12.477552",
+      "total_chars": 4551,
+      "avg_chars_per_page": 1138
+    },
+    {
+      "filename": "2022_강석율_미국의3차상쇄전략추진동향과시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_강석율_미국의3차상쇄전략추진동향과시사점.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.492597",
+      "total_chars": 5313,
+      "avg_chars_per_page": 1328
+    },
+    {
+      "filename": "2022_김기범_미국핵전략변화의대북확장억제태세에의영향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_김기범_미국핵전략변화의대북확장억제태세에의영향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:12.507831",
+      "total_chars": 5464,
+      "avg_chars_per_page": 1366
+    },
+    {
+      "filename": "2022_김성태_국방데이터활용활성화발전전략수립연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_김성태_국방데이터활용활성화발전전략수립연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:12.523375",
+      "total_chars": 4915,
+      "avg_chars_per_page": 1229
+    },
+    {
+      "filename": "2022_김재동_공군항공정비창특성화발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_김재동_공군항공정비창특성화발전방향연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.56,
+      "processed_date": "2026-02-02T23:30:12.539198",
+      "total_chars": 4604,
+      "avg_chars_per_page": 1151
+    },
+    {
+      "filename": "2022_남기헌_2021년도국방과학기술정책과방위산업연례분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_남기헌_2021년도국방과학기술정책과방위산업연례분석.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:12.554693",
+      "total_chars": 4953,
+      "avg_chars_per_page": 1238
+    },
+    {
+      "filename": "2022_독고순_국방에서의젠더이슈여성징병제논의의구조와전망.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_독고순_국방에서의젠더이슈여성징병제논의의구조와전망.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:12.570149",
+      "total_chars": 4954,
+      "avg_chars_per_page": 1238
+    },
+    {
+      "filename": "2022_선병근_우수전력지원체계조달을위한품질보증활동발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_선병근_우수전력지원체계조달을위한품질보증활동발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.54,
+      "processed_date": "2026-02-02T23:30:12.584886",
+      "total_chars": 5165,
+      "avg_chars_per_page": 1291
+    },
+    {
+      "filename": "2022_신승기_북한극초음속미사일개발전망및대응방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_신승기_북한극초음속미사일개발전망및대응방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:12.600692",
+      "total_chars": 5248,
+      "avg_chars_per_page": 1312
+    },
+    {
+      "filename": "2022_신용주_감염병위협대비정보시스템가용성유지방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_신용주_감염병위협대비정보시스템가용성유지방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:12.615071",
+      "total_chars": 4522,
+      "avg_chars_per_page": 1130
+    },
+    {
+      "filename": "2022_심승배_국방정보화추진성과분석및DNAS기술분야별추진과제도출.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_심승배_국방정보화추진성과분석및DNAS기술분야별추진과제도출.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.94,
+      "processed_date": "2026-02-02T23:30:12.633470",
+      "total_chars": 4566,
+      "avg_chars_per_page": 1142
+    },
+    {
+      "filename": "2022_양영철_인공지능기술적용전력의획득체계정립방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_양영철_인공지능기술적용전력의획득체계정립방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.7,
+      "processed_date": "2026-02-02T23:30:12.648180",
+      "total_chars": 4698,
+      "avg_chars_per_page": 1174
+    },
+    {
+      "filename": "2022_이남석_군무원주거지원필요성과개선방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_이남석_군무원주거지원필요성과개선방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:12.663720",
+      "total_chars": 5226,
+      "avg_chars_per_page": 1306
+    },
+    {
+      "filename": "2022_이상국_(인공)지능시대한국의국방력건설방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_이상국_(인공)지능시대한국의국방력건설방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:12.680463",
+      "total_chars": 4925,
+      "avg_chars_per_page": 1231
+    },
+    {
+      "filename": "2022_이성윤_총수명주기관리개념을적용한부품관리정책연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_이성윤_총수명주기관리개념을적용한부품관리정책연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:12.698574",
+      "total_chars": 5619,
+      "avg_chars_per_page": 1405
+    },
+    {
+      "filename": "2022_이수훈_미국신행정부의아태지역안보국방정책분석과전망.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_이수훈_미국신행정부의아태지역안보국방정책분석과전망.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:12.713723",
+      "total_chars": 4425,
+      "avg_chars_per_page": 1106
+    },
+    {
+      "filename": "2022_이준호_TLCSM구현을위한군수혁신조직편성방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_이준호_TLCSM구현을위한군수혁신조직편성방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:12.729835",
+      "total_chars": 5225,
+      "avg_chars_per_page": 1306
+    },
+    {
+      "filename": "2022_이호령_김정은집권10년군사정책평가와전망.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_이호령_김정은집권10년군사정책평가와전망.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:12.745172",
+      "total_chars": 4877,
+      "avg_chars_per_page": 1219
+    },
+    {
+      "filename": "2022_장지홍_국방예산분석평가및전망(2021).pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_장지홍_국방예산분석평가및전망(2021).pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.33,
+      "processed_date": "2026-02-02T23:30:12.760512",
+      "total_chars": 4894,
+      "avg_chars_per_page": 1224
+    },
+    {
+      "filename": "2022_장혜진_2021년세계분쟁현황및주요쟁점분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_장혜진_2021년세계분쟁현황및주요쟁점분석.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:12.776486",
+      "total_chars": 5656,
+      "avg_chars_per_page": 1414
+    },
+    {
+      "filename": "2022_조비연_나토식핵공유체제의대안모색.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_조비연_나토식핵공유체제의대안모색.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:12.792844",
+      "total_chars": 6009,
+      "avg_chars_per_page": 1502
+    },
+    {
+      "filename": "2022_조성림_스마트국방혁신표준플랫폼연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_조성림_스마트국방혁신표준플랫폼연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 1.3,
+      "processed_date": "2026-02-02T23:30:12.820946",
+      "total_chars": 5595,
+      "avg_chars_per_page": 1399
+    },
+    {
+      "filename": "2022_황인빈_업체제안형진화적개발을통한성능개량활성화방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2022_황인빈_업체제안형진화적개발을통한성능개량활성화방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.75,
+      "processed_date": "2026-02-02T23:30:12.836886",
+      "total_chars": 5083,
+      "avg_chars_per_page": 1271
+    },
+    {
+      "filename": "2023_강석율_미국의대중국통합억제력구축동향과한미동맹에대한시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_강석율_미국의대중국통합억제력구축동향과한미동맹에대한시사점.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.53,
+      "processed_date": "2026-02-02T23:30:12.855384",
+      "total_chars": 4506,
+      "avg_chars_per_page": 1126
+    },
+    {
+      "filename": "2023_권남연_성과기반군수지원(PBL)사업의비용판단표준화방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_권남연_성과기반군수지원(PBL)사업의비용판단표준화방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:12.870995",
+      "total_chars": 5092,
+      "avg_chars_per_page": 1273
+    },
+    {
+      "filename": "2023_김기원_한국형3축체계강화어떻게할것인가.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_김기원_한국형3축체계강화어떻게할것인가.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.32,
+      "processed_date": "2026-02-02T23:30:12.885531",
+      "total_chars": 4842,
+      "avg_chars_per_page": 1210
+    },
+    {
+      "filename": "2023_김영곤_'23~'27년군인복무기본정책서사전연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_김영곤_'23~'27년군인복무기본정책서사전연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.51,
+      "processed_date": "2026-02-02T23:30:12.901413",
+      "total_chars": 5107,
+      "avg_chars_per_page": 1277
+    },
+    {
+      "filename": "2023_김진호_간부보충피복판매소의운영효율화방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_김진호_간부보충피복판매소의운영효율화방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:12.916589",
+      "total_chars": 5234,
+      "avg_chars_per_page": 1308
+    },
+    {
+      "filename": "2023_독고순_국방에서의문화논의와과제.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_독고순_국방에서의문화논의와과제.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.32,
+      "processed_date": "2026-02-02T23:30:12.931280",
+      "total_chars": 4980,
+      "avg_chars_per_page": 1245
+    },
+    {
+      "filename": "2023_두진호_우크라이나사태의파장과한반도에대한시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_두진호_우크라이나사태의파장과한반도에대한시사점.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.5,
+      "processed_date": "2026-02-02T23:30:12.946204",
+      "total_chars": 4867,
+      "avg_chars_per_page": 1217
+    },
+    {
+      "filename": "2023_서정훈_병사피복류보급기준정립방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_서정훈_병사피복류보급기준정립방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:12.961282",
+      "total_chars": 4943,
+      "avg_chars_per_page": 1236
+    },
+    {
+      "filename": "2023_신용주_국방사이버인력고도화전략.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_신용주_국방사이버인력고도화전략.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.3,
+      "processed_date": "2026-02-02T23:30:12.975175",
+      "total_chars": 4739,
+      "avg_chars_per_page": 1185
+    },
+    {
+      "filename": "2023_안병오_전영역통합작전을위한한국군합동지휘통제체계발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_안병오_전영역통합작전을위한한국군합동지휘통제체계발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:12.990180",
+      "total_chars": 5540,
+      "avg_chars_per_page": 1385
+    },
+    {
+      "filename": "2023_오혜_군인재해보상제도발전방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_오혜_군인재해보상제도발전방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.49,
+      "processed_date": "2026-02-02T23:30:13.005286",
+      "total_chars": 5252,
+      "avg_chars_per_page": 1313
+    },
+    {
+      "filename": "2023_장혜진_2022년세계분쟁분석러시아-우크라이나전쟁과세계분쟁.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_장혜진_2022년세계분쟁분석러시아-우크라이나전쟁과세계분쟁.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.32,
+      "processed_date": "2026-02-02T23:30:13.019724",
+      "total_chars": 4879,
+      "avg_chars_per_page": 1220
+    },
+    {
+      "filename": "2023_편도후_국방우주주파수획득및관리발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2023_편도후_국방우주주파수획득및관리발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.48,
+      "processed_date": "2026-02-02T23:30:13.034543",
+      "total_chars": 4437,
+      "avg_chars_per_page": 1109
+    },
+    {
+      "filename": "2024_고현호_국방지능정보화종합계획추진을위한발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_고현호_국방지능정보화종합계획추진을위한발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:13.050893",
+      "total_chars": 4109,
+      "avg_chars_per_page": 1027
+    },
+    {
+      "filename": "2024_김동범_전력화장비후속지원사업개선방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_김동범_전력화장비후속지원사업개선방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.58,
+      "processed_date": "2026-02-02T23:30:13.068295",
+      "total_chars": 5126,
+      "avg_chars_per_page": 1282
+    },
+    {
+      "filename": "2024_김영도_국방데이터발전방향중장기정책방향과과제.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_김영도_국방데이터발전방향중장기정책방향과과제.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:13.082961",
+      "total_chars": 4987,
+      "avg_chars_per_page": 1247
+    },
+    {
+      "filename": "2024_안광수_전략기획의이론과우리군의적용연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_안광수_전략기획의이론과우리군의적용연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.92,
+      "processed_date": "2026-02-02T23:30:13.097648",
+      "total_chars": 4610,
+      "avg_chars_per_page": 1152
+    },
+    {
+      "filename": "2024_양영철_국방과학기술기술소유권정책발전방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_양영철_국방과학기술기술소유권정책발전방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:13.112577",
+      "total_chars": 4796,
+      "avg_chars_per_page": 1199
+    },
+    {
+      "filename": "2024_이강규_미중의국제평화활동분석및시사점.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_이강규_미중의국제평화활동분석및시사점.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.59,
+      "processed_date": "2026-02-02T23:30:13.129150",
+      "total_chars": 3588,
+      "avg_chars_per_page": 897
+    },
+    {
+      "filename": "2024_이준호_2023-2037국방군수정책발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_이준호_2023-2037국방군수정책발전방향.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 1.01,
+      "processed_date": "2026-02-02T23:30:13.148300",
+      "total_chars": 5451,
+      "avg_chars_per_page": 1363
+    },
+    {
+      "filename": "2024_이중구_미중전략경쟁하갈등시나리오와파급효과연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_이중구_미중전략경쟁하갈등시나리오와파급효과연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.73,
+      "processed_date": "2026-02-02T23:30:13.165035",
+      "total_chars": 5254,
+      "avg_chars_per_page": 1314
+    },
+    {
+      "filename": "2024_조성림_국방데이터관리및분석플랫폼구축방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_조성림_국방데이터관리및분석플랫폼구축방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 1.16,
+      "processed_date": "2026-02-02T23:30:13.179087",
+      "total_chars": 3086,
+      "avg_chars_per_page": 772
+    },
+    {
+      "filename": "2024_황인빈_2023국방과학기술정책과방위산업연례분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_황인빈_2023국방과학기술정책과방위산업연례분석.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.72,
+      "processed_date": "2026-02-02T23:30:13.194839",
+      "total_chars": 4904,
+      "avg_chars_per_page": 1226
+    },
+    {
+      "filename": "2024_황인빈_2024국방과학기술정책과방위산업연례분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2024_황인빈_2024국방과학기술정책과방위산업연례분석.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.44,
+      "processed_date": "2026-02-02T23:30:13.211095",
+      "total_chars": 5183,
+      "avg_chars_per_page": 1296
+    },
+    {
+      "filename": "2025_권남연_우리군RAM-C발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2025_권남연_우리군RAM-C발전방향연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.53,
+      "processed_date": "2026-02-02T23:30:13.228521",
+      "total_chars": 5259,
+      "avg_chars_per_page": 1315
+    },
+    {
+      "filename": "2025_김기원_신영역작전개념과연계한한반도미사일전략연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2025_김기원_신영역작전개념과연계한한반도미사일전략연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.67,
+      "processed_date": "2026-02-02T23:30:13.262812",
+      "total_chars": 4826,
+      "avg_chars_per_page": 1206
+    },
+    {
+      "filename": "2025_김성태_스마트부대구축사업성과분석연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2025_김성태_스마트부대구축사업성과분석연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.56,
+      "processed_date": "2026-02-02T23:30:13.319871",
+      "total_chars": 4086,
+      "avg_chars_per_page": 1022
+    },
+    {
+      "filename": "2025_김영도_신뢰할수있는국방AI구현방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2025_김영도_신뢰할수있는국방AI구현방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.53,
+      "processed_date": "2026-02-02T23:30:13.337058",
+      "total_chars": 4587,
+      "avg_chars_per_page": 1147
+    },
+    {
+      "filename": "2025_유승근_생성형AI를활용한워게임수행방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2025_유승근_생성형AI를활용한워게임수행방안연구.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.68,
+      "processed_date": "2026-02-02T23:30:13.355885",
+      "total_chars": 5259,
+      "avg_chars_per_page": 1315
+    },
+    {
+      "filename": "2025_유승근_탄도미사일요격훈련추진방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2025_유승근_탄도미사일요격훈련추진방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.53,
+      "processed_date": "2026-02-02T23:30:13.372666",
+      "total_chars": 5231,
+      "avg_chars_per_page": 1308
+    },
+    {
+      "filename": "2025_조성림_AI기반차세대지휘통제체계(KCCS)의데이터통합방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/Brief/2025_조성림_AI기반차세대지휘통제체계(KCCS)의데이터통합방안.pdf",
+      "category": "Brief",
+      "num_pages": 4,
+      "file_size_mb": 0.71,
+      "processed_date": "2026-02-02T23:30:13.388902",
+      "total_chars": 4341,
+      "avg_chars_per_page": 1085
+    },
+    {
+      "filename": "2023_권현진_단기복무간부획득을위한정책발전방향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_권현진_단기복무간부획득을위한정책발전방향.pdf",
+      "category": "연구보고서",
+      "num_pages": 206,
+      "file_size_mb": 3.82,
+      "processed_date": "2026-02-02T23:30:13.678767",
+      "total_chars": 209569,
+      "avg_chars_per_page": 1017
+    },
+    {
+      "filename": "2023_김기원_신영역작전수행개념과연계한한반도미사일전략발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_김기원_신영역작전수행개념과연계한한반도미사일전략발전방향연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 184,
+      "file_size_mb": 6.99,
+      "processed_date": "2026-02-02T23:30:13.965739",
+      "total_chars": 237853,
+      "avg_chars_per_page": 1293
+    },
+    {
+      "filename": "2023_김종회_기계학습기반신속통합분석연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_김종회_기계학습기반신속통합분석연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 3,
+      "file_size_mb": 0.1,
+      "processed_date": "2026-02-02T23:30:13.972805",
+      "total_chars": 1083,
+      "avg_chars_per_page": 361
+    },
+    {
+      "filename": "2023_남기헌_국방소프트웨어획득제도정비방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_남기헌_국방소프트웨어획득제도정비방안.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.27,
+      "processed_date": "2026-02-02T23:30:13.983068",
+      "total_chars": 5213,
+      "avg_chars_per_page": 869
+    },
+    {
+      "filename": "2023_노인규_러시아-우크라이나전쟁종전구상논의와전쟁의향방.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_노인규_러시아-우크라이나전쟁종전구상논의와전쟁의향방.pdf",
+      "category": "연구보고서",
+      "num_pages": 82,
+      "file_size_mb": 1.01,
+      "processed_date": "2026-02-02T23:30:14.340918",
+      "total_chars": 75104,
+      "avg_chars_per_page": 916
+    },
+    {
+      "filename": "2023_독고순_한국의사회문화적이슈가군에미친영향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_독고순_한국의사회문화적이슈가군에미친영향.pdf",
+      "category": "연구보고서",
+      "num_pages": 166,
+      "file_size_mb": 1.64,
+      "processed_date": "2026-02-02T23:30:14.596753",
+      "total_chars": 195115,
+      "avg_chars_per_page": 1175
+    },
+    {
+      "filename": "2023_박상현_핵보유국의핵정책비교연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_박상현_핵보유국의핵정책비교연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 85,
+      "file_size_mb": 0.89,
+      "processed_date": "2026-02-02T23:30:14.701037",
+      "total_chars": 84726,
+      "avg_chars_per_page": 997
+    },
+    {
+      "filename": "2023_박찬우_시나리오설계방안구상.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_박찬우_시나리오설계방안구상.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.14,
+      "processed_date": "2026-02-02T23:30:14.710250",
+      "total_chars": 4361,
+      "avg_chars_per_page": 727
+    },
+    {
+      "filename": "2023_부형욱_북핵고도화대응전략구상한국형핵공유옵션과핵협상에의활용.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_부형욱_북핵고도화대응전략구상한국형핵공유옵션과핵협상에의활용.pdf",
+      "category": "연구보고서",
+      "num_pages": 54,
+      "file_size_mb": 0.43,
+      "processed_date": "2026-02-02T23:30:14.769219",
+      "total_chars": 50841,
+      "avg_chars_per_page": 942
+    },
+    {
+      "filename": "2023_서영보_미래국방전력발전을위한군사력분석및평가.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_서영보_미래국방전력발전을위한군사력분석및평가.pdf",
+      "category": "연구보고서",
+      "num_pages": 5,
+      "file_size_mb": 0.13,
+      "processed_date": "2026-02-02T23:30:14.779213",
+      "total_chars": 2958,
+      "avg_chars_per_page": 592
+    },
+    {
+      "filename": "2023_선병근_국방규격목록업무발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_선병근_국방규격목록업무발전방향연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 99,
+      "file_size_mb": 1.19,
+      "processed_date": "2026-02-02T23:30:14.889091",
+      "total_chars": 77426,
+      "avg_chars_per_page": 782
+    },
+    {
+      "filename": "2023_손효종_2023~2027북한전략동향및위협 평가(I).pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_손효종_2023~2027북한전략동향및위협 평가(I).pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.37,
+      "processed_date": "2026-02-02T23:30:14.900657",
+      "total_chars": 3693,
+      "avg_chars_per_page": 616
+    },
+    {
+      "filename": "2023_송병규_획득사업비용분석체계정립.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_송병규_획득사업비용분석체계정립.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.26,
+      "processed_date": "2026-02-02T23:30:14.909324",
+      "total_chars": 3586,
+      "avg_chars_per_page": 598
+    },
+    {
+      "filename": "2023_심승배_국방정책AI개념설계연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_심승배_국방정책AI개념설계연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.27,
+      "processed_date": "2026-02-02T23:30:14.919844",
+      "total_chars": 4143,
+      "avg_chars_per_page": 690
+    },
+    {
+      "filename": "2023_양영철_국방과학기술소유권의민간이전방안검토.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_양영철_국방과학기술소유권의민간이전방안검토.pdf",
+      "category": "연구보고서",
+      "num_pages": 85,
+      "file_size_mb": 1.47,
+      "processed_date": "2026-02-02T23:30:15.018914",
+      "total_chars": 74689,
+      "avg_chars_per_page": 879
+    },
+    {
+      "filename": "2023_오혜_미래국방환경에부합한군무원의역할활용분야정립.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_오혜_미래국방환경에부합한군무원의역할활용분야정립.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 4.86,
+      "processed_date": "2026-02-02T23:30:15.128475",
+      "total_chars": 57,
+      "avg_chars_per_page": 10
+    },
+    {
+      "filename": "2023_유기현_인공지능(AI)과전쟁패러다임변화연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_유기현_인공지능(AI)과전쟁패러다임변화연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 4,
+      "file_size_mb": 0.28,
+      "processed_date": "2026-02-02T23:30:15.136369",
+      "total_chars": 2869,
+      "avg_chars_per_page": 717
+    },
+    {
+      "filename": "2023_이상국_인태지역주요군사력과전략동향.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_이상국_인태지역주요군사력과전략동향.pdf",
+      "category": "연구보고서",
+      "num_pages": 521,
+      "file_size_mb": 11.21,
+      "processed_date": "2026-02-02T23:30:16.120550",
+      "total_chars": 634569,
+      "avg_chars_per_page": 1218
+    },
+    {
+      "filename": "2023_이중구_인공지능기반북한군사정세분석시범연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_이중구_인공지능기반북한군사정세분석시범연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 144,
+      "file_size_mb": 2.55,
+      "processed_date": "2026-02-02T23:30:16.303786",
+      "total_chars": 139673,
+      "avg_chars_per_page": 970
+    },
+    {
+      "filename": "2023_장혜진_2023세계분쟁의분석및전망.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_장혜진_2023세계분쟁의분석및전망.pdf",
+      "category": "연구보고서",
+      "num_pages": 98,
+      "file_size_mb": 0.95,
+      "processed_date": "2026-02-02T23:30:16.455441",
+      "total_chars": 119567,
+      "avg_chars_per_page": 1220
+    },
+    {
+      "filename": "2023_정희원_국방예산분석평가및전망(2023).pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_정희원_국방예산분석평가및전망(2023).pdf",
+      "category": "연구보고서",
+      "num_pages": 273,
+      "file_size_mb": 4.07,
+      "processed_date": "2026-02-02T23:30:16.795096",
+      "total_chars": 262128,
+      "avg_chars_per_page": 960
+    },
+    {
+      "filename": "2023_조비연_1960년대나토핵기획그룹(NPG)의태동기와한미확장억제에의함의.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_조비연_1960년대나토핵기획그룹(NPG)의태동기와한미확장억제에의함의.pdf",
+      "category": "연구보고서",
+      "num_pages": 37,
+      "file_size_mb": 0.47,
+      "processed_date": "2026-02-02T23:30:16.847149",
+      "total_chars": 35524,
+      "avg_chars_per_page": 960
+    },
+    {
+      "filename": "2023_조홍일_미래우주전에대한고찰.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_조홍일_미래우주전에대한고찰.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.15,
+      "processed_date": "2026-02-02T23:30:16.855810",
+      "total_chars": 4005,
+      "avg_chars_per_page": 668
+    },
+    {
+      "filename": "2023_황인빈_2023국방과학기술정책과방위산업연례분석.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2023_황인빈_2023국방과학기술정책과방위산업연례분석.pdf",
+      "category": "연구보고서",
+      "num_pages": 185,
+      "file_size_mb": 8.59,
+      "processed_date": "2026-02-02T23:30:17.166407",
+      "total_chars": 161474,
+      "avg_chars_per_page": 873
+    },
+    {
+      "filename": "2024_권현진_국방인력정책의사결정지원을위한비용분석연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_권현진_국방인력정책의사결정지원을위한비용분석연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 139,
+      "file_size_mb": 3.13,
+      "processed_date": "2026-02-02T23:30:17.357986",
+      "total_chars": 130042,
+      "avg_chars_per_page": 936
+    },
+    {
+      "filename": "2024_김성태_24년국방정보화성과분석연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_김성태_24년국방정보화성과분석연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 10,
+      "file_size_mb": 0.3,
+      "processed_date": "2026-02-02T23:30:17.372740",
+      "total_chars": 6580,
+      "avg_chars_per_page": 658
+    },
+    {
+      "filename": "2024_김성현_정신전력교육발전을위한평가도구개발연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_김성현_정신전력교육발전을위한평가도구개발연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 474,
+      "file_size_mb": 6.88,
+      "processed_date": "2026-02-02T23:30:18.337561",
+      "total_chars": 719270,
+      "avg_chars_per_page": 1517
+    },
+    {
+      "filename": "2024_김재성_국방AI기술적용확대와인력대체가능성추정연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_김재성_국방AI기술적용확대와인력대체가능성추정연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 227,
+      "file_size_mb": 6.25,
+      "processed_date": "2026-02-02T23:30:18.652343",
+      "total_chars": 279646,
+      "avg_chars_per_page": 1232
+    },
+    {
+      "filename": "2024_심승배_정책연구분야별AI적용발전방향연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_심승배_정책연구분야별AI적용발전방향연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 4,
+      "file_size_mb": 0.19,
+      "processed_date": "2026-02-02T23:30:18.660755",
+      "total_chars": 1230,
+      "avg_chars_per_page": 308
+    },
+    {
+      "filename": "2024_안석기_군간부전체계급에대한정년연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_안석기_군간부전체계급에대한정년연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.27,
+      "processed_date": "2026-02-02T23:30:18.669689",
+      "total_chars": 3534,
+      "avg_chars_per_page": 589
+    },
+    {
+      "filename": "2024_우정범_미래환경변화에부합하는민군상생복합도시기본모델.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_우정범_미래환경변화에부합하는민군상생복합도시기본모델.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.29,
+      "processed_date": "2026-02-02T23:30:18.678722",
+      "total_chars": 3932,
+      "avg_chars_per_page": 655
+    },
+    {
+      "filename": "2024_유승근_생성형AI를활용한워게임수행방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_유승근_생성형AI를활용한워게임수행방안연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 4,
+      "file_size_mb": 0.24,
+      "processed_date": "2026-02-02T23:30:18.684804",
+      "total_chars": 1508,
+      "avg_chars_per_page": 377
+    },
+    {
+      "filename": "2024_이인구_사회변화에따른병역제도운용방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_이인구_사회변화에따른병역제도운용방안.pdf",
+      "category": "연구보고서",
+      "num_pages": 33,
+      "file_size_mb": 0.29,
+      "processed_date": "2026-02-02T23:30:18.719714",
+      "total_chars": 23994,
+      "avg_chars_per_page": 727
+    },
+    {
+      "filename": "2024_이종화_사례분석을통한인지전수행개념연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_이종화_사례분석을통한인지전수행개념연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 5,
+      "file_size_mb": 0.28,
+      "processed_date": "2026-02-02T23:30:18.728531",
+      "total_chars": 3344,
+      "avg_chars_per_page": 669
+    },
+    {
+      "filename": "2024_장지홍_국방MRO민간참여활성화방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_장지홍_국방MRO민간참여활성화방안연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.25,
+      "processed_date": "2026-02-02T23:30:18.736707",
+      "total_chars": 2993,
+      "avg_chars_per_page": 499
+    },
+    {
+      "filename": "2024_정희원_국방예산분석평가및전망(2024).pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_정희원_국방예산분석평가및전망(2024).pdf",
+      "category": "연구보고서",
+      "num_pages": 195,
+      "file_size_mb": 5.97,
+      "processed_date": "2026-02-02T23:30:18.929603",
+      "total_chars": 137419,
+      "avg_chars_per_page": 705
+    },
+    {
+      "filename": "2024_조성림_AI기반전군통합C4I(KCCS)구현을위한데이터통합방안.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_조성림_AI기반전군통합C4I(KCCS)구현을위한데이터통합방안.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.28,
+      "processed_date": "2026-02-02T23:30:18.940341",
+      "total_chars": 3860,
+      "avg_chars_per_page": 643
+    },
+    {
+      "filename": "2024_편도후_국방전파정책발전및전파자원획득관리개선방안연구.pdf",
+      "path": "/Users/daehyunyoo/Desktop/KIDA_RAG_System/Data/연구보고서/2024_편도후_국방전파정책발전및전파자원획득관리개선방안연구.pdf",
+      "category": "연구보고서",
+      "num_pages": 6,
+      "file_size_mb": 0.3,
+      "processed_date": "2026-02-02T23:30:18.948723",
+      "total_chars": 2929,
+      "avg_chars_per_page": 488
+    }
+  ],
+  "failed_files": []
+}

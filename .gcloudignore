@@ -1,0 +1,17 @@
+.git
+.venv
+.mypy_cache
+.pytest_cache
+.ruff_cache
+artifacts
+data
+dist
+build
+**/__pycache__
+**/*.pyc
+tests
+*.tfstate
+*.tfstate.*
+**/.terraform
+.env
+.env.*

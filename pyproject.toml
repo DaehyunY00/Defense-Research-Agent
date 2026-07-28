@@ -1,0 +1,87 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "defense-research-agent"
+version = "0.1.0"
+description = "Human-in-the-loop multi-agent system for defense policy research topic discovery."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "anthropic>=0.120,<1",
+    "fastapi>=0.115,<1",
+    "google-cloud-firestore>=2.20,<3",
+    "google-cloud-run>=0.16,<1",
+    "google-cloud-storage>=3,<4",
+    "langgraph>=1.2,<2",
+    "pydantic>=2.10,<3",
+    "uvicorn>=0.34,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.28,<1",
+    "mypy>=1.14,<2",
+    "pytest>=8.3,<10",
+    "ruff>=0.9,<1",
+]
+sandbox-worker = [
+    "pytest>=8.3,<10",
+]
+
+[project.scripts]
+defense-research-agent = "defense_research_agent.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/defense_research_agent"]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+    "--strict-config",
+    "--strict-markers",
+    "-ra",
+]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src", "tests"]
+mypy_path = "src"
+strict = true
+warn_unreachable = true
+pretty = true
+show_error_codes = true
+exclude = [
+    "^artifacts/",
+    "^data/",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+    "artifacts",
+    "data",
+]
+
+[tool.ruff.lint]
+select = [
+    "B",
+    "E",
+    "F",
+    "I",
+    "RUF",
+    "SIM",
+    "UP",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["defense_research_agent"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

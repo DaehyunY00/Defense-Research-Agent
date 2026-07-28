@@ -1,0 +1,55 @@
+[
+  {
+    "dataset_id": "dataset:policy-outcomes-demo",
+    "title": "공개 정책성과 지표 예제 데이터",
+    "source_locator": "package:default_data_analysis_datasets.json",
+    "source_evidence_ids": [
+      "pub:metrics"
+    ],
+    "sensitivity": "public_only",
+    "rows": [
+      {
+        "year": 2023,
+        "program": "education",
+        "planned": 120,
+        "completed": 96,
+        "satisfaction": 78.0
+      },
+      {
+        "year": 2024,
+        "program": "education",
+        "planned": 150,
+        "completed": 132,
+        "satisfaction": 82.0
+      },
+      {
+        "year": 2025,
+        "program": "education",
+        "planned": 180,
+        "completed": 162,
+        "satisfaction": 85.0
+      },
+      {
+        "year": 2023,
+        "program": "infrastructure",
+        "planned": 80,
+        "completed": 60,
+        "satisfaction": 72.0
+      },
+      {
+        "year": 2024,
+        "program": "infrastructure",
+        "planned": 100,
+        "completed": 84,
+        "satisfaction": 76.0
+      },
+      {
+        "year": 2025,
+        "program": "infrastructure",
+        "planned": 130,
+        "completed": 117,
+        "satisfaction": 81.0
+      }
+    ]
+  }
+]
