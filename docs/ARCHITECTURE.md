@@ -1,5 +1,20 @@
 # defense-research-agent 아키텍처
 
+이 문서는 **현재 구현의 기술 설계와 경계**를 설명한다. 장기 제품 방향은
+[ROADMAP.md](./ROADMAP.md), 지금 수행할 개발 backlog는
+[IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md), 품질 측정 방법은
+[EVALUATION.md](./EVALUATION.md), 선택 이유와 trade-off는
+[DECISIONS.md](./DECISIONS.md)를 참조한다.
+
+문서 간 역할은 다음처럼 구분한다.
+
+- README: 프로젝트 개요, 현재 상태와 실행 방법
+- Architecture: 현재 코드의 컴포넌트·interface·상태 전이
+- Roadmap: Defense Research Platform의 장기 방향
+- Implementation Plan: 우선순위가 있는 실행 backlog
+- Evaluation: ingestion, retrieval, RAG와 runtime 품질 측정
+- Decisions: 채택한 원칙과 제안 중인 선택의 이유
+
 ## 1. 현재 범위
 
 현재 구현은 기본 오프라인 경로와 명시적으로 조립하는 선택적 운영 경로를 제공한다.
