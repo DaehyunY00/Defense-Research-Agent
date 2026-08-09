@@ -252,10 +252,34 @@ type별 대표 fixture 검증은 아직 미완료다.
 
 ### P2.2 `FakeEmbeddingProvider`
 
-- [ ] 외부 모델 없이 결정적인 embedding 생성
-- [ ] 같은 입력·설정의 byte-equivalent 결과 보장
-- [ ] batch, empty input, dimension과 Unicode 테스트
-- [ ] ranking 의미를 과장하지 않고 interface·pipeline 테스트에만 사용
+- [x] 외부 모델 없이 결정적인 embedding 생성
+- [x] 같은 입력·설정의 byte-equivalent 결과 보장
+- [x] batch, empty input, dimension과 Unicode 테스트
+- [x] ranking 의미를 과장하지 않고 interface·pipeline 테스트에만 사용
+
+구현 기록(2026-08-09):
+
+- 입력은 원문 `Sequence[str]`/query `str`과 `dimension`, `normalized`,
+  `max_batch_size`, `max_input_bytes` 설정이며, 출력은 계약의 `EmbeddingBatchResult`이다.
+  빈 입력·긴 입력은 입력별 failure로 남기고 다른 입력의 vector를 보존한다. 빈 배치는
+  `EMPTY_INPUT`, batch limit 초과는 전용 코드가 없어 batch-level `PROVIDER_ERROR`로 처리한다.
+- SHA-256 digest가 단일 좌표·부호·정수 크기를 정하며, 정규화 설정에서는 크기만 `1.0`으로
+  바꾼다. 따라서 동일 입력·설정의 JSON 직렬화와 실행 순서 독립성, 정확한 unit norm만
+  보장한다. lexical/semantic 유사도, ranking 품질, 실제 embedding 분포는 보장하지 않는다.
+- 텍스트 정규화는 적용하지 않는다. `input_checksum`과 vector는 공백을 포함한 정확한 원문을
+  UTF-8 `surrogatepass`로 인코딩한 바이트 기준이다. `strip()`은 빈 입력 판정에만 사용한다.
+- 변경 파일은 `search/embeddings/fake.py`, 같은 package의 `__init__.py`, 전용 unit test와 이
+  P2.2 기록뿐이다. 표준 라이브러리만 사용하며 외부 API·모델·network·credential·시간·파일
+  시스템 의존성이 없어 별도 integration test나 fake/fixture 격리가 필요하지 않다.
+- unit test는 byte 동일성, 실행 순서, 설정 차이, unit norm, partial failure, 빈 입력·빈 batch,
+  batch/input limit, dimension contract, 한글·결합 문자·emoji·고립 surrogate와 query/document
+  경로를 실행한다.
+- 평가 metric의 예상 영향은 없다. 이 test double은 검색 algorithm/index/fusion을 변경하지
+  않으므로 versioned retrieval benchmark, lexical baseline, Recall/MRR, latency/resource,
+  query slice와 score trace 측정 대상이 아니다. P2.6 품질 비교에 포함하면 오히려 지표를
+  왜곡하므로 사용하지 않는다.
+- 연구 후보 승인이나 상태 전이를 수행하지 않아 human approval boundary를 변경하지 않으며,
+  `data/` 원본과 secret·`.env`를 읽거나 기록하지 않는다.
 
 ### P2.3 `VectorSearchAlgorithm`
 
