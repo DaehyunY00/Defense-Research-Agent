@@ -1,147 +1,56 @@
-"""Quality gate interface test, exercised through a fake gate.
+"""Operational quality gate regression tests for DQ-01 through DQ-04 and DQ-07.
 
-Fixtures sit at the control-character densities actually measured over the
-corpus by ``scripts/measure_quality_thresholds.py``, and the gate runs against
-the production thresholds rather than a relaxed copy. The measured bands are:
+The synthetic bodies reproduce measured corpus bands without reading ``data/``:
 
-- ``국방논단`` carries ``U+0001`` at 1.7-5.0% of body characters, in all 100 issues
-- one ``연구보고서`` is genuinely corrupt at 39.9% mixed C0 codes
-- ``U+0007`` appears in 29 documents at well under 1%
-
-Those three bands are what the gate has to separate, so they are what the
-fixtures reproduce.
+- ``국방논단``: U+0001 at 1.7-5.0%
+- DQ-03 damaged report: mixed C0 controls at about 40%
+- sparse U+0007 documents: under the 1% corruption threshold
+- layout controls: newlines, tabs, and carriage returns excluded by the report
+- page density: 1,200 characters/page, close to the measured p50 of 1,154
+- DQ-04 filenames: 250 UTF-8 bytes, inside the observed 240-255 byte band
+- DQ-07 filenames: complete decomposed Hangul normalized to NFC for comparison
 """
 
-from collections.abc import Mapping, Sequence
+import json
 from hashlib import sha256
+from pathlib import Path
+from unicodedata import normalize
 
-from defense_research_agent.domain import (
-    CONTROL_CHARACTER_SUBSTITUTIONS,
-    DEFAULT_QUALITY_THRESHOLDS_VERSION,
-    ExtractionProvenance,
+import pytest
+
+from defense_research_agent.domain.common import JsonObject
+from defense_research_agent.domain.provenance import ExtractionProvenance
+from defense_research_agent.domain.publication import (
     PublicationPage,
-    PublicationQualityStatus,
-    PublicationQualityVerdict,
     PublicationType,
-    QualityMeasurements,
-    QualityThresholds,
     ResearchPublication,
 )
-from defense_research_agent.evaluation import PublicationQualityGate
+from defense_research_agent.domain.quality import (
+    DEFAULT_QUALITY_THRESHOLDS_VERSION,
+    PublicationQualityStatus,
+    QualityThresholds,
+)
+from defense_research_agent.evaluation.quality import (
+    QUALITY_ARTIFACT_SCHEMA_VERSION,
+    DeterministicPublicationQualityGate,
+    PublicationQualityArtifactWriter,
+    select_default_index_publications,
+)
 
-# The production defaults, not a relaxed copy. A gate test that loosens the
-# thresholds it is meant to exercise proves nothing about the shipped behaviour.
 THRESHOLDS = QualityThresholds(thresholds_version=DEFAULT_QUALITY_THRESHOLDS_VERSION)
 
-ALLOWED_CONTROL = frozenset({"\n", "\t", "\r"})
 
-
-def _substitute(text: str) -> str:
-    for source, replacement in CONTROL_CHARACTER_SUBSTITUTIONS.items():
-        text = text.replace(source, replacement)
-    return text
-
-
-def _is_control(character: str) -> bool:
-    if character in ALLOWED_CONTROL:
-        return False
-    code = ord(character)
-    return code < 0x20 or 0x7F <= code <= 0x9F
-
-
-def _is_korean(character: str) -> bool:
-    return "가" <= character <= "힣"
-
-
-class FakeQualityGate(PublicationQualityGate):
-    """Deterministic gate implementing the measure/evaluate split."""
-
-    @property
-    def thresholds(self) -> QualityThresholds:
-        return THRESHOLDS
-
-    def measure(
-        self,
-        publication: ResearchPublication,
-        pages: Sequence[PublicationPage],
-    ) -> QualityMeasurements:
-        # Substitutions apply to measurement only. Stored page text is untouched.
-        text = _substitute("".join(page.text for page in pages))
-        controls = sum(1 for character in text if _is_control(character))
-        koreans = sum(1 for character in text if _is_korean(character))
-        unprintable = sum(
-            1
-            for character in text
-            if not character.isprintable() and character not in ALLOWED_CONTROL
-        )
-        return QualityMeasurements(
-            character_count=len(text),
-            page_count=len(pages),
-            non_empty_page_count=sum(1 for page in pages if page.text.strip()),
-            control_character_count=controls,
-            printable_ratio=(len(text) - unprintable) / len(text) if text else 0.0,
-            korean_ratio=koreans / len(text) if text else 0.0,
-        )
-
-    def evaluate(
-        self,
-        publication: ResearchPublication,
-        pages: Sequence[PublicationPage],
-        known_content_checksums: Mapping[str, str],
-    ) -> PublicationQualityVerdict:
-        measurements = self.measure(publication, pages)
-        limits = self.thresholds
-
-        def verdict(
-            status: PublicationQualityStatus,
-            *reasons: str,
-            duplicate_of: str | None = None,
-        ) -> PublicationQualityVerdict:
-            return PublicationQualityVerdict(
-                publication_id=publication.publication_id,
-                status=status,
-                measurements=measurements,
-                thresholds_version=limits.thresholds_version,
-                reasons=list(reasons),
-                duplicate_of=duplicate_of,
-            )
-
-        if not pages:
-            return verdict(PublicationQualityStatus.ORPHAN_PDF, "추출된 페이지 없음")
-
-        body = "".join(page.text for page in pages)
-        owner = known_content_checksums.get(sha256(body.encode("utf-8")).hexdigest())
-        if owner is not None and owner != publication.publication_id:
-            return verdict(
-                PublicationQualityStatus.DUPLICATE,
-                "동일 본문 checksum",
-                duplicate_of=owner,
-            )
-        if measurements.character_count < limits.min_character_count:
-            return verdict(PublicationQualityStatus.LOW_TEXT, "추출 문자 수 미달")
-        if measurements.control_character_ratio > limits.max_control_character_ratio:
-            return verdict(
-                PublicationQualityStatus.CORRUPT_TEXT,
-                f"제어문자 비율 {measurements.control_character_ratio:.3f}",
-            )
-        if measurements.printable_ratio < limits.min_printable_ratio:
-            return verdict(PublicationQualityStatus.CORRUPT_TEXT, "출력 가능 문자 비율 미달")
-        if measurements.korean_ratio < limits.min_korean_ratio:
-            return verdict(PublicationQualityStatus.MANUAL_REVIEW, "한글 비율 미달")
-        if measurements.non_empty_page_ratio < limits.min_non_empty_page_ratio:
-            return verdict(PublicationQualityStatus.WARNING, "빈 페이지 비율 높음")
-        if measurements.control_character_count > 0:
-            return verdict(
-                PublicationQualityStatus.WARNING,
-                f"제어문자 {measurements.control_character_count}개",
-            )
-        return verdict(PublicationQualityStatus.READY)
-
-
-def _publication(publication_id: str = "pub-1") -> ResearchPublication:
+def _publication(
+    publication_id: str = "pub-1",
+    *,
+    title: str | None = None,
+    local_path: str | None = None,
+) -> ResearchPublication:
     return ResearchPublication(
         publication_id=publication_id,
         publication_type=PublicationType.RESEARCH_REPORT,
+        title=title,
+        local_path=local_path,
     )
 
 
@@ -157,56 +66,138 @@ def _page(text: str, page_number: int = 1) -> PublicationPage:
     )
 
 
+def _orphan_publication(publication_id: str = "orphan") -> ResearchPublication:
+    raw_metadata: JsonObject = {
+        "_ingestion": {
+            "pdf_linked": True,
+            "json_source_paths": [],
+        }
+    }
+    return ResearchPublication(
+        publication_id=publication_id,
+        publication_type=PublicationType.RESEARCH_REPORT,
+        local_path="data/pdfs/국방논단/orphan.pdf",
+        raw_metadata=raw_metadata,
+    )
+
+
+def _filename_titled_publication(local_path: str) -> ResearchPublication:
+    raw_metadata: JsonObject = {
+        "_ingestion": {
+            "pdf_linked": True,
+            "json_source_paths": ["metadata/document.json"],
+            "title_source": "filename",
+        }
+    }
+    return ResearchPublication(
+        publication_id="filename-title",
+        publication_type=PublicationType.RESEARCH_REPORT,
+        title="파일명에서 파생한 제목",
+        local_path=local_path,
+        raw_metadata=raw_metadata,
+    )
+
+
 _UNIT = "국방정책 연구 본문입니다. "
 _UNIT_WITH_U0001 = _UNIT.replace(" 연구", "\x01연구")
 
 CLEAN_BODY = _UNIT * 80
-"""1,200 characters, no control characters."""
+"""1,200 characters and 1,200 characters/page, near the measured p50 density."""
+
+LAYOUT_CONTROL_BODY = (_UNIT + "\n\t\r") * 80
+"""Newline, tab, and carriage return at a ratio well above the 1% threshold."""
 
 FORUM_U0001_BODY = (_UNIT_WITH_U0001 + _UNIT) * 40
-"""3.3% U+0001 before substitution — the measured ``국방논단`` band (1.7-5.0%)."""
+"""3.3% U+0001 before substitution, inside the measured 1.7-5.0% forum band."""
 
 SPARSE_BELL_BODY = (_UNIT * 13 + "\x07") * 6
-"""0.5% U+0007, the density measured in the 29 documents that carry it."""
+"""0.5% U+0007, matching the sparse controls observed in 29 documents."""
 
 HEAVILY_CORRUPTED_BODY = ("국방정책 연구" + "\x05\x02\x03\x04\x06") * 100
-"""41.7% mixed C0 codes, the shape of the single 39.9% report DQ-03 identifies."""
+"""41.7% mixed C0 codes, matching the shape of DQ-03's 39.9% report."""
 
 ENGLISH_BODY = "This report examines defense acquisition policy in depth. " * 25
 
-
-def test_the_forum_band_is_actually_in_the_measured_range() -> None:
-    """Guard the fixture itself: a drifting fixture would silently weaken the suite."""
-    raw_ratio = FORUM_U0001_BODY.count("\x01") / len(FORUM_U0001_BODY)
-
-    assert 0.017 <= raw_ratio <= 0.05
-    assert raw_ratio > THRESHOLDS.max_control_character_ratio
+LONG_FILENAME_PATH = f"data/pdfs/Brief/2024_저자_{'가' * 78}.pdf"
+TRUNCATED_JAMO_PATH = f"data/pdfs/Brief/2024_저자_{'가' * 77}ᄌ.pdf"
+NFD_COMPLETE_FILENAME_PATH = (
+    f"data/pdfs/연구보고서/{normalize('NFD', '2025_백재옥_중장기장비유지비추정및전망방법연구.pdf')}"
+)
 
 
-def test_measurements_do_not_apply_thresholds() -> None:
-    gate = FakeQualityGate()
+def test_regression_fixture_bands_match_the_measured_corpus() -> None:
+    forum_raw_ratio = FORUM_U0001_BODY.count("\x01") / len(FORUM_U0001_BODY)
+    damaged_control_ratio = sum(
+        character in {"\x02", "\x03", "\x04", "\x05", "\x06"}
+        for character in HEAVILY_CORRUPTED_BODY
+    ) / len(HEAVILY_CORRUPTED_BODY)
 
-    measurements = gate.measure(_publication(), [_page(SPARSE_BELL_BODY)])
+    assert len(CLEAN_BODY) == 1_200
+    assert 0.017 <= forum_raw_ratio <= 0.05
+    assert forum_raw_ratio > THRESHOLDS.max_control_character_ratio
+    assert 0.38 <= damaged_control_ratio <= 0.42
+    assert 240 <= len(Path(LONG_FILENAME_PATH).name.encode("utf-8")) <= 255
+    assert 240 <= len(Path(TRUNCATED_JAMO_PATH).name.encode("utf-8")) <= 255
 
-    assert measurements.control_character_count == 6
-    assert measurements.page_count == 1
+
+def test_measure_is_threshold_free_and_preserves_original_page_text() -> None:
+    gate = DeterministicPublicationQualityGate()
+    page = _page(FORUM_U0001_BODY)
+    before = page.model_dump_json()
+
+    measurements = gate.measure(_publication(), [page])
+
+    assert measurements.character_count == len(FORUM_U0001_BODY)
+    assert measurements.control_character_count == 0
+    assert page.model_dump_json() == before
+    assert "\x01" in page.text
 
 
-def test_page_density_and_ratios_are_derived_not_stored() -> None:
-    gate = FakeQualityGate()
+def test_layout_controls_are_exempt_from_control_and_printable_ratios() -> None:
+    gate = DeterministicPublicationQualityGate()
+    raw_layout_ratio = sum(
+        character in {"\n", "\t", "\r"} for character in LAYOUT_CONTROL_BODY
+    ) / len(LAYOUT_CONTROL_BODY)
+
+    measurements = gate.measure(_publication(), [_page(LAYOUT_CONTROL_BODY)])
+    verdict = gate.evaluate(_publication(), [_page(LAYOUT_CONTROL_BODY)], {})
+
+    assert raw_layout_ratio > THRESHOLDS.max_control_character_ratio
+    assert measurements.control_character_count == 0
+    assert measurements.printable_ratio == 1.0
+    assert verdict.status is PublicationQualityStatus.READY
+
+
+def test_measure_counts_empty_text_and_page_density_after_substitution() -> None:
+    gate = DeterministicPublicationQualityGate()
 
     measurements = gate.measure(
-        _publication(), [_page(CLEAN_BODY), _page("", 2), _page(CLEAN_BODY, 3)]
+        _publication(),
+        [_page(CLEAN_BODY), _page("", 2), _page("\x01", 3)],
     )
 
     assert measurements.page_count == 3
-    assert measurements.non_empty_page_ratio == 2 / 3
+    assert measurements.non_empty_page_count == 1
+    assert measurements.non_empty_page_ratio == 1 / 3
     assert measurements.mean_characters_per_page == measurements.character_count / 3
+
+
+def test_printable_ratio_uses_isprintable_separately_from_control_ratio() -> None:
+    gate = DeterministicPublicationQualityGate()
+    body = ("국방정책연구" * 20 + "\u200b" * 20) * 10
+
+    measurements = gate.measure(_publication(), [_page(body)])
+    verdict = gate.evaluate(_publication(), [_page(body)], {})
+
+    assert measurements.control_character_count == 0
     assert measurements.control_character_ratio == 0.0
+    assert measurements.printable_ratio < THRESHOLDS.min_printable_ratio
+    assert verdict.status is PublicationQualityStatus.CORRUPT_TEXT
+    assert verdict.reasons == ["출력 가능 문자 비율 미달"]
 
 
 def test_clean_publication_is_ready_and_indexable() -> None:
-    gate = FakeQualityGate()
+    gate = DeterministicPublicationQualityGate()
 
     verdict = gate.evaluate(_publication(), [_page(CLEAN_BODY)], {})
 
@@ -214,9 +205,8 @@ def test_clean_publication_is_ready_and_indexable() -> None:
     assert verdict.status.is_indexable
 
 
-def test_forum_u0001_density_survives_because_it_is_substituted_first() -> None:
-    """The 100 ``국방논단`` issues must not be discarded over a space substitute."""
-    gate = FakeQualityGate()
+def test_forum_u0001_band_survives_measurement_only_substitution() -> None:
+    gate = DeterministicPublicationQualityGate()
 
     verdict = gate.evaluate(_publication(), [_page(FORUM_U0001_BODY)], {})
 
@@ -225,9 +215,8 @@ def test_forum_u0001_density_survives_because_it_is_substituted_first() -> None:
     assert verdict.measurements.control_character_count == 0
 
 
-def test_the_same_density_in_a_non_substituted_code_is_rejected() -> None:
-    """Only U+0001 is a known space substitute; the same density of U+0007 is not."""
-    gate = FakeQualityGate()
+def test_same_density_in_a_non_substituted_control_is_corrupt() -> None:
+    gate = DeterministicPublicationQualityGate()
     body = FORUM_U0001_BODY.replace("\x01", "\x07")
 
     verdict = gate.evaluate(_publication(), [_page(body)], {})
@@ -236,8 +225,8 @@ def test_the_same_density_in_a_non_substituted_code_is_rejected() -> None:
     assert not verdict.status.is_indexable
 
 
-def test_sparse_control_characters_warn_but_stay_indexable() -> None:
-    gate = FakeQualityGate()
+def test_sparse_control_characters_warn_but_remain_indexable() -> None:
+    gate = DeterministicPublicationQualityGate()
 
     verdict = gate.evaluate(_publication(), [_page(SPARSE_BELL_BODY)], {})
 
@@ -247,18 +236,18 @@ def test_sparse_control_characters_warn_but_stay_indexable() -> None:
     assert verdict.reasons == [f"제어문자 {verdict.measurements.control_character_count}개"]
 
 
-def test_the_genuinely_corrupt_report_is_excluded() -> None:
-    gate = FakeQualityGate()
+def test_dq03_damaged_report_band_is_excluded() -> None:
+    gate = DeterministicPublicationQualityGate()
 
     verdict = gate.evaluate(_publication(), [_page(HEAVILY_CORRUPTED_BODY)], {})
 
     assert verdict.status is PublicationQualityStatus.CORRUPT_TEXT
     assert not verdict.status.is_indexable
-    assert verdict.measurements.control_character_ratio > 0.3
+    assert 0.38 <= verdict.measurements.control_character_ratio <= 0.42
 
 
-def test_low_text_publication_is_excluded_with_a_reason() -> None:
-    gate = FakeQualityGate()
+def test_dq02_low_extraction_is_excluded_with_a_reason() -> None:
+    gate = DeterministicPublicationQualityGate()
 
     verdict = gate.evaluate(_publication(), [_page("짧음")], {})
 
@@ -267,27 +256,107 @@ def test_low_text_publication_is_excluded_with_a_reason() -> None:
     assert verdict.reasons == ["추출 문자 수 미달"]
 
 
-def test_publication_without_extracted_pages_is_an_orphan() -> None:
-    gate = FakeQualityGate()
+def test_dq01_orphan_pdf_requires_pdf_without_linked_json_lineage() -> None:
+    gate = DeterministicPublicationQualityGate()
 
-    verdict = gate.evaluate(_publication(), [], {})
+    verdict = gate.evaluate(
+        _orphan_publication(),
+        [_page(CLEAN_BODY)],
+        {},
+    )
 
     assert verdict.status is PublicationQualityStatus.ORPHAN_PDF
+    assert verdict.measurements.page_count == 1
+    assert verdict.reasons == ["연결된 문서 JSON 없음"]
     assert not verdict.status.is_indexable
 
 
-def test_low_korean_ratio_goes_to_manual_review() -> None:
-    gate = FakeQualityGate()
+def test_no_extracted_pages_without_orphan_lineage_is_low_text() -> None:
+    gate = DeterministicPublicationQualityGate()
+
+    verdict = gate.evaluate(_publication(), [], {})
+
+    assert verdict.status is PublicationQualityStatus.LOW_TEXT
+    assert verdict.measurements.page_count == 0
+    assert verdict.reasons == ["추출 문자 수 미달"]
+
+
+def test_low_korean_ratio_is_manual_review_not_automatic_corruption() -> None:
+    gate = DeterministicPublicationQualityGate()
 
     verdict = gate.evaluate(_publication(), [_page(ENGLISH_BODY)], {})
 
     assert verdict.status is PublicationQualityStatus.MANUAL_REVIEW
     assert not verdict.status.is_indexable
+    assert verdict.reasons == ["한글 비율 미달"]
 
 
-def test_korean_abstract_sections_do_not_trip_the_korean_threshold() -> None:
-    """``국방정책연구`` carries an English Abstract in all 59 issues."""
-    gate = FakeQualityGate()
+@pytest.mark.parametrize(
+    ("local_path", "expected_reason"),
+    [
+        (LONG_FILENAME_PATH, "파일명 240바이트 이상이며 표지 제목 없음"),
+        (TRUNCATED_JAMO_PATH, "파일명이 불완전 한글 자모로 끝나며 표지 제목 없음"),
+    ],
+)
+def test_dq04_filename_risk_without_a_cover_title_requires_manual_review(
+    local_path: str,
+    expected_reason: str,
+) -> None:
+    gate = DeterministicPublicationQualityGate()
+
+    verdict = gate.evaluate(
+        _publication(local_path=local_path),
+        [_page(CLEAN_BODY)],
+        {},
+    )
+
+    assert verdict.status is PublicationQualityStatus.MANUAL_REVIEW
+    assert verdict.manual_review_page == 1
+    assert verdict.reasons == [expected_reason]
+
+
+def test_cover_derived_title_resolves_dq04_filename_risk() -> None:
+    gate = DeterministicPublicationQualityGate()
+
+    verdict = gate.evaluate(
+        _publication(title="표지에서 추출한 전체 제목", local_path=TRUNCATED_JAMO_PATH),
+        [_page(CLEAN_BODY)],
+        {},
+    )
+
+    assert verdict.status is PublicationQualityStatus.READY
+
+
+def test_filename_derived_title_does_not_resolve_dq04_risk() -> None:
+    gate = DeterministicPublicationQualityGate()
+
+    verdict = gate.evaluate(
+        _filename_titled_publication(TRUNCATED_JAMO_PATH),
+        [_page(CLEAN_BODY)],
+        {},
+    )
+
+    assert verdict.status is PublicationQualityStatus.MANUAL_REVIEW
+    assert verdict.reasons == ["파일명이 불완전 한글 자모로 끝나며 표지 제목 없음"]
+
+
+def test_dq07_complete_nfd_filename_is_not_incomplete_hangul() -> None:
+    gate = DeterministicPublicationQualityGate()
+    stem = Path(NFD_COMPLETE_FILENAME_PATH).stem
+
+    verdict = gate.evaluate(
+        _publication(local_path=NFD_COMPLETE_FILENAME_PATH),
+        [_page(CLEAN_BODY)],
+        {},
+    )
+
+    assert "\u1161" <= stem[-1] <= "\u1175"
+    assert normalize("NFC", stem).endswith("연구")
+    assert verdict.status is PublicationQualityStatus.READY
+
+
+def test_korean_policy_abstract_does_not_trip_manual_review() -> None:
+    gate = DeterministicPublicationQualityGate()
     body = CLEAN_BODY + ENGLISH_BODY
 
     verdict = gate.evaluate(_publication(), [_page(body)], {})
@@ -296,18 +365,19 @@ def test_korean_abstract_sections_do_not_trip_the_korean_threshold() -> None:
     assert verdict.status.is_indexable
 
 
-def test_mostly_empty_pages_produce_a_warning() -> None:
-    gate = FakeQualityGate()
+def test_mostly_empty_pages_warn_at_a_corpus_observed_density() -> None:
+    gate = DeterministicPublicationQualityGate()
     pages = [_page(CLEAN_BODY)] + [_page("", number) for number in range(2, 6)]
 
     verdict = gate.evaluate(_publication(), pages, {})
 
+    assert verdict.measurements.mean_characters_per_page == 240
     assert verdict.status is PublicationQualityStatus.WARNING
     assert verdict.reasons == ["빈 페이지 비율 높음"]
 
 
-def test_duplicate_body_is_traced_to_the_publication_that_owns_it() -> None:
-    gate = FakeQualityGate()
+def test_dq01_duplicate_body_tracks_the_owning_publication() -> None:
+    gate = DeterministicPublicationQualityGate()
     known = {sha256(CLEAN_BODY.encode("utf-8")).hexdigest(): "pub-original"}
 
     verdict = gate.evaluate(_publication("pub-copy"), [_page(CLEAN_BODY)], known)
@@ -316,8 +386,8 @@ def test_duplicate_body_is_traced_to_the_publication_that_owns_it() -> None:
     assert verdict.duplicate_of == "pub-original"
 
 
-def test_re_evaluating_the_same_publication_is_not_a_duplicate() -> None:
-    gate = FakeQualityGate()
+def test_re_evaluating_the_owner_is_not_a_duplicate() -> None:
+    gate = DeterministicPublicationQualityGate()
     known = {sha256(CLEAN_BODY.encode("utf-8")).hexdigest(): "pub-1"}
 
     verdict = gate.evaluate(_publication("pub-1"), [_page(CLEAN_BODY)], known)
@@ -325,27 +395,180 @@ def test_re_evaluating_the_same_publication_is_not_a_duplicate() -> None:
     assert verdict.status is PublicationQualityStatus.READY
 
 
-def test_every_verdict_records_the_calibrated_threshold_version() -> None:
-    gate = FakeQualityGate()
+def test_stored_measurements_can_be_rejudged_under_a_new_threshold_version() -> None:
+    publication = _publication()
+    default_gate = DeterministicPublicationQualityGate()
+    measurements = default_gate.measure(publication, [_page(CLEAN_BODY)])
+    stricter_gate = DeterministicPublicationQualityGate(
+        QualityThresholds(
+            thresholds_version="quality-v2-recalibration-test",
+            min_character_count=1_201,
+        )
+    )
 
-    for pages in ([], [_page("짧음")], [_page(CLEAN_BODY)], [_page(SPARSE_BELL_BODY)]):
-        verdict = gate.evaluate(_publication(), pages, {})
-        assert verdict.thresholds_version == DEFAULT_QUALITY_THRESHOLDS_VERSION
+    original = default_gate.evaluate(
+        publication,
+        None,
+        {},
+        measurements=measurements,
+    )
+    rejudged = stricter_gate.evaluate(
+        publication,
+        None,
+        {},
+        measurements=measurements,
+    )
+
+    assert original.measurements == rejudged.measurements
+    assert original.status is PublicationQualityStatus.READY
+    assert rejudged.status is PublicationQualityStatus.LOW_TEXT
+    assert rejudged.thresholds_version == "quality-v2-recalibration-test"
 
 
-def test_the_gate_reaches_every_status_it_claims_to_compute() -> None:
-    gate = FakeQualityGate()
+def test_measurement_replay_requires_checksum_when_duplicate_context_exists() -> None:
+    gate = DeterministicPublicationQualityGate()
+    measurements = gate.measure(_publication(), [_page(CLEAN_BODY)])
+
+    with pytest.raises(ValueError, match="content_checksum is required"):
+        gate.evaluate(
+            _publication(),
+            None,
+            {sha256(CLEAN_BODY.encode("utf-8")).hexdigest(): "pub-original"},
+            measurements=measurements,
+        )
+
+
+def test_stored_measurements_replay_duplicate_detection_with_original_checksum() -> None:
+    gate = DeterministicPublicationQualityGate()
+    publication = _publication("pub-copy")
+    measurements = gate.measure(publication, [_page(CLEAN_BODY)])
+    checksum = sha256(CLEAN_BODY.encode("utf-8")).hexdigest()
+
+    verdict = gate.evaluate(
+        publication,
+        None,
+        {checksum: "pub-original"},
+        measurements=measurements,
+        content_checksum=checksum,
+    )
+
+    assert verdict.status is PublicationQualityStatus.DUPLICATE
+    assert verdict.duplicate_of == "pub-original"
+
+
+def test_supplied_checksum_must_match_original_page_text() -> None:
+    gate = DeterministicPublicationQualityGate()
+
+    with pytest.raises(ValueError, match="does not match"):
+        gate.evaluate(
+            _publication(),
+            [_page(CLEAN_BODY)],
+            {},
+            content_checksum="0" * 64,
+        )
+
+
+def test_same_input_produces_byte_identical_verdicts() -> None:
+    gate = DeterministicPublicationQualityGate()
+    publication = _publication()
+    pages = [_page(SPARSE_BELL_BODY)]
+
+    first = gate.evaluate(publication, pages, {}).model_dump_json().encode("utf-8")
+    second = gate.evaluate(publication, pages, {}).model_dump_json().encode("utf-8")
+
+    assert first == second
+
+
+def test_all_seven_statuses_are_reachable_as_valid_verdicts() -> None:
+    gate = DeterministicPublicationQualityGate()
     known = {sha256(CLEAN_BODY.encode("utf-8")).hexdigest(): "pub-original"}
     blank_pages = [_page(CLEAN_BODY)] + [_page("", number) for number in range(2, 6)]
 
     reached = {
-        gate.evaluate(_publication(), [], {}).status,
-        gate.evaluate(_publication("pub-copy"), [_page(CLEAN_BODY)], known).status,
-        gate.evaluate(_publication(), [_page("짧음")], {}).status,
-        gate.evaluate(_publication(), [_page(HEAVILY_CORRUPTED_BODY)], {}).status,
-        gate.evaluate(_publication(), [_page(ENGLISH_BODY)], {}).status,
-        gate.evaluate(_publication(), blank_pages, {}).status,
-        gate.evaluate(_publication(), [_page(CLEAN_BODY)], {}).status,
+        gate.evaluate(_orphan_publication(), [], {}).status,
+        gate.evaluate(_publication("copy"), [_page(CLEAN_BODY)], known).status,
+        gate.evaluate(_publication("low"), [_page("짧음")], {}).status,
+        gate.evaluate(_publication("corrupt"), [_page(HEAVILY_CORRUPTED_BODY)], {}).status,
+        gate.evaluate(_publication("manual"), [_page(ENGLISH_BODY)], {}).status,
+        gate.evaluate(_publication("warning"), blank_pages, {}).status,
+        gate.evaluate(_publication("ready"), [_page(CLEAN_BODY)], {}).status,
     }
 
     assert reached == set(PublicationQualityStatus)
+
+
+def test_default_index_selection_is_fail_closed_and_excludes_quality_failures() -> None:
+    gate = DeterministicPublicationQualityGate()
+    ready = _publication("ready")
+    warning = _publication("warning")
+    low = _publication("low")
+    verdicts = {
+        ready.publication_id: gate.evaluate(ready, [_page(CLEAN_BODY)], {}),
+        warning.publication_id: gate.evaluate(warning, [_page(SPARSE_BELL_BODY)], {}),
+        low.publication_id: gate.evaluate(low, [_page("짧음")], {}),
+    }
+
+    selected = select_default_index_publications([low, warning, ready], verdicts)
+
+    assert [publication.publication_id for publication in selected] == ["warning", "ready"]
+    with pytest.raises(ValueError, match="missing quality verdict"):
+        select_default_index_publications([_publication("unmeasured")], verdicts)
+
+
+def test_quality_artifacts_are_versioned_complete_and_byte_deterministic(
+    tmp_path: Path,
+) -> None:
+    gate = DeterministicPublicationQualityGate()
+    known = {sha256(CLEAN_BODY.encode("utf-8")).hexdigest(): "original"}
+    verdicts = [
+        gate.evaluate(_publication("ready"), [_page(CLEAN_BODY)], {}),
+        gate.evaluate(_publication("warning"), [_page(SPARSE_BELL_BODY)], {}),
+        gate.evaluate(_publication("low"), [_page("짧음")], {}),
+        gate.evaluate(_publication("corrupt"), [_page(HEAVILY_CORRUPTED_BODY)], {}),
+        gate.evaluate(_orphan_publication(), [], {}),
+        gate.evaluate(_publication("manual"), [_page(ENGLISH_BODY)], {}),
+        gate.evaluate(_publication("duplicate"), [_page(CLEAN_BODY)], known),
+    ]
+    writer = PublicationQualityArtifactWriter(tmp_path / "artifacts" / "quality")
+
+    paths = writer.write(verdicts, gate.thresholds)
+    first_queue = paths.reextract_ocr_queue.read_bytes()
+    first_report = paths.failure_report.read_bytes()
+    writer.write(list(reversed(verdicts)), gate.thresholds)
+
+    assert paths.reextract_ocr_queue.read_bytes() == first_queue
+    assert paths.failure_report.read_bytes() == first_report
+
+    queue = [json.loads(line) for line in first_queue.decode("utf-8").splitlines()]
+    assert [record["publication_id"] for record in queue] == ["corrupt", "low", "orphan"]
+    assert {record["schema_version"] for record in queue} == {QUALITY_ARTIFACT_SCHEMA_VERSION}
+    assert queue[-1]["requested_actions"] == ["extract_metadata", "extract_text", "ocr"]
+
+    report = json.loads(first_report)
+    assert report["schema_version"] == QUALITY_ARTIFACT_SCHEMA_VERSION
+    assert report["thresholds"] == gate.thresholds.model_dump(mode="json")
+    assert report["total_publications"] == 7
+    assert report["indexable_publications"] == 2
+    assert report["excluded_publications"] == 5
+    assert report["queue_entries"] == 3
+    assert set(report["status_counts"]) == {status.value for status in PublicationQualityStatus}
+    assert len(report["findings"]) == 6
+
+
+def test_artifact_writer_rejects_non_artifact_paths_and_mixed_threshold_versions(
+    tmp_path: Path,
+) -> None:
+    gate = DeterministicPublicationQualityGate()
+    verdict = gate.evaluate(_publication(), [_page(CLEAN_BODY)], {})
+
+    with pytest.raises(ValueError, match="under an artifacts"):
+        PublicationQualityArtifactWriter(tmp_path / "quality")
+    with pytest.raises(ValueError, match="never be written under data"):
+        PublicationQualityArtifactWriter(Path("data") / "artifacts" / "quality")
+
+    writer = PublicationQualityArtifactWriter(tmp_path / "artifacts" / "quality")
+    with pytest.raises(ValueError, match="thresholds_version"):
+        writer.write(
+            [verdict],
+            QualityThresholds(thresholds_version="quality-v2-recalibration-test"),
+        )
