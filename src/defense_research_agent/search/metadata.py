@@ -39,7 +39,7 @@ from defense_research_agent.domain.publication import (
 METADATA_NORMALIZATION_VERSION: Final = "nfc-whitespace-v1"
 """Version of the Unicode and whitespace normalization rules below."""
 
-RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.0"
+RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.1"
 _CONFLICT_REASON: Final = "동일한 우선순위의 메타데이터 근거가 충돌함"
 _MISSING_REASONS: Final[dict[MetadataField, str]] = {
     MetadataField.TITLE: "표지, 본문, 파일명에서 제목을 확정할 수 없음",
@@ -93,7 +93,12 @@ _ABSTRACT_HEADING_RE = re.compile(
     re.IGNORECASE,
 )
 _SECTION_HEADING_RE = re.compile(r"^(?:[IVXLCDM]+\.|\d+\.|[가-힣]\.)\s+")
-_TRAILING_TITLE_NOTE_RE = re.compile(r"[†‡]+\s*$")
+_TRAILING_TITLE_NOTE_RE = re.compile(r"(?:[†‡]+|\d+\))+\s*$")
+_LEADING_TITLE_NOTE_RE = re.compile(r"^(?:[†‡]+|\d+\))+\s*")
+_REPORT_IDENTIFIER_RE = re.compile(r"^연구\s*보고서(?:\s+[가-힣]+(?:\s*(?:19|20)\d{2}-\d+)?)?$")
+_ISBN_RE = re.compile(r"^ISBN(?:\s|$)", re.IGNORECASE)
+_REPORT_AUTHOR_TOKEN_RE = re.compile(r"[가-힣]{2,5}(?:\(자문\))?")
+_THREE_SYLLABLE_AUTHOR_TOKEN_RE = re.compile(r"[가-힣]{3}(?:\(자문\))?")
 
 _SEASON_MONTH: Final[dict[str, int]] = {
     "봄": 3,
@@ -307,7 +312,7 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
             None,
         )
         if cover is not None:
-            raw_title = self._title_block(publication_type, cover)
+            raw_title = self._title_block(publication_type, cover, filename.author)
             if raw_title is not None:
                 self._append_title_parts(
                     raw_title,
@@ -335,7 +340,13 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         confidence: float,
         candidates: dict[MetadataField, list[_Candidate]],
     ) -> None:
-        normalized = _TRAILING_TITLE_NOTE_RE.sub("", normalize_metadata_text(raw_title)).strip()
+        normalized_lines: list[str] = []
+        for raw_line in raw_title.splitlines():
+            normalized_line = normalize_metadata_text(raw_line)
+            normalized_line = _TRAILING_TITLE_NOTE_RE.sub("", normalized_line).strip()
+            if normalized_line:
+                normalized_lines.append(normalized_line)
+        normalized = " ".join(normalized_lines)
         if not normalized:
             return
         parts = re.split(r"\s*[:\uFF1A]\s*", normalized, maxsplit=1)
@@ -351,6 +362,7 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         self,
         publication_type: PublicationType,
         view: _PageView,
+        filename_author: str | None,
     ) -> str | None:
         if not view.lines:
             return None
@@ -359,7 +371,7 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         if publication_type in {PublicationType.DEFENSE_FORUM, PublicationType.KIDA_BRIEF}:
             return self._periodical_title_block(view.lines)
         if publication_type is PublicationType.RESEARCH_REPORT:
-            return self._report_title_block(view.lines)
+            return self._report_title_block(view.lines, filename_author)
         return self._generic_title_block(view.lines)
 
     @staticmethod
@@ -398,12 +410,19 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         return "\n".join(title_lines) if title_lines else None
 
     @staticmethod
-    def _report_title_block(lines: Sequence[_Line]) -> str | None:
+    def _report_title_block(
+        lines: Sequence[_Line],
+        filename_author: str | None,
+    ) -> str | None:
         title_lines: list[str] = []
         for line in lines[:12]:
-            if _line_has_publication_date(line.normalized) or _is_publisher_line(line.normalized):
-                break
-            if line.normalized in {"연구보고서", "연구 보고서"}:
+            if _is_report_metadata_line(line.normalized):
+                if title_lines:
+                    break
+                continue
+            if _is_report_author_line(line.normalized, filename_author):
+                if title_lines:
+                    break
                 continue
             title_lines.append(line.raw)
         return "\n".join(title_lines) if title_lines else None
@@ -819,6 +838,7 @@ def _journal_author_matches_fill_line(value: str, matches: Sequence[re.Match[str
     residue = value
     for match in reversed(matches):
         residue = residue[: match.start()] + residue[match.end() :]
+    residue = _LEADING_TITLE_NOTE_RE.sub("", residue)
     return not residue.strip(" ,·")
 
 
@@ -839,6 +859,26 @@ def _is_periodical_header(value: str) -> bool:
         or value.startswith(("발행처", "발행인", "편집인"))
         or lowered.startswith(("pissn", "eissn", "issn"))
         or "doi.org/" in lowered
+    )
+
+
+def _is_report_metadata_line(value: str) -> bool:
+    return bool(
+        _REPORT_IDENTIFIER_RE.fullmatch(value)
+        or _ISBN_RE.match(value)
+        or _line_has_publication_date(value)
+        or _is_publisher_line(value)
+    )
+
+
+def _is_report_author_line(value: str, filename_author: str | None) -> bool:
+    tokens = [token for token in re.split(r"[\s,·]+", value) if token]
+    if filename_author is not None and tokens and tokens[0] == filename_author:
+        return True
+    if ("," in value or "·" in value) and len(tokens) >= 2:
+        return all(_REPORT_AUTHOR_TOKEN_RE.fullmatch(token) for token in tokens)
+    return len(tokens) >= 3 and all(
+        _THREE_SYLLABLE_AUTHOR_TOKEN_RE.fullmatch(token) for token in tokens
     )
 
 

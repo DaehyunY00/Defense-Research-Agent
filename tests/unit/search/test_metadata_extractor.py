@@ -72,6 +72,42 @@ REPORT_COVER = """\
 한국국방연구원
 """
 
+REPORT_IDENTIFIER_FIRST_COVER = """\
+연구보고서 인력2024-5240
+2024. 12.
+군 간부 전체 계급에 대한
+정년 연구
+안석기 정관영 박민섭 한서영 김푸름
+"""
+
+REPORT_DATE_LAST_COVER = """\
+연구보고서 군사
+기계학습 기반 신속통합분석 연구
+김종회, 심광신, 박효린, 서민혁, 손병원
+2023. 11.
+"""
+
+JOURNAL_TITLE_NOTE_COVER = """\
+국방정책연구 2025년 여름(41-2) 통권 제148호 pp. 235-262
+http://dx.doi.org/10.22883/jdps.2025.41.2.008
+ISSN 1598-6101(print), 2672-1392(online)
+DEA-SBM을 적용한 육군 군수부대의
+운영효율성 분석†
+1)
+주명희*, 손대권**, 하헌구***
+I. 서론
+"""
+
+JOURNAL_ATTACHED_NOTE_AUTHOR_COVER = """\
+국방정책연구 2025년 여름(41-2) 통권 제148호 pp. 137-169
+http://dx.doi.org/10.22883/jdps.2025.41.2.005
+ISSN 1598-6101(print), 2672-1392(online)
+한국군의 적정 상비병력 규모에 관한 연구:
+현대 전쟁사례의 최소계획비율을 중심으로†
+1)2)김정혁*, 지효근**
+I. 서론
+"""
+
 BRIEF_AUTHOR_COVER = """\
 김의순 책임연구위원, 홍수민 전문연구원
 군사발전연구센터
@@ -192,6 +228,34 @@ def test_journal_extracts_structured_authors_footnotes_and_bibliography() -> Non
     )
 
 
+def test_journal_title_removes_inline_symbol_and_standalone_note_number() -> None:
+    metadata = _extract(
+        PublicationType.DEFENSE_POLICY_RESEARCH,
+        [_page(JOURNAL_TITLE_NOTE_COVER)],
+    )
+
+    title = _value(metadata, MetadataField.TITLE)
+    assert title.normalized == "DEA-SBM을 적용한 육군 군수부대의 운영효율성 분석"
+    assert title.evidence is not None
+    assert title.evidence.source is MetadataEvidenceSource.COVER_PAGE
+    assert title.evidence.raw_text.endswith("분석†\n1)")
+
+
+def test_journal_title_stops_at_author_line_with_leading_note_numbers() -> None:
+    metadata = _extract(
+        PublicationType.DEFENSE_POLICY_RESEARCH,
+        [_page(JOURNAL_ATTACHED_NOTE_AUTHOR_COVER)],
+    )
+
+    assert _value(metadata, MetadataField.TITLE).normalized == (
+        "한국군의 적정 상비병력 규모에 관한 연구"
+    )
+    assert _value(metadata, MetadataField.SUBTITLE).normalized == (
+        "현대 전쟁사례의 최소계획비율을 중심으로"
+    )
+    assert [author.name for author in metadata.authors] == ["김정혁", "지효근"]
+
+
 def test_filename_and_published_years_are_both_preserved_as_a_conflict() -> None:
     metadata = _extract(
         PublicationType.DEFENSE_POLICY_RESEARCH,
@@ -249,6 +313,36 @@ def test_forum_day_report_month_and_processed_time_stay_separate() -> None:
     assert _value(report, MetadataField.TITLE).normalized == (
         "단기복무 간부 획득을 위한 정책 발전방향"
     )
+
+
+def test_report_identifier_first_layout_extracts_title_after_date() -> None:
+    metadata = _extract(
+        PublicationType.RESEARCH_REPORT,
+        [_page(REPORT_IDENTIFIER_FIRST_COVER)],
+        Path("2024_안석기_군간부전체계급에대한정년연구.pdf"),
+    )
+
+    title = _value(metadata, MetadataField.TITLE)
+    assert title.normalized == "군 간부 전체 계급에 대한 정년 연구"
+    assert title.confidence == 0.96
+    assert title.evidence is not None
+    assert title.evidence.source is MetadataEvidenceSource.COVER_PAGE
+    assert title.evidence.page_number == 1
+    assert title.evidence.raw_text == "군 간부 전체 계급에 대한\n정년 연구"
+
+
+def test_report_identifier_first_layout_stops_title_before_authors() -> None:
+    metadata = _extract(
+        PublicationType.RESEARCH_REPORT,
+        [_page(REPORT_DATE_LAST_COVER)],
+        Path("2023_김종회_기계학습기반신속통합분석연구.pdf"),
+    )
+
+    title = _value(metadata, MetadataField.TITLE)
+    assert title.normalized == "기계학습 기반 신속통합분석 연구"
+    assert title.evidence is not None
+    assert title.evidence.source is MetadataEvidenceSource.COVER_PAGE
+    assert title.evidence.raw_text == "기계학습 기반 신속통합분석 연구"
 
 
 def test_brief_multiple_role_authors_are_not_mistaken_for_a_title() -> None:
