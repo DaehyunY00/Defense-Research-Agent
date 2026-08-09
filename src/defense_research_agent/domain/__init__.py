@@ -47,11 +47,16 @@ from defense_research_agent.domain.external_issue import (
 )
 from defense_research_agent.domain.ingestion import IngestionFailure, IngestionReport
 from defense_research_agent.domain.metadata import (
+    MULTI_VALUED_METADATA_FIELDS,
+    STRUCTURED_METADATA_FIELDS,
     DatePrecision,
+    ExtractedAuthor,
     ExtractedMetadataValue,
     ExtractedPublicationMetadata,
     MetadataEvidence,
+    MetadataEvidenceSource,
     MetadataField,
+    PublicationDates,
 )
 from defense_research_agent.domain.pilot_evaluation import (
     MetricResult,
@@ -161,8 +166,10 @@ from defense_research_agent.domain.topic_generation import (
 
 __all__ = [
     "ALL_EVALUATION_CRITERIA",
+    "MULTI_VALUED_METADATA_FIELDS",
     "REVIEW_ROLES",
     "SPECIALIST_RESEARCH_ROLES",
+    "STRUCTURED_METADATA_FIELDS",
     "AggregatedCandidateEvaluation",
     "ArtifactKind",
     "CandidateAttributes",
@@ -208,6 +215,7 @@ __all__ = [
     "ExternalSource",
     "ExternalSourceRelationship",
     "ExternalSourceType",
+    "ExtractedAuthor",
     "ExtractedMetadataValue",
     "ExtractedPublicationMetadata",
     "ExtractionProvenance",
@@ -217,6 +225,7 @@ __all__ = [
     "Label",
     "LanguageCode",
     "MetadataEvidence",
+    "MetadataEvidenceSource",
     "MetadataField",
     "MetricResult",
     "MetricStatus",
@@ -228,6 +237,7 @@ __all__ = [
     "PilotEvaluationSummary",
     "ProposedArtifact",
     "PublicationChunk",
+    "PublicationDates",
     "PublicationDistribution",
     "PublicationPage",
     "PublicationQualityStatus",

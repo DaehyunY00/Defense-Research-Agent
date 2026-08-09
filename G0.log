@@ -1,0 +1,76 @@
+### uv run pytest
+warning: `VIRTUAL_ENV=/Users/daehyunyoo/Library/CloudStorage/GoogleDrive-dhyoo970111@gmail.com/내 드라이브/defense-research-agent/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform darwin -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/daehyunyoo/dev/wt/contracts
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.14.2, langsmith-0.10.10
+collected 260 items
+
+tests/graph/test_research_workflow.py .                                  [  0%]
+tests/graph/test_topic_generation_graph.py ..                            [  1%]
+tests/integration/test_anthropic_sdk_contract.py .                       [  1%]
+tests/integration/test_cli.py ...                                        [  2%]
+tests/integration/test_gcp_app_deployment.py ...                         [  3%]
+tests/integration/test_ingestion_pipeline.py ......                      [  6%]
+tests/integration/test_pilot_cli.py .                                    [  6%]
+tests/integration/test_representative_data_models.py .                   [  6%]
+tests/integration/test_research_api.py ..                                [  7%]
+tests/integration/test_research_lab_demo.py .                            [  8%]
+tests/integration/test_review_cli.py ..                                  [  8%]
+tests/integration/test_search_cli.py .                                   [  9%]
+tests/unit/agents/test_anthropic_model_gateway.py ..........             [ 13%]
+tests/unit/agents/test_evaluators.py ...                                 [ 14%]
+tests/unit/agents/test_model_gateway.py ..                               [ 15%]
+tests/unit/agents/test_research_lab_agents.py ....                       [ 16%]
+tests/unit/data/test_readers.py ...                                      [ 17%]
+tests/unit/domain/test_metadata.py ...........                           [ 21%]
+tests/unit/domain/test_models.py ..................                      [ 28%]
+tests/unit/domain/test_quality.py ..........                             [ 32%]
+tests/unit/domain/test_research_lab_domain.py ............               [ 37%]
+tests/unit/domain/test_research_project.py ....                          [ 38%]
+tests/unit/evaluation/test_harness.py ..                                 [ 39%]
+tests/unit/evaluation/test_quality_gate_contract.py .....                [ 41%]
+tests/unit/issues/test_anthropic_web_search.py ....                      [ 43%]
+tests/unit/issues/test_mock_provider.py .......                          [ 45%]
+tests/unit/repositories/test_gcs_publications.py ......                  [ 48%]
+tests/unit/repositories/test_in_memory.py .............                  [ 53%]
+tests/unit/repositories/test_research_projects.py ..                     [ 53%]
+tests/unit/search/test_chunking.py ...........                           [ 58%]
+tests/unit/search/test_embedding_contract.py ..........                  [ 61%]
+tests/unit/search/test_lexical.py ..                                     [ 62%]
+tests/unit/search/test_metadata_extractor_contract.py ...                [ 63%]
+tests/unit/search/test_parser_contract.py ..........                     [ 67%]
+tests/unit/services/test_code_sandbox.py ....                            [ 69%]
+tests/unit/services/test_corpus_index.py ..                              [ 70%]
+tests/unit/services/test_data_analysis_sandbox.py ......                 [ 72%]
+tests/unit/services/test_evaluation.py .....                             [ 74%]
+tests/unit/services/test_external_issues.py .......                      [ 76%]
+tests/unit/services/test_gcp_code_sandbox.py .....                       [ 78%]
+tests/unit/services/test_gcp_research_runtime.py ...                     [ 80%]
+tests/unit/services/test_publication_type.py .....                       [ 81%]
+tests/unit/services/test_ranking.py .......                              [ 84%]
+tests/unit/services/test_research_lab_service.py ....                    [ 86%]
+tests/unit/services/test_research_project_service.py .....               [ 88%]
+tests/unit/services/test_research_tools.py ....                          [ 89%]
+tests/unit/services/test_review.py ........                              [ 92%]
+tests/unit/services/test_sandbox_worker.py ....                          [ 94%]
+tests/unit/services/test_topic_generator.py ............                 [ 98%]
+tests/unit/test_health.py ..                                             [ 99%]
+tests/unit/test_path_safety.py .                                         [100%]
+
+============================= 260 passed in 14.37s =============================
+
+### uv run mypy
+warning: `VIRTUAL_ENV=/Users/daehyunyoo/Library/CloudStorage/GoogleDrive-dhyoo970111@gmail.com/내 드라이브/defense-research-agent/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Success: no issues found in 145 source files
+
+### uv run ruff check .
+warning: `VIRTUAL_ENV=/Users/daehyunyoo/Library/CloudStorage/GoogleDrive-dhyoo970111@gmail.com/내 드라이브/defense-research-agent/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+### uv run ruff format --check .
+warning: `VIRTUAL_ENV=/Users/daehyunyoo/Library/CloudStorage/GoogleDrive-dhyoo970111@gmail.com/내 드라이브/defense-research-agent/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+155 files already formatted
+

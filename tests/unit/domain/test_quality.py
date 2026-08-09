@@ -51,6 +51,42 @@ def test_zero_page_publication_is_accepted_as_a_measurement() -> None:
     assert measurements.page_count == 0
 
 
+def test_derived_ratios_do_not_divide_by_zero_on_an_empty_publication() -> None:
+    measurements = _measurements(
+        page_count=0, non_empty_page_count=0, character_count=0, control_character_count=0
+    )
+
+    assert measurements.mean_characters_per_page == 0.0
+    assert measurements.control_character_ratio == 0.0
+    assert measurements.non_empty_page_ratio == 0.0
+
+
+def test_derived_ratios_are_computed_from_the_stored_counts() -> None:
+    measurements = _measurements(
+        character_count=1_000,
+        page_count=10,
+        non_empty_page_count=8,
+        control_character_count=25,
+    )
+
+    assert measurements.mean_characters_per_page == 100.0
+    assert measurements.control_character_ratio == 0.025
+    assert measurements.non_empty_page_ratio == 0.8
+
+
+def test_warning_is_constructible_as_a_valid_indexable_verdict() -> None:
+    verdict = PublicationQualityVerdict(
+        publication_id="pub-1",
+        status=PublicationQualityStatus.WARNING,
+        measurements=_measurements(control_character_count=25),
+        thresholds_version="quality-v0-provisional",
+        reasons=["제어문자 25개"],
+    )
+
+    assert verdict.status.is_indexable
+    assert verdict.duplicate_of is None
+
+
 def test_ready_verdict_needs_no_reason() -> None:
     verdict = PublicationQualityVerdict(
         publication_id="pub-1",

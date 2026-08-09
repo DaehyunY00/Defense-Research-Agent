@@ -48,6 +48,27 @@ class QualityMeasurements(DomainModel):
     printable_ratio: Confidence
     korean_ratio: Confidence
 
+    @property
+    def mean_characters_per_page(self) -> float:
+        """Page density. Zero for a publication with no pages."""
+        if self.page_count == 0:
+            return 0.0
+        return self.character_count / self.page_count
+
+    @property
+    def control_character_ratio(self) -> float:
+        """Share of extracted characters that are C0/C1 control characters."""
+        if self.character_count == 0:
+            return 0.0
+        return self.control_character_count / self.character_count
+
+    @property
+    def non_empty_page_ratio(self) -> float:
+        """Share of pages that carry any text."""
+        if self.page_count == 0:
+            return 0.0
+        return self.non_empty_page_count / self.page_count
+
     @model_validator(mode="after")
     def non_empty_pages_must_not_exceed_pages(self) -> "QualityMeasurements":
         """Reject measurements whose non-empty page count exceeds total pages."""
@@ -61,6 +82,15 @@ class QualityThresholds(DomainModel):
 
     ``thresholds_version`` is recorded on every verdict. Changing any threshold
     requires a new version so previously stored verdicts stay interpretable.
+
+    The defaults below are provisional and must not be treated as calibrated.
+    Only ``min_character_count`` has a corpus basis (``DATA_QUALITY_REPORT.md``
+    DQ-02: 38 of 370 documents fall under 1,000 characters). The ratio defaults
+    are placeholders: DQ-03 records that 192 of 370 documents carry C0/C1
+    control characters, many using ``U+0001`` as a visual space, so whether such
+    characters are counted or normalized away changes the outcome for a majority
+    of the corpus. Calibrate against the corpus and record the expected
+    exclusion count before using these in a real admission run.
     """
 
     thresholds_version: Label
