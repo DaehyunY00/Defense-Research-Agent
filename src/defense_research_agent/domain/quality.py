@@ -5,7 +5,9 @@ verdict must be reproducible from the measurements and a versioned threshold set
 so the decision can be replayed after a parser or threshold change.
 """
 
+from collections.abc import Mapping
 from enum import StrEnum
+from types import MappingProxyType
 
 from pydantic import Field, NonNegativeInt, PositiveInt, model_validator
 
@@ -15,6 +17,24 @@ from defense_research_agent.domain.common import (
     EntityId,
     Label,
 )
+
+DEFAULT_QUALITY_THRESHOLDS_VERSION = "quality-v1-corpus370"
+"""Version of the threshold set calibrated against the 370-document corpus."""
+
+CONTROL_CHARACTER_SUBSTITUTIONS: Mapping[str, str] = MappingProxyType({"\x01": " "})
+"""Control characters replaced before measurement, and why.
+
+``U+0001`` is a PDF extraction artifact standing in for a space. Measured over
+the corpus it appears in 163 of the 192 documents that carry control characters,
+while every other C0 code except ``U+0007`` appears in exactly one document.
+Counting it as corruption would exclude 78 of 100 ``국방논단`` at a 1% control
+threshold; replacing it with a space first leaves exactly one excluded document,
+the genuinely corrupt report DQ-03 identifies. See
+``scripts/measure_quality_thresholds.py`` and ``docs/DECISIONS.md``.
+
+Implementations of the quality gate must apply these substitutions before
+counting control characters, and must not apply them to stored page text.
+"""
 
 
 class PublicationQualityStatus(StrEnum):
@@ -83,22 +103,47 @@ class QualityThresholds(DomainModel):
     ``thresholds_version`` is recorded on every verdict. Changing any threshold
     requires a new version so previously stored verdicts stay interpretable.
 
-    The defaults below are provisional and must not be treated as calibrated.
-    Only ``min_character_count`` has a corpus basis (``DATA_QUALITY_REPORT.md``
-    DQ-02: 38 of 370 documents fall under 1,000 characters). The ratio defaults
-    are placeholders: DQ-03 records that 192 of 370 documents carry C0/C1
-    control characters, many using ``U+0001`` as a visual space, so whether such
-    characters are counted or normalized away changes the outcome for a majority
-    of the corpus. Calibrate against the corpus and record the expected
-    exclusion count before using these in a real admission run.
+    The defaults are calibrated against the 370-document corpus by
+    ``scripts/measure_quality_thresholds.py``. Together they flag 39 of 370
+    documents: 38 for low text, and exactly one real publication for corruption
+    — the report DQ-03 identifies, whose body is 39.9% control characters. Each
+    threshold sits in a flat region of the measured distribution, so a small
+    calibration error does not swing the outcome.
+
+    Re-run the measurement and bump ``thresholds_version`` whenever the parser
+    changes, because every number here describes extracted text, not the PDFs.
     """
 
     thresholds_version: Label
+
     min_character_count: NonNegativeInt = 1_000
-    min_non_empty_page_ratio: Confidence = 0.5
-    min_printable_ratio: Confidence = 0.9
+    """DQ-02. Excludes 38 of 370, matching the report's own count."""
+
+    min_non_empty_page_ratio: Confidence = 0.25
+    """Excludes 3. At 0.5 it would exclude 28, mostly four-page ``Brief`` issues
+    where a single blank page crosses the line; their real defect is low text,
+    which ``min_character_count`` already catches. Measured p10 is 0.75."""
+
+    min_printable_ratio: Confidence = 0.95
+    """Share of characters that are printable after
+    :data:`CONTROL_CHARACTER_SUBSTITUTIONS`, judged by ``str.isprintable()`` plus
+    newline, tab, and carriage return. This is deliberately stricter than "not a
+    control character" so format and unassigned characters are also caught.
+    Excludes 2. Measured p10 is 0.9977; 0.99 would exclude 8 including 5
+    ``국방정책연구``."""
+
     min_korean_ratio: Confidence = 0.1
+    """Excludes 2: the corrupt report and a non-publication index file. The
+    lowest legitimate ``국방정책연구`` measures 0.338, so the English
+    ``Abstract``/``Keywords`` sections present in all 59 issues stay well clear.
+    0.2 would wrongly exclude a 279k-character AI research report at 0.152."""
+
     max_control_character_ratio: Confidence = 0.01
+    """Applied after :data:`CONTROL_CHARACTER_SUBSTITUTIONS`. Excludes exactly 1
+    document, measured at 0.399. The highest legitimate document measures below
+    0.005, so this sits with a 2x margin above real text and 40x below the
+    corrupt one. Without the substitution the same threshold would exclude 86
+    documents including 78 of 100 ``국방논단``."""
 
 
 class PublicationQualityVerdict(DomainModel):

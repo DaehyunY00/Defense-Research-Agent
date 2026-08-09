@@ -74,6 +74,8 @@ from defense_research_agent.domain.publication import (
     ResearchPublication,
 )
 from defense_research_agent.domain.quality import (
+    CONTROL_CHARACTER_SUBSTITUTIONS,
+    DEFAULT_QUALITY_THRESHOLDS_VERSION,
     PublicationQualityStatus,
     PublicationQualityVerdict,
     QualityMeasurements,
@@ -166,6 +168,8 @@ from defense_research_agent.domain.topic_generation import (
 
 __all__ = [
     "ALL_EVALUATION_CRITERIA",
+    "CONTROL_CHARACTER_SUBSTITUTIONS",
+    "DEFAULT_QUALITY_THRESHOLDS_VERSION",
     "MULTI_VALUED_METADATA_FIELDS",
     "REVIEW_ROLES",
     "SPECIALIST_RESEARCH_ROLES",

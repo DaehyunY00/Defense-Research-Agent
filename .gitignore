@@ -42,3 +42,11 @@ coverage.xml
 .idea/
 .vscode/
 *.swp
+
+# Lane agent run artifacts (written into the worktree by scripts/lane-*.sh)
+G0.log
+REVIEW.md
+REVIEW.err
+RESULT.md
+PROMPT.md
+codex.jsonl
