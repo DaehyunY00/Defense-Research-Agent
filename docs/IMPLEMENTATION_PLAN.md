@@ -202,10 +202,13 @@ page range, chunk index, chunking version은 유지된다.
 - 구현 파일은 `src/defense_research_agent/evaluation/quality.py`, 회귀 테스트는
   `tests/unit/evaluation/test_quality_gate_contract.py`다. 신규 의존성은 없다. 임계값과
   `CONTROL_CHARACTER_SUBSTITUTIONS`는 변경하지 않았다.
-- 판정 우선순위는 `orphan_pdf`(추출 페이지 0) → `duplicate`(원문 결합 text checksum의 기존
-  owner가 다른 publication) → `low_text` → `corrupt_text` → `manual_review` → `warning` →
-  `ready`다. `manual_review`는 한글 비율 미달, 또는 표지에서 얻은 제목이 없는 상태에서
-  파일명이 240 UTF-8 bytes 이상이거나 불완전 한글 자모로 끝나는 DQ-04 신호에 적용한다.
+- 판정 우선순위는 `orphan_pdf`(ingestion 계보상 PDF는 있으나 연결된 문서 JSON 없음) →
+  `duplicate`(원문 결합 text checksum의 기존 owner가 다른 publication) → `low_text` →
+  `corrupt_text` → `manual_review` → `warning` → `ready`다. 페이지가 0개라는 사실만으로는
+  DQ-01 orphan을 증명하지 않으므로 이 경우는 `low_text` 재추출 대상으로 분류한다.
+  `manual_review`는 한글 비율 미달, 또는 표지에서 얻은 제목이 없는 상태에서 파일명이 240
+  UTF-8 bytes 이상이거나 불완전 한글 자모로 끝나는 DQ-04 신호에 적용한다. ingestion이
+  `title_source=filename`으로 표시한 제목은 표지 근거로 간주하지 않는다.
 - 기본 인덱스 hand-off용 `select_default_index_publications`는 verdict가 없으면 실패하고
   `ready`/`warning`만 반환한다. 그러나 현재 실제 index manifest 작성 경로는 quality verdict를
   입력받지 않으며 `services/`는 이 레인의 수정 금지 범위다. 따라서
@@ -217,15 +220,20 @@ page range, chunk index, chunking version은 유지된다.
   줄은 schema/threshold version, publication ID, status, reason, measurements와 요청 action을
   담는다. Report는 threshold 전체 snapshot, 7개 status 수량, indexable/excluded/queue 수량과
   non-ready finding을 담는다. 실행 시각을 넣지 않아 같은 입력은 byte-equivalent하다.
-- DQ-01 중복, DQ-02 1,000자 미만, DQ-03 U+0001 3.3%/비치환 control 3.3%/손상 control
-  41.7%, DQ-04 250-byte·불완전 자모 파일명, orphan을 실제 측정 대역의 오프라인 fixture로
-  고정했다. 기대 영향은 ADR-010과 동일하게 고유 370개 중 38개 저추출과 손상 보고서 1개를
-  차단하는 것이다. 읽기 전용 일회성 corpus audit에서는 `ready` 303, `warning` 28,
-  `low_text` 37, `corrupt_text` 1, `orphan_pdf` 1이었다. ADR-010이 비발간물이라 ingestion에서
-  제외하도록 한 page 없는 `pdf_index.json`이 판정 우선순위상 38번째 `low_text` 대신
-  `orphan_pdf`가 되어 non-indexable 합계 39는 유지된다. 정식 수량 검증은 parser/index 배선
-  후 integration으로 고정하며, `manual_review`는 자동 승인·색인하지 않아 사람 판단 경계를
-  유지한다.
+- DQ-01 중복·orphan 계보, DQ-02 1,000자 미만, DQ-03 U+0001 3.3%/비치환 control
+  3.3%/손상 control 41.7%, DQ-04 250-byte·불완전 자모 파일명, DQ-07 완전한 NFD 파일명을
+  실제 측정 대역의 오프라인 fixture로 고정했다. 모든 운영 본문에 나타나는 `\n`과 함께
+  `\t`/`\r`도 layout control 면제 분기를 직접 통과시켜 control/printable 판정 회귀를 막는다.
+  파일명 잘림 판정은 원본명을 보존한 채 NFC로 비교하므로, NFD가 중성 자모로 끝나는 완전한
+  음절은 정상이고 NFC 후에도 독립 자모가 남는 실제 잘림만 review 신호가 된다.
+- NFC 복합키로 고유화한 370개 PDF-JSON 연결을 실제 파일명·페이지로 읽기 전용 재감사한
+  결과는 `ready` 269, `warning` 28, `low_text` 37, `corrupt_text` 1, `duplicate` 1,
+  `manual_review` 34다. DQ-04 위험 37개 중 앞선 상태가 없는 34개가 수동 검토로 이동한다.
+  여기에 DQ-01의 JSON 없는 실제 PDF 1개를 ingestion 계보로 입력하면 `orphan_pdf` 1개가
+  추가되어 총 371개 중 indexable 297개, non-indexable 74개다. aggregate catalog인
+  `pdf_index.json`은 publication도 orphan PDF도 아니며 이 수량에서 제외했다. 정식 수량
+  검증은 parser/index 배선 후 integration으로 고정하며, `manual_review`는 자동 승인·색인하지
+  않아 사람 판단 경계를 유지한다.
 
 ### P1.7 Page-aware / section-aware chunking
 

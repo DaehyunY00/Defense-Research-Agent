@@ -17,6 +17,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
+from unicodedata import normalize
 
 from defense_research_agent.domain.common import Checksum, EntityId
 from defense_research_agent.domain.publication import (
@@ -82,12 +83,12 @@ class PublicationQualityGate(ABC):
 class DeterministicPublicationQualityGate(PublicationQualityGate):
     """Production quality gate calibrated by ADR-010.
 
-    Status precedence is deliberate: no extracted pages are ``orphan_pdf``;
-    duplicates are then isolated before content gates; low extraction and
-    corruption take precedence over metadata review; low Korean ratio or an
-    unresolved DQ-04 filename-truncation signal becomes ``manual_review``;
-    usable text with sparse controls or too many empty pages is ``warning``;
-    otherwise it is ``ready``.
+    Status precedence is deliberate: a PDF with no linked document JSON is
+    ``orphan_pdf``; duplicates are then isolated before content gates; low
+    extraction and corruption take precedence over metadata review; low Korean
+    ratio or an unresolved DQ-04 filename-truncation signal becomes
+    ``manual_review``; usable text with sparse controls or too many empty pages
+    is ``warning``; otherwise it is ``ready``.
     """
 
     def __init__(self, thresholds: QualityThresholds | None = None) -> None:
@@ -205,8 +206,8 @@ class DeterministicPublicationQualityGate(PublicationQualityGate):
                 manual_review_page=manual_review_page,
             )
 
-        if measurements.page_count == 0:
-            return verdict(PublicationQualityStatus.ORPHAN_PDF, "추출된 페이지 없음")
+        if _is_orphan_pdf(publication):
+            return verdict(PublicationQualityStatus.ORPHAN_PDF, "연결된 문서 JSON 없음")
 
         if known_content_checksums and content_checksum is None:
             raise ValueError(
@@ -384,12 +385,13 @@ def _content_checksum(pages: Sequence[PublicationPage]) -> Checksum:
 
 def _filename_title_review_reason(publication: ResearchPublication) -> str | None:
     """Return a DQ-04 review reason only while no cover-derived title exists."""
-    if publication.title is not None or publication.local_path is None:
+    if _has_non_filename_title(publication) or publication.local_path is None:
         return None
 
     filename = publication.local_path.replace("\\", "/").rsplit("/", maxsplit=1)[-1]
     stem = filename.rsplit(".", maxsplit=1)[0]
-    if stem and _is_incomplete_hangul_jamo(stem[-1]):
+    normalized_stem = normalize("NFC", stem)
+    if normalized_stem and _is_incomplete_hangul_jamo(normalized_stem[-1]):
         return "파일명이 불완전 한글 자모로 끝나며 표지 제목 없음"
     if len(filename.encode("utf-8")) >= 240:
         return "파일명 240바이트 이상이며 표지 제목 없음"
@@ -397,13 +399,40 @@ def _filename_title_review_reason(publication: ResearchPublication) -> str | Non
 
 
 def _is_incomplete_hangul_jamo(character: str) -> bool:
+    """Detect a trailing standalone jamo after complete syllables compose to NFC."""
     codepoint = ord(character)
     return (
-        0x1100 <= codepoint <= 0x11A7
-        or 0x3131 <= codepoint <= 0x318E
-        or 0xA960 <= codepoint <= 0xA97C
-        or 0xD7B0 <= codepoint <= 0xD7C6
+        0x1100 <= codepoint <= 0x11FF
+        or 0x3130 <= codepoint <= 0x318F
+        or 0xA960 <= codepoint <= 0xA97F
+        or 0xD7B0 <= codepoint <= 0xD7FF
     )
+
+
+def _is_orphan_pdf(publication: ResearchPublication) -> bool:
+    """Return whether ingestion observed a PDF without any linked document JSON."""
+    ingestion = _ingestion_lineage(publication)
+    return bool(
+        ingestion is not None
+        and ingestion.get("pdf_linked") is True
+        and ingestion.get("json_source_paths") == []
+    )
+
+
+def _has_non_filename_title(publication: ResearchPublication) -> bool:
+    """Treat an explicitly filename-derived title as unresolved for DQ-04."""
+    if publication.title is None:
+        return False
+    ingestion = _ingestion_lineage(publication)
+    return ingestion is None or ingestion.get("title_source") != "filename"
+
+
+def _ingestion_lineage(publication: ResearchPublication) -> Mapping[str, object] | None:
+    """Return validated-enough ingestion lineage from untrusted raw metadata."""
+    ingestion = publication.raw_metadata.get("_ingestion")
+    if not isinstance(ingestion, Mapping):
+        return None
+    return ingestion
 
 
 def _queue_record(

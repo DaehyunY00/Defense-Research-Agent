@@ -1,20 +1,24 @@
-"""Operational quality gate regression tests for DQ-01 through DQ-04.
+"""Operational quality gate regression tests for DQ-01 through DQ-04 and DQ-07.
 
 The synthetic bodies reproduce measured corpus bands without reading ``data/``:
 
 - ``국방논단``: U+0001 at 1.7-5.0%
 - DQ-03 damaged report: mixed C0 controls at about 40%
 - sparse U+0007 documents: under the 1% corruption threshold
+- layout controls: newlines, tabs, and carriage returns excluded by the report
 - page density: 1,200 characters/page, close to the measured p50 of 1,154
 - DQ-04 filenames: 250 UTF-8 bytes, inside the observed 240-255 byte band
+- DQ-07 filenames: complete decomposed Hangul normalized to NFC for comparison
 """
 
 import json
 from hashlib import sha256
 from pathlib import Path
+from unicodedata import normalize
 
 import pytest
 
+from defense_research_agent.domain.common import JsonObject
 from defense_research_agent.domain.provenance import ExtractionProvenance
 from defense_research_agent.domain.publication import (
     PublicationPage,
@@ -62,11 +66,46 @@ def _page(text: str, page_number: int = 1) -> PublicationPage:
     )
 
 
+def _orphan_publication(publication_id: str = "orphan") -> ResearchPublication:
+    raw_metadata: JsonObject = {
+        "_ingestion": {
+            "pdf_linked": True,
+            "json_source_paths": [],
+        }
+    }
+    return ResearchPublication(
+        publication_id=publication_id,
+        publication_type=PublicationType.RESEARCH_REPORT,
+        local_path="data/pdfs/국방논단/orphan.pdf",
+        raw_metadata=raw_metadata,
+    )
+
+
+def _filename_titled_publication(local_path: str) -> ResearchPublication:
+    raw_metadata: JsonObject = {
+        "_ingestion": {
+            "pdf_linked": True,
+            "json_source_paths": ["metadata/document.json"],
+            "title_source": "filename",
+        }
+    }
+    return ResearchPublication(
+        publication_id="filename-title",
+        publication_type=PublicationType.RESEARCH_REPORT,
+        title="파일명에서 파생한 제목",
+        local_path=local_path,
+        raw_metadata=raw_metadata,
+    )
+
+
 _UNIT = "국방정책 연구 본문입니다. "
 _UNIT_WITH_U0001 = _UNIT.replace(" 연구", "\x01연구")
 
 CLEAN_BODY = _UNIT * 80
 """1,200 characters and 1,200 characters/page, near the measured p50 density."""
+
+LAYOUT_CONTROL_BODY = (_UNIT + "\n\t\r") * 80
+"""Newline, tab, and carriage return at a ratio well above the 1% threshold."""
 
 FORUM_U0001_BODY = (_UNIT_WITH_U0001 + _UNIT) * 40
 """3.3% U+0001 before substitution, inside the measured 1.7-5.0% forum band."""
@@ -81,6 +120,9 @@ ENGLISH_BODY = "This report examines defense acquisition policy in depth. " * 25
 
 LONG_FILENAME_PATH = f"data/pdfs/Brief/2024_저자_{'가' * 78}.pdf"
 TRUNCATED_JAMO_PATH = f"data/pdfs/Brief/2024_저자_{'가' * 77}ᄌ.pdf"
+NFD_COMPLETE_FILENAME_PATH = (
+    f"data/pdfs/연구보고서/{normalize('NFD', '2025_백재옥_중장기장비유지비추정및전망방법연구.pdf')}"
+)
 
 
 def test_regression_fixture_bands_match_the_measured_corpus() -> None:
@@ -109,6 +151,21 @@ def test_measure_is_threshold_free_and_preserves_original_page_text() -> None:
     assert measurements.control_character_count == 0
     assert page.model_dump_json() == before
     assert "\x01" in page.text
+
+
+def test_layout_controls_are_exempt_from_control_and_printable_ratios() -> None:
+    gate = DeterministicPublicationQualityGate()
+    raw_layout_ratio = sum(
+        character in {"\n", "\t", "\r"} for character in LAYOUT_CONTROL_BODY
+    ) / len(LAYOUT_CONTROL_BODY)
+
+    measurements = gate.measure(_publication(), [_page(LAYOUT_CONTROL_BODY)])
+    verdict = gate.evaluate(_publication(), [_page(LAYOUT_CONTROL_BODY)], {})
+
+    assert raw_layout_ratio > THRESHOLDS.max_control_character_ratio
+    assert measurements.control_character_count == 0
+    assert measurements.printable_ratio == 1.0
+    assert verdict.status is PublicationQualityStatus.READY
 
 
 def test_measure_counts_empty_text_and_page_density_after_substitution() -> None:
@@ -199,18 +256,29 @@ def test_dq02_low_extraction_is_excluded_with_a_reason() -> None:
     assert verdict.reasons == ["추출 문자 수 미달"]
 
 
-def test_orphan_pdf_is_defined_as_having_no_extracted_pages() -> None:
+def test_dq01_orphan_pdf_requires_pdf_without_linked_json_lineage() -> None:
     gate = DeterministicPublicationQualityGate()
 
     verdict = gate.evaluate(
-        _publication(local_path="data/pdfs/국방논단/orphan.pdf"),
-        [],
+        _orphan_publication(),
+        [_page(CLEAN_BODY)],
         {},
     )
 
     assert verdict.status is PublicationQualityStatus.ORPHAN_PDF
-    assert verdict.measurements.page_count == 0
+    assert verdict.measurements.page_count == 1
+    assert verdict.reasons == ["연결된 문서 JSON 없음"]
     assert not verdict.status.is_indexable
+
+
+def test_no_extracted_pages_without_orphan_lineage_is_low_text() -> None:
+    gate = DeterministicPublicationQualityGate()
+
+    verdict = gate.evaluate(_publication(), [], {})
+
+    assert verdict.status is PublicationQualityStatus.LOW_TEXT
+    assert verdict.measurements.page_count == 0
+    assert verdict.reasons == ["추출 문자 수 미달"]
 
 
 def test_low_korean_ratio_is_manual_review_not_automatic_corruption() -> None:
@@ -256,6 +324,34 @@ def test_cover_derived_title_resolves_dq04_filename_risk() -> None:
         {},
     )
 
+    assert verdict.status is PublicationQualityStatus.READY
+
+
+def test_filename_derived_title_does_not_resolve_dq04_risk() -> None:
+    gate = DeterministicPublicationQualityGate()
+
+    verdict = gate.evaluate(
+        _filename_titled_publication(TRUNCATED_JAMO_PATH),
+        [_page(CLEAN_BODY)],
+        {},
+    )
+
+    assert verdict.status is PublicationQualityStatus.MANUAL_REVIEW
+    assert verdict.reasons == ["파일명이 불완전 한글 자모로 끝나며 표지 제목 없음"]
+
+
+def test_dq07_complete_nfd_filename_is_not_incomplete_hangul() -> None:
+    gate = DeterministicPublicationQualityGate()
+    stem = Path(NFD_COMPLETE_FILENAME_PATH).stem
+
+    verdict = gate.evaluate(
+        _publication(local_path=NFD_COMPLETE_FILENAME_PATH),
+        [_page(CLEAN_BODY)],
+        {},
+    )
+
+    assert "\u1161" <= stem[-1] <= "\u1175"
+    assert normalize("NFC", stem).endswith("연구")
     assert verdict.status is PublicationQualityStatus.READY
 
 
@@ -389,7 +485,7 @@ def test_all_seven_statuses_are_reachable_as_valid_verdicts() -> None:
     blank_pages = [_page(CLEAN_BODY)] + [_page("", number) for number in range(2, 6)]
 
     reached = {
-        gate.evaluate(_publication("orphan"), [], {}).status,
+        gate.evaluate(_orphan_publication(), [], {}).status,
         gate.evaluate(_publication("copy"), [_page(CLEAN_BODY)], known).status,
         gate.evaluate(_publication("low"), [_page("짧음")], {}).status,
         gate.evaluate(_publication("corrupt"), [_page(HEAVILY_CORRUPTED_BODY)], {}).status,
@@ -429,7 +525,7 @@ def test_quality_artifacts_are_versioned_complete_and_byte_deterministic(
         gate.evaluate(_publication("warning"), [_page(SPARSE_BELL_BODY)], {}),
         gate.evaluate(_publication("low"), [_page("짧음")], {}),
         gate.evaluate(_publication("corrupt"), [_page(HEAVILY_CORRUPTED_BODY)], {}),
-        gate.evaluate(_publication("orphan"), [], {}),
+        gate.evaluate(_orphan_publication(), [], {}),
         gate.evaluate(_publication("manual"), [_page(ENGLISH_BODY)], {}),
         gate.evaluate(_publication("duplicate"), [_page(CLEAN_BODY)], known),
     ]
