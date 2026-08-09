@@ -7,6 +7,10 @@ docs/IMPLEMENTATION_PLAN.md 의 {{SECTION}} 을 구현한다.
 
 레인 경계:
 - 작업 범위는 {{DIRS}} 와 대응하는 tests/ 뿐이다.
+- 예외: docs/IMPLEMENTATION_PLAN.md 의 {{SECTION}} 섹션은 **반드시 갱신한다.**
+  Definition of Done 의 "관련 documentation 업데이트"가 이 항목이다. 코드가 충족한
+  체크박스를 체크하고, 코드와 모순되게 남은 서술을 고친다. 다른 섹션은 건드리지 않는다.
+  충족하지 않은 항목을 체크하지 않는다. 문서를 근거로 완료를 주장하지 않는다.
 - src/defense_research_agent/domain/__init__.py 와
   src/defense_research_agent/services/__init__.py 는 수정하지 않는다.
   새 심볼의 배럴 재노출은 통합 단계에서 사람이 일괄 처리한다.
