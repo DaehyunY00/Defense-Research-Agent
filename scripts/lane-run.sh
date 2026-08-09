@@ -34,10 +34,7 @@ info "레인 $LANE — codex exec 시작"
 info "  섹션 : $SECTION"
 info "  범위 : $DIRS"
 
-# worktree 의 .git 은 파일이고 실제 git dir 는 상위 저장소 안에 있다. workspace-write
-# 샌드박스는 worktree 만 쓰기 허용하므로 이 디렉터리를 열어주지 않으면 index.lock 을
-# 만들지 못해 커밋이 실패한다. 저장소가 Google Drive 경로에 있어 더 확실히 막힌다.
-GIT_COMMON_DIR="$(git -C "$WT" rev-parse --git-common-dir)"
+GIT_COMMON_DIR="$(git_common_dir "$WT")"  # lib.sh 참조
 
 run_codex() {
   # 프롬프트는 stdin 으로 넘긴다.

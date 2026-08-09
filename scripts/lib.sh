@@ -20,6 +20,22 @@ need() { command -v "$1" >/dev/null 2>&1 || die "$1 명령을 찾을 수 없다"
 
 lane_dir() { printf '%s/%s' "$WT_ROOT" "$1"; }
 
+# worktree 의 .git 은 파일이고 실제 git dir 는 상위 저장소 안에 있다. codex 의
+# workspace-write 샌드박스는 worktree 만 쓰기 허용하므로 이 경로를 --add-dir 로
+# 열어주지 않으면 index.lock 을 만들지 못해 커밋이 조용히 실패한다.
+#
+# 반드시 worktree 를 기준으로 계산한다. 메인 저장소에서 --git-common-dir 를 부르면
+# 상대 경로 '.git' 이 나오고, 이는 codex 의 CWD(worktree) 기준으로 해석되어
+# worktree/.git(파일)을 가리키게 된다. 실제로 이 실수로 레인 4개가 커밋에 실패했다.
+git_common_dir() {
+  local wt="$1" dir
+  dir="$(git -C "$wt" rev-parse --git-common-dir)"
+  case "$dir" in
+    /*) printf '%s' "$dir" ;;
+    *) ( cd "$wt" && cd "$dir" && pwd ) ;;
+  esac
+}
+
 require_lane() {
   local wt; wt="$(lane_dir "$1")"
   [ -d "$wt" ] || die "레인 worktree 가 없다: $wt  (먼저 scripts/lane-new.sh $1 <base> 실행)"

@@ -46,9 +46,7 @@ fi
 
 # codex 에 지적사항을 되먹인다. 구현 당시 컨텍스트를 유지하려고 resume 을 먼저 시도하고,
 # 해당 worktree 에 세션이 없으면 새 세션으로 떨어진다.
-# worktree 의 실제 git dir 는 상위 저장소 안에 있다. 열어주지 않으면 codex 가 커밋하지
-# 못한다. lane-run.sh 의 같은 주석 참조.
-GIT_COMMON_DIR="$(git -C "$WT" rev-parse --git-common-dir)"
+GIT_COMMON_DIR="$(git_common_dir "$WT")"  # lib.sh 참조
 
 feedback_codex() {
   local body="$1"

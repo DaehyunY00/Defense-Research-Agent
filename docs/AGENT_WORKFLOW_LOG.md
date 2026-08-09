@@ -103,7 +103,20 @@ codex가 조용히 실패하지 않고 원인을 정확히 진단해 보고한 �
 
 **수정**: `--allowedTools`에서 `Bash(uv run:*)`를 빼고, 프롬프트에 G0 로그 경로를 준다.
 
-### 2.7 레인 실행 산출물이 추적됐다
+### 2.7 `--git-common-dir` 상대 경로
+
+2.3의 수정을 적용했는데도 레인 4개가 **전부 다시 커밋에 실패했다.** 임시 실행
+스크립트가 메인 저장소에서 `git rev-parse --git-common-dir` 를 불렀고, 그 경우 반환값이
+절대 경로가 아니라 `.git` 이다. 이 상대 경로가 codex의 CWD(worktree) 기준으로 해석되어
+`worktree/.git` — 즉 **파일**을 가리켰다.
+
+worktree에서 부르면 절대 경로가 나온다. `lane-run.sh` 는 원래 올바랐고 임시 스크립트만
+틀렸다.
+
+**수정**: `lib.sh` 에 `git_common_dir()` 헬퍼를 만들어 절대 경로를 강제하고 두 스크립트가
+이를 쓰게 했다. 다음 라운드에서 codex가 스스로 커밋하는 것을 확인했다.
+
+### 2.8 레인 실행 산출물이 추적됐다
 
 `git add -A`에 `G0.log`, `REVIEW.md`, `RESULT.md`, `codex.jsonl`이 딸려 들어갔다.
 
@@ -228,7 +241,7 @@ metadata가 실제 페이지 위에서 동작한다. PDF 재추출은 품질 개
 
 | 항목 | 상태 |
 |---|---|
-| PDF 파싱 라이브러리 선택 | 미결. 아래 참조 |
+| PDF 파싱 라이브러리 선택 | **pypdfium2 로 확정.** 아래 참조 |
 | `section_title` 유지 여부 | 유지하기로 결정. 단 파서가 heading을 채우기 전까지 항상 `None`이고 `changes_section` 경계는 실제 코퍼스에서 발화하지 않는다. P1.3 파서 heading 추출이 전제 |
 | `pdf_index.json` 처리 | 발간물이 아니므로 품질 게이트가 아니라 ingestion 단계에서 제외해야 한다 |
 | `U+0007` 보유 29개 문서 | 치환 대상이 아니므로 `warning`으로 색인된다. 공백 대체라는 근거가 확인되면 치환 목록에 추가 가능 |
@@ -247,6 +260,9 @@ metadata가 실제 페이지 위에서 동작한다. PDF 재추출은 품질 개
 
 AGPL-3.0 §13은 사용자가 네트워크로 상호작용하면 전체 저작물의 대응 소스를 제공하도록
 요구한다. 이 저장소는 `deploy/gcp-app/`에 Cloud Run API를 포함하므로 정면으로 걸린다.
+
+**결정: pypdfium2.** "가장 빠르고 정확한 것"이라는 요구를 AGPL 없이 충족한다. 아직
+ADR로 기록하지 않았고 P1.3 나머지도 구현하지 않았다.
 
 이 결정은 되돌릴 수 없는 것이 아니다. `DocumentParser` 계약이 `ParserCapability.TABLES`
 와 복수 adapter를 지원하므로, 하나로 시작하고 품질 게이트가 문제를 보여주면 두 번째
@@ -274,3 +290,55 @@ adapter를 추가하면 된다. 측정 없이 미리 고르지 않는다.
 - **에이전트 보고를 그대로 믿지 않는다.** 구현자의 완료 보고도, 리뷰어의 지적도 코드로
   재확인한다. 이번 기록의 모든 결함은 사람이 코드와 원본 데이터로 검증한 것이다.
 - **체크박스는 사람이 확정한다.** `IMPLEMENTATION_PLAN.md`의 backlog 운영 규칙이다.
+
+## 7. 현재 상태와 재개 지점
+
+2026-08-10 기준.
+
+### 완료
+
+base 는 `agent/contracts` 이고 태그는 `base/document-intelligence` 다.
+G0: 371 passed, mypy strict 150 files, ruff clean.
+
+| 레인 | 작업 | 교차 검토 | 상태 |
+|---|---|---|---|
+| p11-provenance | P1.1 provenance + 페이지 단위 인용 | PASS | 통합됨 |
+| a-json-pages | JSON page adapter | PASS | 통합됨 |
+| d-embedding | P2.2 `FakeEmbeddingProvider` | PASS | 통합됨 |
+| c-quality | P1.6 quality gate | PASS (되먹임 1라운드) | 통합됨 |
+| b-metadata | P1.5 metadata normalization | **미완** | 미통합 |
+
+배럴 재노출은 통합 시점마다 사람이 일괄 처리했다. 레인은 최상위 배럴 4개를 한 번도
+건드리지 않았고 머지 충돌은 전 구간 0건이었다.
+
+### 미완 — 레인 B
+
+`agent/b-metadata` 에 커밋 3개가 있고 G0 는 통과한다(332 passed). 교차 검토가 BLOCKER
+4건을 지적했고 codex 가 되먹임으로 2건의 수정 커밋을 냈으나, **재검토가 완료되지
+않았다.** 즉 수정이 지적을 실제로 해소했는지 검증되지 않은 상태다.
+
+지적된 내용:
+
+- Brief 표지 제목이 코퍼스의 78.6% 에서 오추출
+- 연구보고서 표지 제목이 25/38 에서 오추출
+- 운영 지배 분기가 어떤 테스트에서도 참이 되지 않음
+- 연구보고서 표지의 공저자 전원 유실
+
+재개 방법:
+
+```bash
+./scripts/lane-review.sh b-metadata 1ea50bd 'P1.5' --fix
+```
+
+PASS 가 나오면 `agent/contracts` 에 머지하고 `search/__init__.py` 에 새 심볼을
+재노출한다.
+
+### 다음 작업
+
+1. 레인 B 재검토 완료와 통합
+2. pypdfium2 결정을 ADR 로 기록
+3. P1.3 나머지(PDF 본문 직접 추출) 레인
+4. P1.4 OCR fallback, P1.7 chunking
+
+`section_title` 은 유지하기로 했으나 파서가 heading 을 채우기 전까지 항상 `None` 이고
+`changes_section` 경계는 실제 코퍼스에서 발화하지 않는다. P1.3 의 전제다.
