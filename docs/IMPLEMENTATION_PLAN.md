@@ -178,11 +178,34 @@ page range, chunk index, chunking version은 유지된다.
 
 ### P1.5 Metadata normalization
 
-- [ ] 제목, 부제, authors, organization, 발행일/정밀도, 권·호, DOI, 초록과 키워드 추출
-- [ ] 원본 표기, normalized value, confidence와 evidence page 보존
-- [ ] 파일명 연도·processed date·published date를 분리
-- [ ] 긴 파일명·불완전 자모에서는 표지 근거를 우선
-- [ ] 추측 대신 `null`과 실패 사유를 반환
+- [x] 제목, 부제, authors, organization, 발행일/정밀도, 권·호, DOI, 초록과 키워드 추출
+- [x] 원본 표기, normalized value, confidence와 evidence page 보존
+- [x] 파일명 연도·processed date·published date를 분리
+- [x] 긴 파일명·불완전 자모에서는 표지 근거를 우선
+- [x] 추측 대신 `null`과 실패 사유를 반환
+
+구현 기록(2026-08-09):
+
+- 입력은 `ResearchPublication`, 페이지 근거가 있는 `Sequence[PublicationPage]`, 선택적
+  `source_path`이며, 출력은 기존 계약의 `ExtractedPublicationMetadata`다. 변경 범위는
+  `search/metadata.py`, 대응 unit test와 이 P1.5 기록뿐이고 새 의존성은 없다.
+- `RuleBasedPublicationMetadataExtractor`는 `cover_page > body > filename >
+  processing_metadata` 순으로 필드별 후보를 선택한다. 강한 후보가 있으면 약한 후보를
+  병합하지 않고 버리며, 같은 강도의 값이 충돌하면 `null`과 실패 사유를 반환한다.
+- 정규화 규칙 `nfc-whitespace-v1`은 NFC 조합, 제어·format 문자의 공백 치환, 연속 공백
+  축약만 수행한다. 불완전 한글 자모를 추측해 완성하지 않으며 extractor provenance version에
+  규칙 버전을 포함한다. `SEASON`의 date 운반값은 봄·여름·가을·겨울을 각각
+  3월·6월·9월·12월 1일로 고정하되 정확한 월·일로 해석하지 않고 precision과 원문
+  `issue_label`을 함께 보존한다.
+- 결정적 offline unit test는 실제 자료에서 관찰된 국방논단 제어문자 표지, 국방정책연구
+  계절호와 `*`/`**` 저자 각주, 연구보고서 월 표기, Brief 저자 표기, 긴·잘린 파일명,
+  동일 강도 충돌, 미확정 필드와 byte-equivalent 재실행을 포함한다. 기본 suite는 실제
+  `data/`나 네트워크를 읽지 않는다.
+- 읽기 전용 corpus smoke 진단에서 문서 JSON 372/372개가 예외 없이 처리됐다. 이는 실행
+  안정성 지표이지 metadata 정확도 지표가 아니다. 정답셋이 없으므로 precision/recall은
+  기록하지 않으며, 기대 영향은 구조화 필드의 근거 추적성과 누락·충돌 가시성 향상이다.
+- extractor는 publication 승인 상태를 바꾸지 않는다. 모호한 값, 파일명/발행 연도 충돌과
+  도메인상 맞는 저자·기관 판정은 계속 사람 검수 대상이다.
 
 ### P1.6 Quality gate
 
