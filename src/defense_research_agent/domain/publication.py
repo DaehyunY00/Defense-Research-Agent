@@ -3,7 +3,14 @@
 from datetime import date, datetime
 from enum import StrEnum
 
-from pydantic import Field, HttpUrl, NonNegativeInt, PositiveInt, field_validator
+from pydantic import (
+    Field,
+    HttpUrl,
+    NonNegativeInt,
+    PositiveInt,
+    field_validator,
+    model_validator,
+)
 
 from defense_research_agent.domain.common import (
     Checksum,
@@ -64,16 +71,26 @@ class ResearchPublication(DomainModel):
     checksum: Checksum | None = None
 
 
+class PublicationPage(DomainModel):
+    """One parser-produced page whose original text and locator are preserved."""
+
+    page_number: PositiveInt
+    text: str
+    section_title: Label | None = None
+
+
 class PublicationChunk(DomainModel):
-    """A page-aware, ordered chunk derived from a publication."""
+    """A checksummed text chunk with publication and page provenance."""
 
     chunk_id: EntityId
     publication_id: EntityId
-    section: Label | None = None
-    page: PositiveInt | None = None
-    sequence: NonNegativeInt
     text: str
-    token_count: NonNegativeInt | None = None
+    page_start: PositiveInt
+    page_end: PositiveInt
+    section_title: Label | None = None
+    chunk_index: NonNegativeInt
+    checksum: Checksum
+    chunking_version: Label
     metadata: JsonObject = Field(default_factory=dict)
 
     @field_validator("text")
@@ -83,3 +100,10 @@ class PublicationChunk(DomainModel):
         if not value.strip():
             raise ValueError("chunk text must not be blank")
         return value
+
+    @model_validator(mode="after")
+    def page_range_must_be_ordered(self) -> "PublicationChunk":
+        """Reject provenance ranges whose end precedes their start."""
+        if self.page_end < self.page_start:
+            raise ValueError("page_end must be greater than or equal to page_start")
+        return self

@@ -56,6 +56,7 @@ from defense_research_agent.domain.pilot_evaluation import (
 )
 from defense_research_agent.domain.publication import (
     PublicationChunk,
+    PublicationPage,
     PublicationType,
     ResearchPublication,
 )
@@ -208,6 +209,7 @@ __all__ = [
     "ProposedArtifact",
     "PublicationChunk",
     "PublicationDistribution",
+    "PublicationPage",
     "PublicationSearchFilters",
     "PublicationSearchResult",
     "PublicationType",

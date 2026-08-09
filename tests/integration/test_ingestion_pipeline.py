@@ -258,7 +258,9 @@ def test_actual_representative_records_parse_for_primary_categories() -> None:
             )
         )
         assert json_source.content
-        assert json_source.target_filename == pdf_source.target_filename
+        assert normalize("NFC", json_source.target_filename) == normalize(
+            "NFC", pdf_source.target_filename
+        )
         assert len(pdf_source.checksum) == 64
 
     assert observed_types == {

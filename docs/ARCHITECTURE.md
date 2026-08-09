@@ -83,19 +83,45 @@ flowchart LR
    선형으로 증가한다.
 7. `find_similar`는 현재 제목·초록을 lexical query로 변환하며 의미적 유사도가 아니다.
 
-## 6. 벡터 및 하이브리드 검색 확장 지점
+## 6. Document Intelligence 기반과 검색 확장 지점
 
-벡터 검색을 추가할 때 repository 호출부는 유지하고 `PublicationSearchAlgorithm`의
-새 구현을 주입한다.
+페이지 provenance를 보존하는 순수 domain/search 기반은 구현돼 있다.
 
-권장 순서:
+```mermaid
+flowchart LR
+    A["ResearchPublication"] --> B["PublicationPage"]
+    B --> C["DeterministicPageChunker"]
+    C --> D["PublicationChunk"]
+    D -. "planned" .-> E["Embedding"]
+    E -. "planned" .-> F["Vector Search"]
+    G["Existing lexical retrieval"] -. "planned fusion" .-> H["Hybrid Search"]
+    F -. "planned fusion" .-> H
+```
 
-1. 페이지 근거를 보존하는 `PublicationChunk` 생성과 품질 게이트
-2. `VectorSearchAlgorithm` 어댑터 구현
-3. 오프라인 fake embedding으로 인터페이스·결정성 테스트
-4. lexical/vector 점수를 별도 보존하는 `HybridSearchAlgorithm`
-5. 모델명, 차원, 청킹 버전, 입력 checksum을 인덱스 메타데이터에 기록
-6. 실제 외부 모델 연결은 선택적 통합 테스트로 격리
+- `PublicationPage`는 parser가 제공할 1-based page 번호, 원문 text와 선택적 section
+  title을 표현한다.
+- `PublicationChunk`는 `publication_id`, `page_start`, `page_end`, `chunk_index`, 원문
+  checksum과 chunking version을 보존한다.
+- `DeterministicPageChunker`는 연속 페이지와 같은 section을 문자 상한 안에서 묶는다.
+  빈 페이지·page gap·section 변경은 경계이며, 긴 단일 페이지는 근거 위치를 잃지 않도록
+  임의 분할하지 않는다.
+- chunk ID는 publication ID, chunking version, 순서, page range와 text checksum에
+  결합되므로 같은 입력에서 같은 결과가 나온다.
+- domain model은 publication ID의 형식만 검증한다. 실제 참조 무결성은 구체적인
+  `ResearchPublication`을 입력으로 받는 chunker와 향후 chunk repository/index writer가
+  담당한다.
+
+현재 JSON reader는 원본 `page_texts` 필드의 존재를 확인하지만 ingestion artifact에는
+페이지를 아직 전달하지 않는다. 따라서 `chunks.jsonl` 생성, chunk-level lexical 검색과
+애플리케이션 citation은 아직 구현되지 않았다. 기존 lexical 검색은 계속 publication
+단위로 동작한다.
+
+다음 확장 순서는 document parser/page adapter, PDF extraction, quality gate, retrieval
+golden benchmark, fake embedding, vector search, hybrid search다. Dense retrieval을
+추가하더라도 MUM-T, KAMD, C4ISR, ICBM, 킬체인 같은 exact terminology를 위해 lexical
+baseline을 제거하지 않는다. 새 검색 기능은 benchmark에서 baseline 대비 효과가 확인된
+경우에만 유지한다. Embedding, vector/hybrid search, RAG와 근거 부족 시 abstention은 모두
+planned 상태다.
 
 벡터 결과도 publication ID, chunk/page 근거, 원점수와 결합 규칙을 반환해야 한다.
 점수 결합, 정렬, 임계값 분기는 계속 결정적 Python 코드에서 수행한다.

@@ -52,11 +52,13 @@ def _models() -> list[BaseModel]:
     chunk = PublicationChunk(
         chunk_id="chunk:2024-ai:1",
         publication_id=publication.publication_id,
-        section="서론",
-        page=1,
-        sequence=0,
         text="  한글 청크의 앞뒤 공백도 보존한다.  ",
-        token_count=12,
+        page_start=1,
+        page_end=1,
+        section_title="서론",
+        chunk_index=0,
+        checksum="b" * 64,
+        chunking_version="page-window-v1",
         metadata={"char_count": 21},
     )
     signal = TopicSignal(
@@ -133,6 +135,38 @@ def test_invalid_date_is_rejected() -> None:
                 "publication_date": "2024-02-30",
             }
         )
+
+
+def test_publication_chunk_rejects_blank_text_and_reversed_page_range() -> None:
+    base = {
+        "chunk_id": "chunk:invalid",
+        "publication_id": "pub:well-formed-reference",
+        "page_start": 13,
+        "page_end": 13,
+        "chunk_index": 0,
+        "checksum": "c" * 64,
+        "chunking_version": "page-window-v1",
+    }
+
+    with pytest.raises(ValidationError, match="chunk text must not be blank"):
+        PublicationChunk.model_validate({**base, "text": " \n "})
+    with pytest.raises(ValidationError, match="page_end"):
+        PublicationChunk.model_validate({**base, "text": "본문", "page_start": 14, "page_end": 13})
+
+
+def test_publication_reference_membership_is_not_a_domain_model_concern() -> None:
+    chunk = PublicationChunk(
+        chunk_id="chunk:reference-boundary",
+        publication_id="pub:not-looked-up-by-domain",
+        text="참조 무결성은 chunker 또는 repository 경계에서 확인한다.",
+        page_start=1,
+        page_end=1,
+        chunk_index=0,
+        checksum="d" * 64,
+        chunking_version="page-window-v1",
+    )
+
+    assert chunk.publication_id == "pub:not-looked-up-by-domain"
 
 
 @pytest.mark.parametrize("score", [-0.01, 100.01])

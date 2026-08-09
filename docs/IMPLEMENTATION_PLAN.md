@@ -184,6 +184,17 @@ defense-research-agent/
 
 ### T005. 페이지 근거를 보존하는 청킹과 로컬 검색
 
+**현재 상태 (2026-08-09): 부분 구현**
+
+- [x] `PublicationPage`와 page-aware `PublicationChunk` domain model
+- [x] page range·text checksum·chunking version을 보존하는 결정적 page chunker
+- [ ] JSON `page_texts` 또는 PDF parser를 `PublicationPage`로 연결
+- [ ] `artifacts/corpus/chunks.jsonl` 생성과 품질 게이트 연결
+- [ ] chunk-level lexical index와 page citation 검색 결과
+
+위 체크 항목은 T005 전체 완료를 의미하지 않는다. 현재 publication-level lexical 검색은
+유지되며 chunk artifact와 retrieval 연결은 아직 없다.
+
 - **목적**: 외부 임베딩 API 없이 재현 가능한 첫 검색 계층을 만든다.
 - **입력**: T004 구조화 문서와 페이지 텍스트
 - **출력**:
@@ -191,13 +202,14 @@ defense-research-agent/
   - `artifacts/index/lexical/`
   - 페이지 인용이 포함된 검색 결과
 - **변경 파일**:
-  - `src/defense_research_agent/retrieval/chunking.py`
-  - `src/defense_research_agent/retrieval/lexical_index.py`
-  - `src/defense_research_agent/retrieval/models.py`
-  - `tests/unit/retrieval/`
+  - `src/defense_research_agent/domain/publication.py`
+  - `src/defense_research_agent/domain/search.py`
+  - `src/defense_research_agent/search/chunking.py`
+  - `src/defense_research_agent/search/lexical.py`
+  - `tests/unit/search/`
   - `tests/integration/test_retrieval.py`
 - **완료 조건**:
-  - 청크마다 `document_id`, 자료 유형, 페이지 시작/끝, 텍스트 해시를 가진다.
+  - 청크마다 `publication_id`, 페이지 시작/끝, 텍스트 checksum과 chunking version을 가진다.
   - 품질 게이트 제외 문서는 기본 인덱스에 들어가지 않는다.
   - 같은 입력에서 청크와 검색 순서가 결정적이다.
   - 검색 결과가 실제 페이지 텍스트로 역추적된다.
@@ -445,24 +457,22 @@ flowchart TD
 - 인용의 문서/페이지 역추적 성공률은 100%여야 한다.
 - 무근거 인용 허용률은 0%여야 한다.
 
-## 8. 다음 작업에서 구현할 첫 티켓
+## 8. 현재 기준 다음 Document Intelligence 티켓
 
-**T001. 읽기 전용 코퍼스 매니페스트와 연결 감사**를 먼저 구현한다.
+읽기 전용 reader, checksum, PDF-JSON 연결, 중복 계보, `ResearchPublication` 정규화와
+실패 보고는 현재 코드에 구현돼 있다. 초기 T001/T002의 산출물 이름과 정확히 같지는
+않지만 핵심 경계는 `data/readers/`와 `services/ingestion.py`에 존재한다.
 
-이 티켓은 이후 모든 처리의 문서 수와 식별자를 고정하고, 현재 확인된 orphan PDF 1개와 논리 중복 1그룹을 자동으로 재현한다. T001이 없으면 후속 색인에서 같은 문서가 세 번 반영되거나 메타데이터 없는 PDF가 조용히 누락될 수 있다.
+2026-08-09에 `PublicationChunk` 기반을 보강한 뒤의 다음 단일 작업은 **Document Parser
+abstraction과 JSON page adapter**다.
 
-첫 구현의 종료 시점에는 애플리케이션 에이전트나 외부 API를 아직 연결하지 않는다. 대신 다음 명령 수준의 결과가 재현돼야 한다.
+완료 조건:
 
-```text
-PDF files:                 371
-JSON files:                373
-Document JSON records:     372
-Index JSON files:            1
-Unique linked documents:   370
-Orphan PDFs:                 1
-Duplicate target groups:     1
-Source mutations:            0
-```
+- 원본 JSON `page_texts`를 검증된 `PublicationPage[]`로 변환한다.
+- publication ID와 page 번호를 잃지 않고 chunker에 전달한다.
+- malformed page, 중복/역순 page와 metadata page count 불일치를 구조화된 실패로 남긴다.
+- 원본 `data/`는 변경하지 않고 파생 page/chunk artifact만 `artifacts/`에 기록한다.
+- 아직 PDF 직접 extraction, OCR, embedding, vector/hybrid search와 RAG는 연결하지 않는다.
 
 ## 9. Prompt 9~12 파일럿 완성 계획
 
