@@ -11,13 +11,17 @@ from defense_research_agent.data.readers.base import (
 
 
 class PdfPublicationReader(PublicationReader):
-    """Validate PDF identity and metadata without attempting fragile extraction."""
+    """Validate PDF identity and checksum without extracting PDF body text.
+
+    Page text extraction is intentionally outside this reader. The current
+    pipeline obtains existing page text from the paired metadata JSON source.
+    """
 
     name = "pdf"
     suffixes = frozenset({".pdf"})
 
     def read(self, path: Path, input_root: Path) -> PublicationSource:
-        """Read stable file metadata and content checksum from one PDF."""
+        """Read stable file metadata and checksum, leaving ``content`` unset."""
         with path.open("rb") as source_file:
             header = source_file.read(5)
         if header != b"%PDF-":

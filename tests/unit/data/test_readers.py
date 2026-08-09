@@ -1,6 +1,7 @@
 """Unit tests for the format-specific read-only source readers."""
 
 import json
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
@@ -57,7 +58,8 @@ def test_readers_share_common_interface_and_parse_observed_formats(tmp_path: Pat
     assert json_source.content == "한글 본문을 손상 없이 읽는다."
     assert json_source.created_at is not None
     assert pdf_source.kind is SourceFileKind.PDF
-    assert len(pdf_source.checksum) == 64
+    assert pdf_source.checksum == sha256(pdf_path.read_bytes()).hexdigest()
+    assert pdf_source.content is None
 
 
 def test_json_reader_skips_observed_aggregate_index(tmp_path: Path) -> None:
