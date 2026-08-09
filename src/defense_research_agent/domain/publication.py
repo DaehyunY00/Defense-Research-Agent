@@ -20,6 +20,7 @@ from defense_research_agent.domain.common import (
     Label,
     LanguageCode,
 )
+from defense_research_agent.domain.provenance import ExtractionProvenance
 
 
 class PublicationType(StrEnum):
@@ -76,7 +77,23 @@ class PublicationPage(DomainModel):
 
     page_number: PositiveInt
     text: str
+    provenance: ExtractionProvenance
     section_title: Label | None = None
+
+
+class PublicationPageSpan(DomainModel):
+    """A half-open character range in a chunk attributable to one source page."""
+
+    page_number: PositiveInt
+    start_offset: NonNegativeInt
+    end_offset: NonNegativeInt
+
+    @model_validator(mode="after")
+    def range_must_not_be_empty(self) -> "PublicationPageSpan":
+        """Keep every span useful for resolving at least one character offset."""
+        if self.end_offset <= self.start_offset:
+            raise ValueError("page span end_offset must be greater than start_offset")
+        return self
 
 
 class PublicationChunk(DomainModel):
@@ -87,6 +104,8 @@ class PublicationChunk(DomainModel):
     text: str
     page_start: PositiveInt
     page_end: PositiveInt
+    page_spans: list[PublicationPageSpan] = Field(min_length=1)
+    provenance: ExtractionProvenance
     section_title: Label | None = None
     chunk_index: NonNegativeInt
     checksum: Checksum
@@ -106,4 +125,26 @@ class PublicationChunk(DomainModel):
         """Reject provenance ranges whose end precedes their start."""
         if self.page_end < self.page_start:
             raise ValueError("page_end must be greater than or equal to page_start")
+        return self
+
+    @model_validator(mode="after")
+    def page_spans_must_partition_text(self) -> "PublicationChunk":
+        """Require page spans to partition the complete chunk text exactly once."""
+        if self.page_spans[0].page_number != self.page_start:
+            raise ValueError("page spans must start on page_start")
+        if self.page_spans[-1].page_number != self.page_end:
+            raise ValueError("page spans must end on page_end")
+
+        expected_offset = 0
+        expected_page_number = self.page_start
+        for span in self.page_spans:
+            if span.start_offset != expected_offset:
+                raise ValueError("page spans must be contiguous and non-overlapping")
+            if span.page_number != expected_page_number:
+                raise ValueError("page spans must follow contiguous ascending page numbers")
+            expected_offset = span.end_offset
+            expected_page_number += 1
+
+        if expected_offset != len(self.text):
+            raise ValueError("page spans must cover chunk text exactly")
         return self

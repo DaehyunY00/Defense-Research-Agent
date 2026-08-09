@@ -8,8 +8,10 @@ from pydantic import BaseModel, HttpUrl, ValidationError
 from defense_research_agent.domain import (
     EvaluationCriterion,
     EvaluationResult,
+    ExtractionProvenance,
     JsonObject,
     PublicationChunk,
+    PublicationPageSpan,
     PublicationType,
     RecommendedOutputType,
     ResearchPublication,
@@ -59,6 +61,12 @@ def _models() -> list[BaseModel]:
         chunk_index=0,
         checksum="b" * 64,
         chunking_version="page-window-v1",
+        provenance=ExtractionProvenance(
+            parser_name="fake-pdf",
+            parser_version="1.0.0",
+            source_checksum="a" * 64,
+        ),
+        page_spans=[PublicationPageSpan(page_number=1, start_offset=0, end_offset=23)],
         metadata={"char_count": 21},
     )
     signal = TopicSignal(
@@ -146,6 +154,12 @@ def test_publication_chunk_rejects_blank_text_and_reversed_page_range() -> None:
         "chunk_index": 0,
         "checksum": "c" * 64,
         "chunking_version": "page-window-v1",
+        "provenance": {
+            "parser_name": "fake-pdf",
+            "parser_version": "1.0.0",
+            "source_checksum": "a" * 64,
+        },
+        "page_spans": [{"page_number": 13, "start_offset": 0, "end_offset": 2}],
     }
 
     with pytest.raises(ValidationError, match="chunk text must not be blank"):
@@ -164,9 +178,98 @@ def test_publication_reference_membership_is_not_a_domain_model_concern() -> Non
         chunk_index=0,
         checksum="d" * 64,
         chunking_version="page-window-v1",
+        provenance=ExtractionProvenance(
+            parser_name="fake-pdf",
+            parser_version="1.0.0",
+            source_checksum="a" * 64,
+        ),
+        page_spans=[PublicationPageSpan(page_number=1, start_offset=0, end_offset=40)],
     )
 
     assert chunk.publication_id == "pub:not-looked-up-by-domain"
+
+
+@pytest.mark.parametrize(
+    "page_spans",
+    [
+        [
+            PublicationPageSpan(page_number=1, start_offset=0, end_offset=3),
+            PublicationPageSpan(page_number=2, start_offset=2, end_offset=4),
+        ],
+        [
+            PublicationPageSpan(page_number=1, start_offset=0, end_offset=1),
+            PublicationPageSpan(page_number=2, start_offset=2, end_offset=4),
+        ],
+        [
+            PublicationPageSpan(page_number=1, start_offset=0, end_offset=2),
+            PublicationPageSpan(page_number=2, start_offset=2, end_offset=3),
+        ],
+    ],
+)
+def test_publication_chunk_rejects_overlapping_gapped_or_short_page_spans(
+    page_spans: list[PublicationPageSpan],
+) -> None:
+    with pytest.raises(ValidationError, match="page spans"):
+        PublicationChunk(
+            chunk_id="chunk:invalid-spans",
+            publication_id="pub:span-test",
+            text="가나다라",
+            page_start=1,
+            page_end=2,
+            chunk_index=0,
+            checksum="e" * 64,
+            chunking_version="page-window-v1",
+            provenance=ExtractionProvenance(
+                parser_name="fake-pdf",
+                parser_version="1.0.0",
+                source_checksum="a" * 64,
+            ),
+            page_spans=page_spans,
+        )
+
+
+@pytest.mark.parametrize(
+    ("page_start", "page_end", "page_spans"),
+    [
+        (1, 2, [PublicationPageSpan(page_number=2, start_offset=0, end_offset=4)]),
+        (1, 2, [PublicationPageSpan(page_number=1, start_offset=0, end_offset=4)]),
+    ],
+)
+def test_publication_chunk_page_span_endpoints_match_page_range(
+    page_start: int,
+    page_end: int,
+    page_spans: list[PublicationPageSpan],
+) -> None:
+    with pytest.raises(ValidationError, match="page spans"):
+        PublicationChunk(
+            chunk_id="chunk:invalid-span-pages",
+            publication_id="pub:span-test",
+            text="가나다라",
+            page_start=page_start,
+            page_end=page_end,
+            chunk_index=0,
+            checksum="e" * 64,
+            chunking_version="page-window-v1",
+            provenance=ExtractionProvenance(
+                parser_name="fake-pdf",
+                parser_version="1.0.0",
+                source_checksum="a" * 64,
+            ),
+            page_spans=page_spans,
+        )
+
+
+@pytest.mark.parametrize(("start_offset", "end_offset"), [(1, 1), (2, 1)])
+def test_publication_page_span_rejects_empty_or_reversed_ranges(
+    start_offset: int,
+    end_offset: int,
+) -> None:
+    with pytest.raises(ValidationError, match="greater than start_offset"):
+        PublicationPageSpan(
+            page_number=1,
+            start_offset=start_offset,
+            end_offset=end_offset,
+        )
 
 
 @pytest.mark.parametrize("score", [-0.01, 100.01])

@@ -69,7 +69,7 @@ class FakePdfParser(DocumentParser):
                     )
                 )
                 continue
-            pages.append(PublicationPage(page_number=number, text=text))
+            pages.append(PublicationPage(page_number=number, text=text, provenance=provenance))
         return ParseResult(
             provenance=provenance,
             pages=pages,
@@ -92,6 +92,7 @@ def test_successful_parse_records_pages_and_provenance() -> None:
     result = parser.parse(Path("report.pdf"), SOURCE_CHECKSUM)
 
     assert [page.page_number for page in result.pages] == [1, 2]
+    assert all(page.provenance == result.provenance for page in result.pages)
     assert result.provenance.parser_name == "fake-pdf"
     assert result.provenance.source_checksum == SOURCE_CHECKSUM
     assert result.failures == []
@@ -134,8 +135,8 @@ def test_pages_must_be_ordered_by_page_number() -> None:
         ParseResult(
             provenance=_provenance(),
             pages=[
-                PublicationPage(page_number=2, text="둘"),
-                PublicationPage(page_number=1, text="하나"),
+                PublicationPage(page_number=2, text="둘", provenance=_provenance()),
+                PublicationPage(page_number=1, text="하나", provenance=_provenance()),
             ],
         )
 
@@ -145,8 +146,8 @@ def test_page_numbers_must_not_repeat() -> None:
         ParseResult(
             provenance=_provenance(),
             pages=[
-                PublicationPage(page_number=1, text="하나"),
-                PublicationPage(page_number=1, text="중복"),
+                PublicationPage(page_number=1, text="하나", provenance=_provenance()),
+                PublicationPage(page_number=1, text="중복", provenance=_provenance()),
             ],
         )
 
@@ -170,3 +171,22 @@ def test_provenance_round_trips_through_json() -> None:
 
 def test_provenance_carries_no_timestamp_field() -> None:
     assert "extracted_at" not in ExtractionProvenance.model_fields
+
+
+def test_publication_page_requires_extraction_provenance() -> None:
+    with pytest.raises(ValidationError, match="provenance"):
+        PublicationPage.model_validate({"page_number": 1, "text": "본문"})
+
+
+def test_publication_page_rejects_provenance_without_parser_version() -> None:
+    with pytest.raises(ValidationError, match="parser_version"):
+        PublicationPage.model_validate(
+            {
+                "page_number": 1,
+                "text": "본문",
+                "provenance": {
+                    "parser_name": "fake-pdf",
+                    "source_checksum": SOURCE_CHECKSUM,
+                },
+            }
+        )

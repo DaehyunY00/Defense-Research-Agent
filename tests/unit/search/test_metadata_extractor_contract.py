@@ -27,6 +27,15 @@ from defense_research_agent.domain import (
 from defense_research_agent.search import PublicationMetadataExtractor
 
 SOURCE_CHECKSUM = "e" * 64
+PAGE_PROVENANCE = ExtractionProvenance(
+    parser_name="fake-page-parser",
+    parser_version="1.0.0",
+    source_checksum=SOURCE_CHECKSUM,
+)
+
+
+def _page(text: str) -> PublicationPage:
+    return PublicationPage(page_number=1, text=text, provenance=PAGE_PROVENANCE)
 
 
 def _parse_filename(source_path: Path) -> tuple[int | None, str | None, str | None]:
@@ -181,7 +190,7 @@ TRUNCATED_FILENAME = Path("2019_김의순_국방분야실행아키텍처구현�
 
 def test_cover_page_wins_over_a_truncated_filename() -> None:
     extractor = FakeCoverPageExtractor()
-    pages = [PublicationPage(page_number=1, text="국방분야 실행 아키텍처 구현방안 연구")]
+    pages = [_page("국방분야 실행 아키텍처 구현방안 연구")]
 
     metadata = extractor.extract(_publication(), pages, TRUNCATED_FILENAME)
 
@@ -193,7 +202,7 @@ def test_cover_page_wins_over_a_truncated_filename() -> None:
 
 def test_filename_reading_is_dropped_rather_than_merged() -> None:
     extractor = FakeCoverPageExtractor()
-    pages = [PublicationPage(page_number=1, text="국방분야 실행 아키텍처 구현방안 연구")]
+    pages = [_page("국방분야 실행 아키텍처 구현방안 연구")]
 
     metadata = extractor.extract(_publication(), pages, TRUNCATED_FILENAME)
 
@@ -215,7 +224,7 @@ def test_filename_is_used_only_when_no_cover_evidence_exists() -> None:
 
 def test_filename_evidence_is_weaker_than_cover_evidence() -> None:
     extractor = FakeCoverPageExtractor()
-    pages = [PublicationPage(page_number=1, text="국방분야 실행 아키텍처 구현방안 연구")]
+    pages = [_page("국방분야 실행 아키텍처 구현방안 연구")]
 
     from_cover = extractor.extract(_publication(), pages, TRUNCATED_FILENAME)
     from_filename = extractor.extract(_publication(), [], TRUNCATED_FILENAME)
@@ -239,7 +248,7 @@ def test_no_cover_and_no_filename_yields_an_explicit_failure() -> None:
 
 def test_multiple_cover_authors_are_kept_separately() -> None:
     extractor = FakeCoverPageExtractor()
-    pages = [PublicationPage(page_number=1, text="연구 제목\n김의순\n오혜")]
+    pages = [_page("연구 제목\n김의순\n오혜")]
 
     metadata = extractor.extract(_publication(), pages, TRUNCATED_FILENAME)
 
@@ -261,7 +270,7 @@ def test_filename_author_is_used_only_as_a_fallback() -> None:
 
 def test_filename_year_and_body_year_conflict_is_surfaced_not_resolved() -> None:
     extractor = FakeCoverPageExtractor()
-    pages = [PublicationPage(page_number=1, text="연구 제목 2018년 발간")]
+    pages = [_page("연구 제목 2018년 발간")]
 
     metadata = extractor.extract(_publication(), pages, TRUNCATED_FILENAME)
 
@@ -284,7 +293,7 @@ def test_unparseable_filename_contributes_nothing_instead_of_guessing() -> None:
 def test_extractor_identity_is_recorded_in_provenance() -> None:
     extractor = FakeCoverPageExtractor()
 
-    metadata = extractor.extract(_publication(), [PublicationPage(page_number=1, text="제목")])
+    metadata = extractor.extract(_publication(), [_page("제목")])
 
     assert metadata.provenance.parser_name == "fake-cover"
     assert metadata.provenance.parser_version == "0.1.0"
