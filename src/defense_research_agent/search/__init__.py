@@ -12,11 +12,13 @@ from defense_research_agent.search.embeddings import (
     EmbeddingFailure,
     EmbeddingProvider,
     EmbeddingVector,
+    FakeEmbeddingProvider,
 )
 from defense_research_agent.search.lexical import LocalLexicalSearchAlgorithm
 from defense_research_agent.search.metadata import PublicationMetadataExtractor
 from defense_research_agent.search.parsers import (
     DocumentParser,
+    JsonPageParser,
     ParserCapability,
     ParserErrorCode,
     ParseResult,
@@ -32,6 +34,8 @@ __all__ = [
     "EmbeddingFailure",
     "EmbeddingProvider",
     "EmbeddingVector",
+    "FakeEmbeddingProvider",
+    "JsonPageParser",
     "LocalLexicalSearchAlgorithm",
     "ParseResult",
     "ParserCapability",
