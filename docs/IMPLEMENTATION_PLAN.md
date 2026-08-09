@@ -186,12 +186,46 @@ page range, chunk index, chunking version은 유지된다.
 
 ### P1.6 Quality gate
 
-- [ ] `ready`, `warning`, `low_text`, `corrupt_text`, `duplicate`, `orphan_pdf`, `manual_review` 계산
-- [ ] empty text, control character, printable/Korean ratio와 page density 측정
+- [x] `ready`, `warning`, `low_text`, `corrupt_text`, `duplicate`, `orphan_pdf`, `manual_review` 계산
+- [x] empty text, control character, printable/Korean ratio와 page density 측정
 - [ ] 품질 미달 문서를 기본 인덱스에서 제외
-- [ ] threshold와 제외 사유를 versioned 설정으로 기록
-- [ ] 재추출/OCR 대기열과 failure report 생성
-- [ ] `DATA_QUALITY_REPORT.md`의 알려진 위험을 회귀 fixture로 반영
+- [x] threshold와 제외 사유를 versioned 설정으로 기록
+- [x] 재추출/OCR 대기열과 failure report 생성
+- [x] `DATA_QUALITY_REPORT.md`의 알려진 위험을 회귀 fixture로 반영
+
+구현 기록 (2026-08-09):
+
+- 입력은 `ResearchPublication`, 원문을 보존한 `PublicationPage` 목록, 이미 채택한 본문
+  checksum→publication ID 매핑이다. 출력은 Pydantic `QualityMeasurements`와
+  `PublicationQualityVerdict`다. 측정과 판정을 분리했으며 저장된 measurements와 원문 본문
+  checksum만으로 다른 threshold version을 재적용할 수 있다.
+- 구현 파일은 `src/defense_research_agent/evaluation/quality.py`, 회귀 테스트는
+  `tests/unit/evaluation/test_quality_gate_contract.py`다. 신규 의존성은 없다. 임계값과
+  `CONTROL_CHARACTER_SUBSTITUTIONS`는 변경하지 않았다.
+- 판정 우선순위는 `orphan_pdf`(추출 페이지 0) → `duplicate`(원문 결합 text checksum의 기존
+  owner가 다른 publication) → `low_text` → `corrupt_text` → `manual_review` → `warning` →
+  `ready`다. `manual_review`는 한글 비율 미달, 또는 표지에서 얻은 제목이 없는 상태에서
+  파일명이 240 UTF-8 bytes 이상이거나 불완전 한글 자모로 끝나는 DQ-04 신호에 적용한다.
+- 기본 인덱스 hand-off용 `select_default_index_publications`는 verdict가 없으면 실패하고
+  `ready`/`warning`만 반환한다. 그러나 현재 실제 index manifest 작성 경로는 quality verdict를
+  입력받지 않으며 `services/`는 이 레인의 수정 금지 범위다. 따라서
+  publication JSONL을 직렬화하기 전에 이 함수를 호출하는 index payload builder를 추가하고,
+  이미 만들어진 payload를 받는 `services/corpus_index.py`도 누락/non-indexable verdict를
+  거부하도록 배선하기 전까지 위 세 번째 체크박스는 완료로 표시하지 않는다.
+- `quality-artifacts-v1` 형식으로 `artifacts/quality/reextract_ocr_queue.jsonl`과
+  `artifacts/quality/failure_report.json`을 publication ID 순서로 원자적 기록한다. Queue의 각
+  줄은 schema/threshold version, publication ID, status, reason, measurements와 요청 action을
+  담는다. Report는 threshold 전체 snapshot, 7개 status 수량, indexable/excluded/queue 수량과
+  non-ready finding을 담는다. 실행 시각을 넣지 않아 같은 입력은 byte-equivalent하다.
+- DQ-01 중복, DQ-02 1,000자 미만, DQ-03 U+0001 3.3%/비치환 control 3.3%/손상 control
+  41.7%, DQ-04 250-byte·불완전 자모 파일명, orphan을 실제 측정 대역의 오프라인 fixture로
+  고정했다. 기대 영향은 ADR-010과 동일하게 고유 370개 중 38개 저추출과 손상 보고서 1개를
+  차단하는 것이다. 읽기 전용 일회성 corpus audit에서는 `ready` 303, `warning` 28,
+  `low_text` 37, `corrupt_text` 1, `orphan_pdf` 1이었다. ADR-010이 비발간물이라 ingestion에서
+  제외하도록 한 page 없는 `pdf_index.json`이 판정 우선순위상 38번째 `low_text` 대신
+  `orphan_pdf`가 되어 non-indexable 합계 39는 유지된다. 정식 수량 검증은 parser/index 배선
+  후 integration으로 고정하며, `manual_review`는 자동 승인·색인하지 않아 사람 판단 경계를
+  유지한다.
 
 ### P1.7 Page-aware / section-aware chunking
 
