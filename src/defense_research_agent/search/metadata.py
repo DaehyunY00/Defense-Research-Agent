@@ -39,7 +39,7 @@ from defense_research_agent.domain.publication import (
 METADATA_NORMALIZATION_VERSION: Final = "nfc-whitespace-v1"
 """Version of the Unicode and whitespace normalization rules below."""
 
-RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.1"
+RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.2"
 _CONFLICT_REASON: Final = "동일한 우선순위의 메타데이터 근거가 충돌함"
 _MISSING_REASONS: Final[dict[MetadataField, str]] = {
     MetadataField.TITLE: "표지, 본문, 파일명에서 제목을 확정할 수 없음",
@@ -48,7 +48,7 @@ _MISSING_REASONS: Final[dict[MetadataField, str]] = {
     MetadataField.ISSUE_NUMBER: "호 표기를 찾을 수 없음",
     MetadataField.VOLUME: "권 표기를 찾을 수 없음",
     MetadataField.DOI: "DOI 표기를 찾을 수 없음",
-    MetadataField.ABSTRACT: "명시적인 초록 표기를 찾을 수 없음",
+    MetadataField.ABSTRACT: "명시적인 초록/요약 표기를 찾을 수 없음",
     MetadataField.KEYWORDS: "명시적인 키워드 표기를 찾을 수 없음",
 }
 
@@ -89,7 +89,7 @@ _KEYWORD_RE = re.compile(
     re.IGNORECASE,
 )
 _ABSTRACT_HEADING_RE = re.compile(
-    r"^(?:abstract|초록|요약)\s*[:\uFF1A]?$",
+    r"^(?:abstract|초\s*록|요\s*약)\s*[:\uFF1A]?$",
     re.IGNORECASE,
 )
 _SECTION_HEADING_RE = re.compile(r"^(?:[IVXLCDM]+\.|\d+\.|[가-힣]\.)\s+")
@@ -960,6 +960,7 @@ def _keyword_block(lines: Sequence[_Line]) -> tuple[str, list[str]] | None:
                 continuation.normalized.startswith(("*", "†", "‡"))
                 or _SECTION_HEADING_RE.match(continuation.normalized)
                 or _ABSTRACT_HEADING_RE.match(continuation.normalized)
+                or _is_periodical_header(continuation.normalized)
             ):
                 break
             value_lines.append(continuation.normalized)

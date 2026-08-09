@@ -375,11 +375,12 @@ def test_report_body_terms_are_not_guessed_as_authors_or_issue_numbers() -> None
     assert metadata.dates.issue_label is None
 
 
-def test_body_evidence_is_distinguished_from_cover_and_filename() -> None:
+def test_report_spaced_summary_heading_extracts_body_abstract() -> None:
     body = """\
-초록
-본문 페이지에서 명시적으로 제공된 초록이다.
-주제어: 국방정책, 메타데이터
+요 약
+본문 페이지에서 명시적으로 제공된 요약이다.
+I. 서 론
+후속 절의 본문은 요약에 포함되지 않는다.
 """
     metadata = _extract(
         PublicationType.RESEARCH_REPORT,
@@ -387,13 +388,38 @@ def test_body_evidence_is_distinguished_from_cover_and_filename() -> None:
     )
 
     abstract = _value(metadata, MetadataField.ABSTRACT)
+    assert abstract.normalized == "본문 페이지에서 명시적으로 제공된 요약이다."
     assert abstract.evidence is not None
     assert abstract.evidence.source is MetadataEvidenceSource.BODY
     assert abstract.evidence.page_number == 2
+
+
+def test_multiline_keywords_stop_before_periodical_running_header() -> None:
+    body = """\
+Key words: cognitive warfare, cognitive psychology, brain science, cognitive science,
+narrative, propaganda
+국방정책연구 제39권 제3호・2023년 가을(통권 제141호)
+"""
+    metadata = _extract(
+        PublicationType.DEFENSE_POLICY_RESEARCH,
+        [_page(body, page_number=2)],
+    )
+
     keywords = [value for value in metadata.values if value.field is MetadataField.KEYWORDS]
-    assert [value.normalized for value in keywords] == ["국방정책", "메타데이터"]
+    assert [value.normalized for value in keywords] == [
+        "cognitive warfare",
+        "cognitive psychology",
+        "brain science",
+        "cognitive science",
+        "narrative",
+        "propaganda",
+    ]
     assert all(
         value.evidence is not None and value.evidence.source is MetadataEvidenceSource.BODY
+        for value in keywords
+    )
+    assert all(
+        value.evidence is not None and "국방정책연구" not in value.evidence.raw_text
         for value in keywords
     )
 

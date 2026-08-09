@@ -208,6 +208,10 @@ page range, chunk index, chunking version은 유지된다.
   보존한다. 국방정책연구 제목은 줄별 `†`/`‡`와 독립·저자 결합형 숫자 각주를 제거하되
   `MetadataEvidence.raw_text`에는 원문 표기를 유지한다. 지배 연구보고서 레이아웃 두 변형과
   숫자 각주 두 변형을 deterministic unit fixture로 추가했다.
+- 두 번째 교차 검토 보완(2026-08-09)으로 extractor version을 `1.0.2`로 올렸다. 실제
+  연구보고서의 지배적 요약 헤딩인 `요 약`을 `요약`과 동일하게 인식하고, 여러 줄
+  `Key words` 블록은 국방정책연구 권·호 러닝 헤더 전에 종료한다. 실제 corpus에서
+  관찰된 두 텍스트 형태를 재현하는 경계 unit test로 추출값과 evidence 범위를 고정했다.
 - 읽기 전용 corpus smoke 진단에서 문서 JSON 372/372개가 예외 없이 처리됐다. 이는 실행
   안정성 지표이지 metadata 정확도 지표가 아니다. 정답셋이 없으므로 precision/recall은
   기록하지 않으며, 기대 영향은 구조화 필드의 근거 추적성과 누락·충돌 가시성 향상이다.
