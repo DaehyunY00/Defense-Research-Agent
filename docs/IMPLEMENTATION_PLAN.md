@@ -1,3 +1,378 @@
+# Defense Research Platform Implementation Plan
+
+이 문서는 **지금부터 수행할 개발 작업**을 우선순위와 완료 조건으로 정의한다. 장기 제품
+방향은 [ROADMAP.md](./ROADMAP.md), 현재 기술 설계는
+[ARCHITECTURE.md](./ARCHITECTURE.md), 평가 방법은 [EVALUATION.md](./EVALUATION.md),
+결정 근거는 [DECISIONS.md](./DECISIONS.md)를 참조한다.
+
+현재 우선순위는 agent 역할을 더 늘리는 것이 아니라 **Data / Retrieval 기반을 강화하는
+것**이다. Topic Discovery와 Research Lab의 현재 동작은 회귀 baseline으로 유지한다.
+
+## Current Priority
+
+```text
+P0 현재 시스템 검증
+P1 Document Intelligence
+P2 Retrieval
+P3 Research Copilot
+P4 Learning Companion
+P5 Model Runtime
+P6 Product UI
+P7 Advanced Intelligence
+```
+
+| 우선순위 | 목표 | 시작 조건 | 완료 신호 |
+|---|---|---|---|
+| P0 | 현재 E2E와 운영 경계 검증 | 즉시 | 재현 가능한 baseline과 known failure 목록 |
+| P1 | 신뢰할 수 있는 페이지 근거 | P0 baseline | 품질 gate를 통과한 page/section chunk |
+| P2 | 측정 가능한 검색 개선 | P1 chunk | lexical 대비 benchmark가 있는 hybrid retrieval |
+| P3 | citation-grounded 연구 지원 | P2 retrieval | 근거·인용·abstention 평가 통과 |
+| P4 | 공통 기반 위의 학습 지원 | P2, P3 공통 기반 | 수준별 설명·학습 경로·knowledge check 평가 |
+| P5 | local/API/BYOK runtime 확장 | 평가 harness | provider별 품질·비용·privacy 비교 |
+| P6 | 연구자용 제품 경험 | 핵심 API 안정화 | 검토 가능한 Search/Learn/Research/Topics UX |
+| P7 | graph·timeline·report 고도화 | 검증된 use case | 선행 기능 대비 incremental value 입증 |
+
+## 현재 baseline
+
+다음 기능은 이미 구현돼 있으며 신규 작업에서 보존해야 한다.
+
+- `ResearchPublicationRepository`, `PublicationSearchAlgorithm`과 lexical search
+- external issue provider abstraction과 정규화·안전 경계
+- Topic Discovery 생성, 네 독립 평가기와 결정적 ranking
+- 사람 승인 중단·재개와 append-only review history
+- 7개 역할 Research Lab orchestration과 역할별 tool allow-list
+- `ModelGateway`, `FakeModelGateway`, Claude structured output adapter
+- 제한된 데이터 분석과 격리 코드 검증 계약
+- 선택적 GCP API/worker/Firestore/GCS/Secret Manager 구성
+
+현재 `PublicationChunk` 도메인 모델은 존재하지만 extraction·chunking·index pipeline에
+연결되지 않았다. Vector, hybrid, reranker, RAG, Learning Companion과 Product UI는 아직
+구현되지 않았다.
+
+## P0 — 현재 end-to-end 시스템 검증
+
+목적은 새 기능을 추가하기 전에 현재 시스템의 실제 기준선을 고정하는 것이다.
+
+### P0.1 오프라인 실행 baseline
+
+- [ ] `ingest`가 현재 corpus 수량과 실패 보고를 재현하는지 확인
+- [ ] local lexical search의 고정 질의 결과 snapshot 확인
+- [ ] offline pilot을 credentials와 네트워크 없이 실행
+- [ ] research lab demo를 credentials와 네트워크 없이 실행
+- [ ] human review의 네 결정과 같은 run 재개 확인
+- [ ] pilot evaluation 산출물과 `unavailable` 지표 확인
+- [ ] known failure와 실제 미검증 항목을 `PILOT_RESULT.md`에 갱신
+
+### P0.2 품질 baseline
+
+- [ ] `uv run pytest` 결과 기록
+- [ ] `uv run mypy` strict 결과 기록
+- [ ] `uv run ruff check .` 결과 기록
+- [ ] `uv run ruff format --check .` 결과 기록
+- [ ] package import와 health check 확인
+- [ ] 기본 suite가 외부 API credentials를 요구하지 않는지 확인
+- [ ] 현재 `data/` 불변 해시 또는 동등 검사 기록
+
+### P0.3 선택적 운영 경로
+
+- [ ] 자격증명이 있는 경우 Anthropic runtime path의 최소 structured-output smoke test
+- [ ] GCP Terraform validate와 배포 스크립트 dry/static contract 확인
+- [ ] 실제 staging Cloud Run API/worker smoke test 계획 수립
+- [ ] role별 latency, token, 검색 호출과 비용 관측 항목 정의
+- [ ] 실패 시 provider 원문·secret이 로그에 남지 않는지 표본 확인
+
+Anthropic·GCP 검증을 실행하지 못하면 완료로 표시하지 않고 `not_run`과 이유를 기록한다.
+
+## P1 — Document Intelligence
+
+목적은 원본 PDF를 변경하지 않고 metadata, page text, quality와 chunk provenance를
+재현 가능하게 만드는 것이다.
+
+### P1 현재 구현 상태
+
+코드 기준 상태다. 이전 로드맵 문서에서 옮겨 왔고 교차 검토로 확인했다.
+
+- [x] 정규화된 publication ID와 source checksum
+- [x] page/chunk provenance domain contract
+- [x] 같은 입력에서 같은 ID/checksum을 만드는 deterministic page chunker
+- [ ] JSON page adapter와 parser abstraction
+- [ ] PDF 본문 직접 extraction adapter
+- [ ] 저추출·제어문자·중복·orphan quality gate
+- [ ] page/chunk artifact writer와 provenance audit
+
+현재 chunker는 ingestion이나 retrieval에 연결되지 않았다. 따라서 page citation, embedding,
+vector search와 RAG가 구현됐다고 간주하지 않는다.
+
+### P1.1 `PublicationChunk` domain model 정비
+
+현재 모델 필드는 `chunk_id`, `publication_id`, `section`, `page`, `sequence`, `text`,
+`token_count`, `metadata`다. 다음 요구를 현재 domain convention에 맞게 검토한다.
+
+- [ ] `page_start` / `page_end` 또는 단일 `page` 표현 결정
+- [ ] `section_title`과 현재 `section`의 호환 전략 결정
+- [ ] chunk text checksum 추가
+- [ ] `parser_version`, `chunking_version`을 typed field 또는 검증된 metadata로 보존
+- [ ] 동일 publication/version에서 안정적인 `chunk_id` 생성 규칙 정의
+- [ ] 기존 모델 사용처와 serialization 호환성 검토
+- [ ] 정상·blank text·페이지 경계·version 누락 테스트
+
+완료 조건: chunk 하나만으로 publication, page range, parser/chunking version과 텍스트
+checksum을 역추적할 수 있다.
+
+### P1.2 Parser abstraction
+
+- [ ] parser input/output과 stable error taxonomy 정의
+- [ ] parser capability에 text, pages, tables, OCR 필요 신호를 표현
+- [ ] provider-specific 라이브러리를 adapter 내부에 격리
+- [ ] parser version과 source checksum을 결과에 기록
+- [ ] fake parser로 정상·실패·부분 추출 테스트
+
+### P1.3 PDF extraction
+
+- [ ] 현재 `PdfPublicationReader`의 header/checksum 검증을 유지
+- [ ] 페이지별 본문 추출 adapter 추가
+- [ ] 기존 JSON `page_texts`와 신규 PDF 추출 결과의 선택 정책 정의
+- [ ] 암호화·손상·빈 페이지·비정상 Unicode 실패 보고
+- [ ] 네 publication type의 대표 fixture로 page mapping 검증
+
+현재 Reader는 PDF 본문을 새로 추출하지 않는다는 점을 유지 문서에 명시한다.
+
+### P1.4 OCR fallback boundary
+
+- [ ] OCR 필요 조건과 허용 문서 상태 정의
+- [ ] OCR provider interface와 fake 구현 설계
+- [ ] 페이지 단위 OCR 실행과 timeout·부분 실패 표현
+- [ ] 기본 추출 대비 품질 개선 시에만 OCR 결과 채택
+- [ ] OCR 원문, confidence, provider/version과 checksum 보존
+- [ ] OCR을 기본 오프라인 suite에서 실제 호출하지 않도록 격리
+
+### P1.5 Metadata normalization
+
+- [ ] 제목, 부제, authors, organization, 발행일/정밀도, 권·호, DOI, 초록과 키워드 추출
+- [ ] 원본 표기, normalized value, confidence와 evidence page 보존
+- [ ] 파일명 연도·processed date·published date를 분리
+- [ ] 긴 파일명·불완전 자모에서는 표지 근거를 우선
+- [ ] 추측 대신 `null`과 실패 사유를 반환
+
+### P1.6 Quality gate
+
+- [ ] `ready`, `warning`, `low_text`, `corrupt_text`, `duplicate`, `orphan_pdf`, `manual_review` 계산
+- [ ] empty text, control character, printable/Korean ratio와 page density 측정
+- [ ] 품질 미달 문서를 기본 인덱스에서 제외
+- [ ] threshold와 제외 사유를 versioned 설정으로 기록
+- [ ] 재추출/OCR 대기열과 failure report 생성
+- [ ] `DATA_QUALITY_REPORT.md`의 알려진 위험을 회귀 fixture로 반영
+
+### P1.7 Page-aware / section-aware chunking
+
+- [ ] 페이지 근거가 사라지지 않는 chunking algorithm 정의
+- [ ] section boundary 우선, 최대 길이와 overlap 규칙 정의
+- [ ] 표·각주·참고문헌 처리 정책 명시
+- [ ] 동일 입력·version에서 byte-equivalent chunk 순서 보장
+- [ ] `artifacts/corpus/chunks.jsonl`과 manifest 생성
+- [ ] actual PDF page로 citation retrace integration test
+
+## P2 — Retrieval
+
+목적은 기존 lexical baseline을 유지하면서 vector·hybrid 검색을 평가 가능한 방식으로
+추가하는 것이다.
+
+### P2.1 `EmbeddingProvider` interface
+
+- [ ] document/query embedding 계약과 batch capability 정의
+- [ ] model ID, dimension, normalization, input checksum과 version metadata 정의
+- [ ] timeout, partial failure와 invalid dimension 오류 모델 정의
+- [ ] secret과 provider 원문을 결과·로그에서 제외
+
+### P2.2 `FakeEmbeddingProvider`
+
+- [ ] 외부 모델 없이 결정적인 embedding 생성
+- [ ] 같은 입력·설정의 byte-equivalent 결과 보장
+- [ ] batch, empty input, dimension과 Unicode 테스트
+- [ ] ranking 의미를 과장하지 않고 interface·pipeline 테스트에만 사용
+
+### P2.3 `VectorSearchAlgorithm`
+
+- [ ] 기존 `PublicationSearchAlgorithm`을 최대한 유지하는 adapter 설계
+- [ ] vector index abstraction과 content-addressed manifest 정의
+- [ ] publication/chunk/page provenance 반환
+- [ ] 동일 점수의 결정적 tie-breaker 정의
+- [ ] index/model/chunking version 불일치 차단
+
+### P2.4 `HybridSearchAlgorithm`
+
+- [ ] lexical score와 vector score를 별도 보존
+- [ ] Reciprocal Rank Fusion 또는 명시적 fusion 전략 선택
+- [ ] fusion version과 parameter를 결과에 기록
+- [ ] filter를 ranking 전후 어디에 적용하는지 명시
+- [ ] lexical-only fallback과 부분 실패 처리
+
+### P2.5 `Reranker` abstraction
+
+- [ ] 입력 candidate 수와 반환 계약 정의
+- [ ] deterministic fake reranker 제공
+- [ ] provider/model/version과 latency·cost trace 기록
+- [ ] reranker 실패 시 원래 hybrid 순위 보존 여부를 정책화
+- [ ] untrusted text와 prompt injection 경계 테스트
+
+### P2.6 Retrieval benchmark
+
+- [ ] 전문가 curated 30~50개 초기 golden question 작성 지원
+- [ ] relevant publication/page와 relevance grade schema 구현
+- [ ] lexical, BM25, vector, hybrid, reranker 비교 harness 구현
+- [ ] Recall@5, Recall@10, MRR와 선택적 nDCG 계산
+- [ ] p50/p95 latency, memory, index size와 build time 측정
+- [ ] experiment log와 baseline comparison report 생성
+
+상세 metric과 dataset schema는 [EVALUATION.md](./EVALUATION.md)를 따른다.
+
+## P3 — Research Copilot
+
+선행 조건: P1 page-aware evidence와 P2 benchmarked retrieval.
+
+- [ ] corpus question과 project context Pydantic schema
+- [ ] evidence retrieval과 source inspection service
+- [ ] claim-citation pair를 가진 grounded answer schema
+- [ ] citation correctness/completeness 검증
+- [ ] 근거 부족·충돌 시 abstention 정책
+- [ ] 문서 비교와 follow-up question context
+- [ ] offline fake model E2E와 optional provider suite
+- [ ] 사람 검토 없이 보고서 사실을 확정하지 않는 출력 경계
+
+## P4 — Learning Companion
+
+선행 조건: P2 공통 retrieval과 P3 citation 기반.
+
+- [ ] 초급·중급·전문가 설명 level schema
+- [ ] 개념·관련 개념·출처 기반 learning path
+- [ ] 읽을거리 추천과 page citation
+- [ ] quiz와 knowledge check의 정답 근거
+- [ ] research notebook 저장·내보내기 경계
+- [ ] 학습 질문에서 Topic Discovery로 전달하는 명시적 사용자 action
+- [ ] 별도 corpus를 만들지 않고 공통 infrastructure 공유
+
+## P5 — Model Runtime
+
+- [ ] 현재 Fake/Anthropic baseline 평가
+- [ ] OpenAI-compatible adapter 제안과 contract test
+- [ ] local model adapter와 vLLM/Ollama endpoint 후보 평가
+- [ ] `LOCAL`, `HYBRID`, `CLOUD`, `BYOK` 정책 schema
+- [ ] runtime별 quality, latency, cost, memory, GPU와 privacy 비교
+- [ ] BYOK secret lifecycle과 masking 테스트
+- [ ] provider-specific 설정을 adapter 밖으로 누출하지 않는지 검증
+
+구현하지 않은 provider는 지원 완료로 문서화하지 않는다.
+
+## P6 — Product UI
+
+- [ ] 연구자 인터뷰와 Search/Learn/Research/Topics workflow 정의
+- [ ] citation/source inspection interaction 설계
+- [ ] Notebook과 Reports 정보 구조 검증
+- [ ] untrusted external content와 model-generated content 표시
+- [ ] human review, 충돌과 append-only audit UX
+- [ ] API contract와 role-based access 요구 정의
+- [ ] 프론트엔드 framework는 별도 결정 기록 후 선택
+
+## P7 — Advanced Intelligence
+
+P1~P3의 데이터·검색·RAG가 안정되고 use case가 검증된 뒤 수행한다.
+
+- [ ] entity/relation/event schema와 provenance 요구 정의
+- [ ] knowledge graph가 lexical/hybrid baseline보다 주는 가치 평가
+- [ ] event timeline과 시간 정밀도·충돌 처리
+- [ ] report builder의 citation·human approval 계약
+- [ ] trend analysis의 시점 누출과 source bias 평가
+- [ ] 실험 결과에 따라 구현·보류·폐기 결정
+
+## Definition of Done
+
+모든 구현 task에 공통 적용한다.
+
+- [ ] domain model과 interface 검토 완료
+- [ ] 입력, 출력, 변경 파일과 의존성 기록
+- [ ] unit test 작성
+- [ ] failure-path test 작성
+- [ ] 경계 조건 테스트 작성
+- [ ] 필요한 경우 integration test 작성
+- [ ] deterministic offline test 제공
+- [ ] 외부 API·모델·시간·파일 시스템 의존성을 fake 또는 fixture로 격리
+- [ ] `uv run pytest` 통과
+- [ ] `uv run mypy` strict 통과
+- [ ] `uv run ruff check .` 통과
+- [ ] `uv run ruff format --check .` 통과
+- [ ] 관련 documentation 업데이트
+- [ ] `data/` 원본 미변경 확인
+- [ ] secret·실제 `.env` 미커밋 확인
+- [ ] 평가 metric과 예상 영향 기록
+- [ ] human approval boundary 유지 확인
+
+Retrieval 변경에는 추가로 적용한다.
+
+- [ ] versioned benchmark 실행
+- [ ] lexical baseline 비교
+- [ ] Recall@5, Recall@10, MRR 기록
+- [ ] p50/p95 latency 측정
+- [ ] memory, index size와 build time 기록
+- [ ] query slice별 회귀와 대표 실패 사례 기록
+- [ ] fusion/rerank score trace 보존
+
+## Human vs Codex
+
+### 사람이 직접 책임질 것
+
+- 문제 정의
+- 국방 도메인 판단
+- 데이터셋 선정
+- evaluation dataset 생성·검수
+- 아키텍처 결정
+- 제품 우선순위
+- 실험 결과 해석
+- trade-off 수용 여부 결정
+
+### Codex가 주로 수행할 것
+
+- 승인된 설계의 구현
+- 단위·실패·통합 테스트
+- provider와 storage adapter 작성
+- 안전한 리팩터링
+- boilerplate와 schema 구현
+- 문서 업데이트
+- benchmark harness와 재현 가능한 report 구현
+
+Codex가 제품 방향, 관련도 label이나 국방 도메인 판단을 자율적으로 확정하지 않는다.
+
+권장 개발 루프:
+
+```text
+Human이 문제 정의
+    -> Codex 구현
+    -> Human 리뷰
+    -> benchmark / evaluation
+    -> Human 결과 해석
+    -> 다음 구현 결정
+```
+
+## Backlog 운영 규칙
+
+- 현재 상태와 완료 여부는 코드·테스트·실행 증거를 기준으로 표시한다.
+- 여러 계층을 바꾸는 task는 구현 전에 입력·출력·변경 파일·완료 조건·테스트·의존성을
+  이 문서에 추가한다.
+- 구현 범위가 [ROADMAP.md](./ROADMAP.md)의 Epic 또는
+  [DECISIONS.md](./DECISIONS.md)의 결정과 달라지면 먼저 문서를 갱신한다.
+- 실험 결과와 생성 로그는 `artifacts/`에 기록하고 원본 `data/`에는 쓰지 않는다.
+- 신규 agent 역할은 데이터·검색 기반의 명확한 병목을 해결할 때만 검토한다.
+
+---
+
+## Legacy file pilot plan and completed implementation record
+
+아래 내용은 데이터 조사에서 P020까지 이어진 기존 상세 계획과 완료 기록이다. 현재
+우선순위는 위의 P0~P7을 사용하며, 아래 티켓은 과거 설계 의도·수치·변경 파일을 추적할
+때 참고한다. 기존의 유용한 맥락을 보존하기 위해 삭제하지 않았다.
+
+<details>
+<summary>기존 파일럿 구현 계획 펼치기</summary>
+
 # defense-research-agent 파일럿 구현 계획
 
 ## 1. 목표
@@ -790,5 +1165,7 @@ P020은 검토된 production corpus와 공식 외부 검색 adapter를 같은 �
     보존한다.
   - 내부·외부 검색 실패는 역할별 근거 공백으로 격리한다.
 - **다음 우선순위**:
-  - 7역할 `ResearchLabService`를 typed LangGraph로 단계 이관
-  - GCP staging smoke test와 token·검색비용·role latency 관측성
+- 7역할 `ResearchLabService`를 typed LangGraph로 단계 이관
+- GCP staging smoke test와 token·검색비용·role latency 관측성
+
+</details>
