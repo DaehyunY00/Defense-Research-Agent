@@ -18,6 +18,7 @@ from hashlib import sha256
 from defense_research_agent.domain import (
     CONTROL_CHARACTER_SUBSTITUTIONS,
     DEFAULT_QUALITY_THRESHOLDS_VERSION,
+    ExtractionProvenance,
     PublicationPage,
     PublicationQualityStatus,
     PublicationQualityVerdict,
@@ -145,7 +146,15 @@ def _publication(publication_id: str = "pub-1") -> ResearchPublication:
 
 
 def _page(text: str, page_number: int = 1) -> PublicationPage:
-    return PublicationPage(page_number=page_number, text=text)
+    return PublicationPage(
+        page_number=page_number,
+        text=text,
+        provenance=ExtractionProvenance(
+            parser_name="fake-quality-parser",
+            parser_version="1.0.0",
+            source_checksum="f" * 64,
+        ),
+    )
 
 
 _UNIT = "국방정책 연구 본문입니다. "

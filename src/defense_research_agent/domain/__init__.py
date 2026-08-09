@@ -70,6 +70,7 @@ from defense_research_agent.domain.provenance import ExtractionProvenance
 from defense_research_agent.domain.publication import (
     PublicationChunk,
     PublicationPage,
+    PublicationPageSpan,
     PublicationType,
     ResearchPublication,
 )
@@ -244,6 +245,7 @@ __all__ = [
     "PublicationDates",
     "PublicationDistribution",
     "PublicationPage",
+    "PublicationPageSpan",
     "PublicationQualityStatus",
     "PublicationQualityVerdict",
     "PublicationSearchFilters",
