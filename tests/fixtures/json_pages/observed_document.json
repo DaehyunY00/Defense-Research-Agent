@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "filename": "2024_홍길동_국방정책연구.pdf",
+    "category": "국방정책연구",
+    "num_pages": "3",
+    "total_chars": "28",
+    "avg_chars_per_page": "9.33",
+    "processed_date": "2026-02-02T12:30:00",
+    "file_size_mb": "1.25",
+    "path": "data/국방정책연구/2024_홍길동_국방정책연구.pdf"
+  },
+  "full_text": "첫 번째 페이지\n\n두 번째 페이지\n\n세 번째 페이지",
+  "page_texts": [
+    {
+      "page": 2,
+      "text": "두 번째 페이지",
+      "char_count": 8
+    },
+    {
+      "page": 1,
+      "text": "첫 번째 페이지",
+      "char_count": 8
+    },
+    {
+      "page": 3,
+      "text": "세 번째 페이지",
+      "char_count": 8
+    }
+  ]
+}

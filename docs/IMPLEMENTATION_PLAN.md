@@ -159,13 +159,49 @@ page range, chunk index, chunking version은 유지된다.
 
 ### P1.3 PDF extraction
 
-- [ ] 현재 `PdfPublicationReader`의 header/checksum 검증을 유지
-- [ ] 페이지별 본문 추출 adapter 추가
+- [x] 현재 `PdfPublicationReader`의 header/checksum 검증을 유지
+- [x] 페이지별 본문 추출 adapter 추가 — 기존 metadata JSON의 `page_texts` 전용
 - [ ] 기존 JSON `page_texts`와 신규 PDF 추출 결과의 선택 정책 정의
 - [ ] 암호화·손상·빈 페이지·비정상 Unicode 실패 보고
 - [ ] 네 publication type의 대표 fixture로 page mapping 검증
 
-현재 Reader는 PDF 본문을 새로 추출하지 않는다는 점을 유지 문서에 명시한다.
+이번 범위의 입력은 읽기 전용 metadata JSON 경로와 호출자가 계산한 SHA-256 checksum이고,
+출력은 기존 `DocumentParser.parse(Path, Checksum) -> ParseResult` 계약을 따르는 정렬된
+`PublicationPage`, `ParserFailure`, `ExtractionProvenance`, `requires_ocr` 신호다. 공개 계약은
+변경하지 않았으며 `JsonPageParser`를 `search.parsers` 배럴에서만 노출한다. adapter의 공개
+식별자는 `name = "json-page-texts"`, `version = "1.0.0"`이고 capability는 `text`,
+`page_text`, `ocr_signal`이다. 새 의존성은 없다.
+
+구현 결정:
+
+- checksum은 읽은 JSON 바이트로 다시 계산한다. 일치할 때와 불일치할 때 provenance에는
+  실제 checksum을 기록하고, 불일치하면 본문을 처리하지 않고 `CHECKSUM_MISMATCH`를
+  반환한다. 파일 자체를 읽지 못해 실제 checksum을 구할 수 없는 경우에만 계약상 전달된
+  checksum을 provenance에 유지하고 `UNREADABLE_SOURCE`를 반환한다.
+- `char_count`는 파생·권고 값으로 취급하고 신뢰하지 않는다. 원문인 `text`를 그대로
+  보존하며 Python `len(text)`를 유일한 문자 수 기준으로 재계산한다. 불일치 자체로 페이지를
+  버리거나 원문을 자르지 않는다. `PublicationPage` 계약에는 문자 수 필드가 없으므로
+  재계산 값은 별도 상태로 저장하지 않는다.
+- 중복 page 번호는 입력 순서로 하나를 임의 선택하지 않는다. 해당 번호의 모든 후보를
+  제외하고 `CORRUPT_STRUCTURE` failure 하나를 남기며, 다른 정상 페이지는 유지한다.
+- `requires_ocr`은 `page_texts`가 누락·빈 목록이어서 추출 본문이 전혀 없거나 공백뿐인
+  페이지가 하나라도 있을 때만 `True`다. checksum·JSON·필드 구조 오류는 OCR로 고칠 수
+  없으므로 `False`다. 짧지만 유효한 텍스트에 임의 길이 임계값을 적용하지 않는다.
+- `section_title`은 원본에 없으므로 항상 `None`이며 heading을 추측하지 않는다. 결과
+  페이지는 page 번호 오름차순으로 정렬한다.
+
+변경 범위는 `search/parsers/json_page_parser.py`, 같은 패키지 배럴,
+`data/readers/pdf_reader.py`, 대응 unit/integration test와 실제 스키마형 JSON fixture다.
+unit test는 정상·부분 실패·전체 실패·경계·checksum·결정성을, integration test는 adapter
+출력을 `DeterministicPageChunker`에 전달해 page span을 역추적하는 경로를 검증한다. 모두
+로컬 fixture/fake filesystem만 사용하며 외부 API·모델·시간 의존성은 없다. retrieval/ranking
+평가 metric과 승인 상태 전이는 변경하지 않는다. 예상 영향은 실제 corpus page text가
+chunk 품질 검사와 페이지 인용에 도달하는 것이며, 사람 승인 경계는 그대로다.
+
+`PdfPublicationReader`는 PDF header와 checksum만 검증하고 PDF 본문을 새로 추출하지
+않는다는 사실을 class/method docstring에 명시했다. 따라서 PDF 직접 추출, 기존 JSON과 신규
+PDF 추출 결과의 선택 정책, 암호화·손상 PDF와 모든 비정상 Unicode 처리, 네 publication
+type별 대표 fixture 검증은 아직 미완료다.
 
 ### P1.4 OCR fallback boundary
 
