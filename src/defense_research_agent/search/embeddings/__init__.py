@@ -7,6 +7,7 @@ from defense_research_agent.search.embeddings.base import (
     EmbeddingProvider,
     EmbeddingVector,
 )
+from defense_research_agent.search.embeddings.fake import FakeEmbeddingProvider
 
 __all__ = [
     "EmbeddingBatchResult",
@@ -14,4 +15,5 @@ __all__ = [
     "EmbeddingFailure",
     "EmbeddingProvider",
     "EmbeddingVector",
+    "FakeEmbeddingProvider",
 ]
