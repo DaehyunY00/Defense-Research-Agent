@@ -119,6 +119,21 @@ vector search와 RAG가 구현됐다고 간주하지 않는다.
 완료 조건: chunk 하나만으로 publication, page range, parser/chunking version과 텍스트
 checksum을 역추적할 수 있다.
 
+미해결 항목 — parser version 역추적:
+
+`PublicationChunk`와 `PublicationPage` 어디에도 추출기 식별 필드가 없어 위 완료 조건의
+parser version 부분이 성립하지 않는다. 같은 PDF를 다른 추출기로 뽑으면 page text가 달라져
+chunk checksum은 바뀌지만, chunk만 보고 어느 추출기 산출물인지 판별할 수 없다.
+`ExtractionProvenance`(P1.2 계약)를 붙이면 해결된다.
+
+- [ ] `PublicationPage`에 `ExtractionProvenance` 부여
+- [ ] `PublicationChunk`로 provenance 전파
+- [ ] provenance 변경을 chunk 경계로 처리 (P1.4 페이지 단위 OCR fallback이 한 문서 안에
+      서로 다른 추출기 산출물을 섞을 수 있다)
+- [ ] 기존 chunker 사용처와 테스트 갱신
+
+의존성: P1.2 `ExtractionProvenance` 계약. P1.7 chunking 착수 전에 끝내야 한다.
+
 ### P1.2 Parser abstraction
 
 - [ ] parser input/output과 stable error taxonomy 정의

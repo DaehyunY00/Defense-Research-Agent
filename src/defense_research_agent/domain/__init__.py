@@ -46,6 +46,13 @@ from defense_research_agent.domain.external_issue import (
     SourceRelationType,
 )
 from defense_research_agent.domain.ingestion import IngestionFailure, IngestionReport
+from defense_research_agent.domain.metadata import (
+    DatePrecision,
+    ExtractedMetadataValue,
+    ExtractedPublicationMetadata,
+    MetadataEvidence,
+    MetadataField,
+)
 from defense_research_agent.domain.pilot_evaluation import (
     MetricResult,
     MetricStatus,
@@ -54,11 +61,18 @@ from defense_research_agent.domain.pilot_evaluation import (
     PilotEvaluationSummary,
     TemporalBacktestSummary,
 )
+from defense_research_agent.domain.provenance import ExtractionProvenance
 from defense_research_agent.domain.publication import (
     PublicationChunk,
     PublicationPage,
     PublicationType,
     ResearchPublication,
+)
+from defense_research_agent.domain.quality import (
+    PublicationQualityStatus,
+    PublicationQualityVerdict,
+    QualityMeasurements,
+    QualityThresholds,
 )
 from defense_research_agent.domain.ranking import (
     CandidateAttributes,
@@ -175,6 +189,7 @@ __all__ = [
     "DataFilterOperator",
     "DataScalar",
     "DataSensitivity",
+    "DatePrecision",
     "DiversitySettings",
     "DomainModel",
     "EntityId",
@@ -193,11 +208,16 @@ __all__ = [
     "ExternalSource",
     "ExternalSourceRelationship",
     "ExternalSourceType",
+    "ExtractedMetadataValue",
+    "ExtractedPublicationMetadata",
+    "ExtractionProvenance",
     "IngestionFailure",
     "IngestionReport",
     "JsonObject",
     "Label",
     "LanguageCode",
+    "MetadataEvidence",
+    "MetadataField",
     "MetricResult",
     "MetricStatus",
     "ModelProvider",
@@ -210,9 +230,13 @@ __all__ = [
     "PublicationChunk",
     "PublicationDistribution",
     "PublicationPage",
+    "PublicationQualityStatus",
+    "PublicationQualityVerdict",
     "PublicationSearchFilters",
     "PublicationSearchResult",
     "PublicationType",
+    "QualityMeasurements",
+    "QualityThresholds",
     "RankedTopic",
     "RankingConfig",
     "RankingThresholds",
