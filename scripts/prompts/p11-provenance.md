@@ -56,6 +56,10 @@ offset을 남기지 않는다. 페이지 본문 자체가 빈 줄을 포함할 �
 
 - 작업 범위는 `src/defense_research_agent/domain/publication.py`,
   `src/defense_research_agent/search/chunking.py` 와 대응하는 `tests/` 뿐이다.
+- 예외: `docs/IMPLEMENTATION_PLAN.md` 의 P1.1 섹션은 **반드시 갱신한다.**
+  Definition of Done 의 "관련 documentation 업데이트"가 이 항목이다. 구현이 충족한
+  체크박스를 체크하고, "추출기 식별 필드가 없어…" 처럼 코드와 모순되게 남는 서술을
+  고친다. 다른 섹션은 건드리지 않는다. 충족하지 않은 항목은 체크하지 않는다.
 - `src/defense_research_agent/domain/__init__.py` 는 새 심볼 re-export가 필요하면
   **수정해도 된다.** 이 작업은 병렬 레인이 아니라 단독 실행이다.
 - `pyproject.toml` 과 `uv.lock` 은 수정하지 않는다. 새 의존성이 필요하면 구현을 중단하고

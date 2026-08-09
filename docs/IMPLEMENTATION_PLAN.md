@@ -108,31 +108,46 @@ vector search와 RAG가 구현됐다고 간주하지 않는다.
 현재 모델 필드는 `chunk_id`, `publication_id`, `section`, `page`, `sequence`, `text`,
 `token_count`, `metadata`다. 다음 요구를 현재 domain convention에 맞게 검토한다.
 
-- [ ] `page_start` / `page_end` 또는 단일 `page` 표현 결정
+- [x] `page_start` / `page_end` 또는 단일 `page` 표현 결정
 - [ ] `section_title`과 현재 `section`의 호환 전략 결정
-- [ ] chunk text checksum 추가
-- [ ] `parser_version`, `chunking_version`을 typed field 또는 검증된 metadata로 보존
-- [ ] 동일 publication/version에서 안정적인 `chunk_id` 생성 규칙 정의
-- [ ] 기존 모델 사용처와 serialization 호환성 검토
-- [ ] 정상·blank text·페이지 경계·version 누락 테스트
+- [x] chunk text checksum 추가
+- [x] `parser_version`, `chunking_version`을 typed field 또는 검증된 metadata로 보존
+- [x] 동일 publication/version에서 안정적인 `chunk_id` 생성 규칙 정의
+- [x] 기존 모델 사용처와 serialization 호환성 검토
+- [x] 정상·blank text·페이지 경계·version 누락 테스트
 
 완료 조건: chunk 하나만으로 publication, page range, parser/chunking version과 텍스트
-checksum을 역추적할 수 있다.
+checksum을 역추적할 수 있다. **성립한다.** `PublicationChunk.provenance`가
+parser name/version/source checksum을, `chunking_version`과 `checksum`이 나머지를 담는다.
 
-미해결 항목 — parser version 역추적:
+parser version 역추적 — 완료:
 
-`PublicationChunk`와 `PublicationPage` 어디에도 추출기 식별 필드가 없어 위 완료 조건의
-parser version 부분이 성립하지 않는다. 같은 PDF를 다른 추출기로 뽑으면 page text가 달라져
-chunk checksum은 바뀌지만, chunk만 보고 어느 추출기 산출물인지 판별할 수 없다.
-`ExtractionProvenance`(P1.2 계약)를 붙이면 해결된다.
-
-- [ ] `PublicationPage`에 `ExtractionProvenance` 부여
-- [ ] `PublicationChunk`로 provenance 전파
-- [ ] provenance 변경을 chunk 경계로 처리 (P1.4 페이지 단위 OCR fallback이 한 문서 안에
+- [x] `PublicationPage`에 `ExtractionProvenance` 부여
+- [x] `PublicationChunk`로 provenance 전파
+- [x] provenance 변경을 chunk 경계로 처리 (P1.4 페이지 단위 OCR fallback이 한 문서 안에
       서로 다른 추출기 산출물을 섞을 수 있다)
-- [ ] 기존 chunker 사용처와 테스트 갱신
+- [x] 기존 chunker 사용처와 테스트 갱신
 
-의존성: P1.2 `ExtractionProvenance` 계약. P1.7 chunking 착수 전에 끝내야 한다.
+`chunk_id`는 v2로 올라갔고 parser name/version/source checksum을 identity에 포함한다.
+parser version만 바뀌면 `provenance`와 `chunk_id`만 바뀌고 text, checksum, page span,
+page range, chunk index, chunking version은 유지된다.
+
+페이지 단위 인용 — 완료:
+
+- [x] `PublicationPageSpan(page_number, start_offset, end_offset)` 추가
+- [x] chunk text의 임의 offset에서 정확히 하나의 원본 페이지를 역추적
+- [x] 빈틈·중첩 없음, chunk text 전체 길이 포함, 연속 페이지 번호, `page_start`/`page_end`
+      일치를 Pydantic validator로 강제
+- [x] 페이지 사이 구분자는 앞 페이지 구간에 귀속. 구분자 문자열로 역분할하지 않으므로
+      본문에 빈 줄이 있어도 성립한다
+
+인용 단위는 페이지 범위가 아니라 단일 페이지다.
+
+남은 항목: `section_title`과 기존 `section`의 호환 전략. 현재 `section_title`은 계약에
+유지하되 파서가 채우지 않으므로 항상 `None`이고, 따라서 `chunking.py`의 `changes_section`
+경계는 실제 corpus에서 발화하지 않는다. `data/metadata/*.json`의 `page_texts`는
+`{page, text, char_count}`뿐이라 section 정보가 원본에 없다. P1.3 파서가 heading을
+추출하는 것이 전제다.
 
 ### P1.2 Parser abstraction
 
