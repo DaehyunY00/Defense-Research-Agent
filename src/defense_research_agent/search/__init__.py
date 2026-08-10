@@ -19,10 +19,14 @@ from defense_research_agent.search.metadata import PublicationMetadataExtractor
 from defense_research_agent.search.parsers import (
     DocumentParser,
     JsonPageParser,
+    PageTextSelection,
+    PageTextSource,
     ParserCapability,
     ParserErrorCode,
     ParseResult,
     ParserFailure,
+    PdfiumPdfParser,
+    select_page_text_result,
 )
 
 __all__ = [
@@ -37,12 +41,16 @@ __all__ = [
     "FakeEmbeddingProvider",
     "JsonPageParser",
     "LocalLexicalSearchAlgorithm",
+    "PageTextSelection",
+    "PageTextSource",
     "ParseResult",
     "ParserCapability",
     "ParserErrorCode",
     "ParserFailure",
+    "PdfiumPdfParser",
     "PublicationChunker",
     "PublicationMetadataExtractor",
     "PublicationSearchAlgorithm",
     "SearchMatch",
+    "select_page_text_result",
 ]
