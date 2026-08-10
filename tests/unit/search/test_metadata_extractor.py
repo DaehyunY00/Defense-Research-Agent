@@ -113,6 +113,32 @@ BRIEF_AUTHOR_COVER = """\
 군사발전연구센터
 """
 
+BRIEF_TITLE_COVER = """\
+배경과 목적
+수행 결과
+KIDA Brief 1
+미국의 3차 상쇄전략 추진 동향과 시사점
+미국의 3차 상쇄전략 추진 동향과 시사점
+강석율
+안보전략연구센터
+"""
+
+REPORT_DASH_SUBTITLE_COVER = """\
+연구보고서 군사
+미래우주전에 대한 고찰
+- 이론과 위협을 중심으로 -
+조홍일, 유기현, 김성학, 전재현, 이경혜
+2023. 10.
+"""
+
+REPORT_SINGLE_AUTHOR_COVER = """\
+2023. 9.
+연구보고서 안보2023-4946
+ISBN 97859784
+핵보유국의 핵 정책 비교연구
+박상현
+"""
+
 
 def _publication(
     publication_type: PublicationType,
@@ -358,6 +384,52 @@ def test_brief_multiple_role_authors_are_not_mistaken_for_a_title() -> None:
     title = _value(metadata, MetadataField.TITLE)
     assert title.evidence is not None
     assert title.evidence.source is MetadataEvidenceSource.FILENAME
+
+
+def test_brief_cover_boilerplate_is_excluded_and_duplicate_title_is_folded() -> None:
+    metadata = _extract(PublicationType.KIDA_BRIEF, [_page(BRIEF_TITLE_COVER)])
+
+    title = _value(metadata, MetadataField.TITLE)
+    assert title.normalized == "미국의 3차 상쇄전략 추진 동향과 시사점"
+    assert title.evidence is not None
+    assert title.evidence.source is MetadataEvidenceSource.COVER_PAGE
+    assert title.evidence.page_number == 1
+    assert title.evidence.raw_text == "미국의 3차 상쇄전략 추진 동향과 시사점"
+    assert metadata.authors[0].name == "강석율"
+
+
+def test_report_dash_delimited_subtitle_is_extracted_separately() -> None:
+    metadata = _extract(PublicationType.RESEARCH_REPORT, [_page(REPORT_DASH_SUBTITLE_COVER)])
+
+    title = _value(metadata, MetadataField.TITLE)
+    subtitle = _value(metadata, MetadataField.SUBTITLE)
+    assert title.normalized == "미래우주전에 대한 고찰"
+    assert subtitle.normalized == "이론과 위협을 중심으로"
+    assert title.evidence is not None
+    assert subtitle.evidence is not None
+    assert title.evidence.raw_text == subtitle.evidence.raw_text
+    assert "- 이론과 위협을 중심으로 -" in subtitle.evidence.raw_text
+
+
+def test_report_single_author_is_a_boundary_without_source_path() -> None:
+    metadata = _extract(PublicationType.RESEARCH_REPORT, [_page(REPORT_SINGLE_AUTHOR_COVER)])
+
+    title = _value(metadata, MetadataField.TITLE)
+    assert title.normalized == "핵보유국의 핵 정책 비교연구"
+    assert title.evidence is not None
+    assert title.evidence.source is MetadataEvidenceSource.COVER_PAGE
+    assert [author.name for author in metadata.authors] == ["박상현"]
+    assert metadata.authors[0].evidence is not None
+    assert metadata.authors[0].evidence.source is MetadataEvidenceSource.COVER_PAGE
+
+
+def test_report_single_word_title_is_not_guessed_as_an_author() -> None:
+    cover = "연구보고서 군사2026-1\n인공지능\n2026. 1."
+    metadata = _extract(PublicationType.RESEARCH_REPORT, [_page(cover)])
+
+    assert _value(metadata, MetadataField.TITLE).normalized == "인공지능"
+    assert metadata.authors[0].name is None
+    assert metadata.authors[0].failure_reason == "저자 근거를 찾을 수 없음"
 
 
 def test_report_body_terms_are_not_guessed_as_authors_or_issue_numbers() -> None:

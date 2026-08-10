@@ -39,7 +39,7 @@ from defense_research_agent.domain.publication import (
 METADATA_NORMALIZATION_VERSION: Final = "nfc-whitespace-v1"
 """Version of the Unicode and whitespace normalization rules below."""
 
-RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.2"
+RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.3"
 _CONFLICT_REASON: Final = "동일한 우선순위의 메타데이터 근거가 충돌함"
 _MISSING_REASONS: Final[dict[MetadataField, str]] = {
     MetadataField.TITLE: "표지, 본문, 파일명에서 제목을 확정할 수 없음",
@@ -95,6 +95,14 @@ _ABSTRACT_HEADING_RE = re.compile(
 _SECTION_HEADING_RE = re.compile(r"^(?:[IVXLCDM]+\.|\d+\.|[가-힣]\.)\s+")
 _TRAILING_TITLE_NOTE_RE = re.compile(r"(?:[†‡]+|\d+\))+\s*$")
 _LEADING_TITLE_NOTE_RE = re.compile(r"^(?:[†‡]+|\d+\))+\s*")
+_DASH_SUBTITLE_RE = re.compile(
+    r"^[-\u2010\u2011\u2012\u2013\u2014]\s*"
+    r"(?P<subtitle>.+?)\s*[-\u2010\u2011\u2012\u2013\u2014]$"
+)
+_BRIEF_COVER_HEADER_RE = re.compile(
+    r"^(?:배경과\s*목적|수행\s*결과|KIDA\s+Brief(?:\s+\d+)?)$",
+    re.IGNORECASE,
+)
 _REPORT_IDENTIFIER_RE = re.compile(r"^연구\s*보고서(?:\s+[가-힣]+(?:\s*(?:19|20)\d{2}-\d+)?)?$")
 _ISBN_RE = re.compile(r"^ISBN(?:\s|$)", re.IGNORECASE)
 _REPORT_AUTHOR_TOKEN_RE = re.compile(r"[가-힣]{2,5}(?:\(자문\))?")
@@ -133,6 +141,19 @@ def normalize_metadata_text(value: str) -> str:
         for character in composed
     )
     return " ".join(separated.split())
+
+
+def _split_title_and_subtitle(normalized_lines: Sequence[str]) -> tuple[str, str | None]:
+    if len(normalized_lines) >= 2:
+        dash_subtitle = _DASH_SUBTITLE_RE.fullmatch(normalized_lines[-1])
+        if dash_subtitle is not None:
+            return " ".join(normalized_lines[:-1]), dash_subtitle.group("subtitle").strip()
+
+    normalized = " ".join(normalized_lines)
+    parts = re.split(r"\s*[:\uFF1A]\s*", normalized, maxsplit=1)
+    if len(parts) == 2 and parts[1]:
+        return parts[0], parts[1]
+    return normalized, None
 
 
 class PublicationMetadataExtractor(ABC):
@@ -346,16 +367,15 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
             normalized_line = _TRAILING_TITLE_NOTE_RE.sub("", normalized_line).strip()
             if normalized_line:
                 normalized_lines.append(normalized_line)
-        normalized = " ".join(normalized_lines)
-        if not normalized:
+        if not normalized_lines:
             return
-        parts = re.split(r"\s*[:\uFF1A]\s*", normalized, maxsplit=1)
+        title, subtitle = _split_title_and_subtitle(normalized_lines)
         candidates[MetadataField.TITLE].append(
-            _Candidate(parts[0], raw_title.strip(), source, confidence, page_number)
+            _Candidate(title, raw_title.strip(), source, confidence, page_number)
         )
-        if len(parts) == 2 and parts[1]:
+        if subtitle is not None:
             candidates[MetadataField.SUBTITLE].append(
-                _Candidate(parts[1], raw_title.strip(), source, confidence, page_number)
+                _Candidate(subtitle, raw_title.strip(), source, confidence, page_number)
             )
 
     def _title_block(
@@ -402,12 +422,14 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         author_index = _find_periodical_author_index(lines, start)
         if author_index is None or author_index <= start:
             return None
-        title_lines = [
-            line.raw
-            for line in lines[start:author_index]
-            if not _is_periodical_header(line.normalized)
-        ]
-        return "\n".join(title_lines) if title_lines else None
+        title_lines: list[_Line] = []
+        for line in lines[start:author_index]:
+            if _is_periodical_header(line.normalized):
+                continue
+            if title_lines and line.normalized.casefold() == title_lines[-1].normalized.casefold():
+                continue
+            title_lines.append(line)
+        return "\n".join(line.raw for line in title_lines) if title_lines else None
 
     @staticmethod
     def _report_title_block(
@@ -415,12 +437,13 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         filename_author: str | None,
     ) -> str | None:
         title_lines: list[str] = []
-        for line in lines[:12]:
+        author_index = _find_report_author_index(lines, filename_author)
+        for index, line in enumerate(lines[:12]):
             if _is_report_metadata_line(line.normalized):
                 if title_lines:
                     break
                 continue
-            if _is_report_author_line(line.normalized, filename_author):
+            if author_index == index:
                 if title_lines:
                     break
                 continue
@@ -594,11 +617,14 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         cover_groups: list[list[ExtractedAuthor]] = []
         body_groups: list[list[ExtractedAuthor]] = []
         for view in views:
-            authors = (
-                self._journal_authors(view)
-                if publication_type is PublicationType.DEFENSE_POLICY_RESEARCH
-                else self._general_authors(view)
-            )
+            if publication_type is PublicationType.DEFENSE_POLICY_RESEARCH:
+                authors = self._journal_authors(view)
+            elif publication_type is PublicationType.RESEARCH_REPORT:
+                authors = self._report_authors(view, filename.author)
+                if not authors:
+                    authors = self._general_authors(view)
+            else:
+                authors = self._general_authors(view)
             if not authors:
                 continue
             if view.source is MetadataEvidenceSource.COVER_PAGE:
@@ -671,6 +697,38 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
                 )
             )
         return authors
+
+    @staticmethod
+    def _report_authors(
+        view: _PageView,
+        filename_author: str | None,
+    ) -> list[ExtractedAuthor]:
+        if view.source is MetadataEvidenceSource.BODY:
+            return []
+        author_index = _find_report_author_index(view.lines, filename_author)
+        if author_index is None:
+            return []
+        line = view.lines[author_index]
+        raw_tokens = [token for token in re.split(r"[\s,·]+", line.normalized) if token]
+        if not raw_tokens or not all(
+            _REPORT_AUTHOR_TOKEN_RE.fullmatch(token) for token in raw_tokens
+        ):
+            return []
+        names = [token.removesuffix("(자문)") for token in raw_tokens]
+        return [
+            ExtractedAuthor(
+                ordinal=ordinal,
+                name=name,
+                is_primary=ordinal == 0,
+                evidence=MetadataEvidence(
+                    source=view.source,
+                    raw_text=line.raw,
+                    page_number=view.page_number,
+                ),
+                confidence=0.9,
+            )
+            for ordinal, name in enumerate(names)
+        ]
 
     @staticmethod
     def _general_authors(view: _PageView) -> list[ExtractedAuthor]:
@@ -856,6 +914,7 @@ def _is_periodical_header(value: str) -> bool:
     return bool(
         _SERIAL_ISSUE_RE.search(value)
         or _DAY_RE.search(value)
+        or _BRIEF_COVER_HEADER_RE.fullmatch(value)
         or value.startswith(("발행처", "발행인", "편집인"))
         or lowered.startswith(("pissn", "eissn", "issn"))
         or "doi.org/" in lowered
@@ -880,6 +939,33 @@ def _is_report_author_line(value: str, filename_author: str | None) -> bool:
     return len(tokens) >= 3 and all(
         _THREE_SYLLABLE_AUTHOR_TOKEN_RE.fullmatch(token) for token in tokens
     )
+
+
+def _find_report_author_index(
+    lines: Sequence[_Line],
+    filename_author: str | None,
+) -> int | None:
+    title_seen = False
+    report_identifier_seen = False
+    limit = min(len(lines), 12)
+    for index, line in enumerate(lines[:limit]):
+        value = line.normalized
+        if _REPORT_IDENTIFIER_RE.fullmatch(value):
+            report_identifier_seen = True
+        if _is_report_metadata_line(value):
+            continue
+        if title_seen and _is_report_author_line(value, filename_author):
+            return index
+        trailing_lines = lines[index + 1 : limit]
+        if (
+            title_seen
+            and report_identifier_seen
+            and _THREE_SYLLABLE_AUTHOR_TOKEN_RE.fullmatch(value)
+            and all(_is_report_metadata_line(trailing.normalized) for trailing in trailing_lines)
+        ):
+            return index
+        title_seen = True
+    return None
 
 
 def _find_periodical_author_index(lines: Sequence[_Line], start: int) -> int | None:
