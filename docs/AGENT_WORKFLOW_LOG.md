@@ -295,53 +295,50 @@ adapter를 추가하면 된다. 측정 없이 미리 고르지 않는다.
 
 2026-08-10 기준.
 
-### 완료
+base 는 `agent/contracts`, 태그는 `base/document-intelligence`.
+G0: 430 passed, mypy strict 157 files, ruff clean.
 
-base 는 `agent/contracts` 이고 태그는 `base/document-intelligence` 다.
-G0: 371 passed, mypy strict 150 files, ruff clean.
+### 통합 완료 — 레인 6개 전부
 
-| 레인 | 작업 | 교차 검토 | 상태 |
-|---|---|---|---|
-| p11-provenance | P1.1 provenance + 페이지 단위 인용 | PASS | 통합됨 |
-| a-json-pages | JSON page adapter | PASS | 통합됨 |
-| d-embedding | P2.2 `FakeEmbeddingProvider` | PASS | 통합됨 |
-| c-quality | P1.6 quality gate | PASS (되먹임 1라운드) | 통합됨 |
-| b-metadata | P1.5 metadata normalization | **미완** | 미통합 |
+| 레인 | 작업 | 교차 검토 |
+|---|---|---|
+| p11-provenance | P1.1 provenance + 페이지 단위 인용 | PASS |
+| a-json-pages | JSON page adapter | PASS |
+| c-quality | P1.6 quality gate | PASS (되먹임 1R) |
+| d-embedding | P2.2 `FakeEmbeddingProvider` | PASS |
+| e-pdf-extraction | P1.3 PDF 본문 추출 | PASS |
+| b-metadata | P1.5 metadata normalization | 실질 PASS (아래) |
 
-배럴 재노출은 통합 시점마다 사람이 일괄 처리했다. 레인은 최상위 배럴 4개를 한 번도
-건드리지 않았고 머지 충돌은 전 구간 0건이었다.
+머지 충돌은 전 구간 0건이었다. 레인은 최상위 배럴 4개를 한 번도 건드리지 않았고
+배럴 재노출은 통합 시점마다 사람이 일괄 처리했다. 시작 시점 211 passed 에서 430 passed.
 
-### 미완 — 레인 B
+레인 B 의 최종 `VERDICT: BLOCKED` 는 `domain/metadata.py` 경계 위반 1건뿐이었고, 통합
+담당이 판정해 수용한 계약 수정이다(ADR-012). 루브릭 1·2·3 전 항목이 met 이고 완료
+조건도 성립하며, 실코퍼스 372건 전수 검증이 목표와 정확히 일치했다.
 
-`agent/b-metadata` 에 커밋 3개가 있고 G0 는 통과한다(332 passed). 교차 검토가 BLOCKER
-4건을 지적했고 codex 가 되먹임으로 2건의 수정 커밋을 냈으나, **재검토가 완료되지
-않았다.** 즉 수정이 지적을 실제로 해소했는지 검증되지 않은 상태다.
+### 다음 작업 후보
 
-지적된 내용:
+선행 조건이 대부분 해소됐다.
 
-- Brief 표지 제목이 코퍼스의 78.6% 에서 오추출
-- 연구보고서 표지 제목이 25/38 에서 오추출
-- 운영 지배 분기가 어떤 테스트에서도 참이 되지 않음
-- 연구보고서 표지의 공저자 전원 유실
+1. **P1.4 OCR fallback** — 파서 계약의 `requires_ocr` 가 준비돼 있다
+2. **P1.7 chunking 고도화** — provenance 전파 완료. 현재 2,393 chunk 생성
+3. **P2.3~P2.6 retrieval** — `FakeEmbeddingProvider` 로 vector/hybrid 를 오프라인 검증할
+   수 있다. P2.6 benchmark 는 golden dataset 이 필요하고 이는 전문가 검수 영역이다
+4. Brief 의 `2020. 7.` 발행연월이 PDF 직접 추출로 회수되는지 확인.
+   `PageTextSelection` 이 두 소스를 모두 보존하므로 비교할 수 있다
 
-재개 방법:
+### 실행 방법
 
 ```bash
-./scripts/lane-review.sh b-metadata 1ea50bd 'P1.5' --fix
+./scripts/lane-new.sh <lane> agent/contracts
+# 전용 프롬프트는 scripts/prompts/ 에 작성 후
+cat scripts/prompts/<file>.md | codex exec -C ~/dev/wt/<lane> \
+  --add-dir "$(git -C ~/dev/wt/<lane> rev-parse --git-common-dir)" \
+  -s workspace-write --json -o ~/dev/wt/<lane>/RESULT.md -
+./scripts/lane-review.sh <lane> agent/contracts '<섹션>' --fix
 ```
 
-PASS 가 나오면 `agent/contracts` 에 머지하고 `search/__init__.py` 에 새 심볼을
-재노출한다.
-
-### 다음 작업
-
-1. 레인 B 재검토 완료와 통합
-2. pypdfium2 결정을 ADR 로 기록
-3. P1.3 나머지(PDF 본문 직접 추출) 레인
-4. P1.4 OCR fallback, P1.7 chunking
-
-`section_title` 은 유지하기로 했으나 파서가 heading 을 채우기 전까지 항상 `None` 이고
-`changes_section` 경계는 실제 코퍼스에서 발화하지 않는다. P1.3 의 전제다.
+worktree 7개가 `~/dev/wt/` 에 남아 있다. 정리는 `git worktree remove`(브랜치는 유지).
 
 ## 8. 발행일 추출 — 사람이 두 번 틀리고 교차 검토가 두 번 잡은 사례
 
