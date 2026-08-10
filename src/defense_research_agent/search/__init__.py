@@ -15,7 +15,13 @@ from defense_research_agent.search.embeddings import (
     FakeEmbeddingProvider,
 )
 from defense_research_agent.search.lexical import LocalLexicalSearchAlgorithm
-from defense_research_agent.search.metadata import PublicationMetadataExtractor
+from defense_research_agent.search.metadata import (
+    METADATA_NORMALIZATION_VERSION,
+    RULE_BASED_METADATA_EXTRACTOR_VERSION,
+    PublicationMetadataExtractor,
+    RuleBasedPublicationMetadataExtractor,
+    normalize_metadata_text,
+)
 from defense_research_agent.search.parsers import (
     DocumentParser,
     JsonPageParser,
@@ -31,6 +37,8 @@ from defense_research_agent.search.parsers import (
 
 __all__ = [
     "DEFAULT_CHUNKING_VERSION",
+    "METADATA_NORMALIZATION_VERSION",
+    "RULE_BASED_METADATA_EXTRACTOR_VERSION",
     "DeterministicPageChunker",
     "DocumentParser",
     "EmbeddingBatchResult",
@@ -51,6 +59,8 @@ __all__ = [
     "PublicationChunker",
     "PublicationMetadataExtractor",
     "PublicationSearchAlgorithm",
+    "RuleBasedPublicationMetadataExtractor",
     "SearchMatch",
+    "normalize_metadata_text",
     "select_page_text_result",
 ]
