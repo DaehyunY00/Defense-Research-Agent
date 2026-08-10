@@ -48,18 +48,39 @@ fi
 # 해당 worktree 에 세션이 없으면 새 세션으로 떨어진다.
 GIT_COMMON_DIR="$(git_common_dir "$WT")"  # lib.sh 참조
 
+# 되먹임 프롬프트에 레인 경계를 다시 붙인다. resume 이 실패해 새 세션으로 떨어지면
+# 그 세션은 원래 프롬프트를 보지 못하므로 경계 제약이 사라진다. 실제로 레인 B 가
+# 이렇게 계약 파일(domain/metadata.py)을 수정했다.
+CONTEXT_POINTER='
+--- 컨텍스트 ---
+이 세션은 원래 구현 세션이 아니다. 먼저 아래를 읽고 시작해라.
+- PROMPT.md : 이 레인의 원래 지시
+- REVIEW.md : 교차 검토 결과 전문
+- git log 와 git diff : 지금까지의 변경'
+
+BOUNDARY_REMINDER='
+--- 레인 경계 (변경 없음) ---
+- 최상위 배럴 4개(domain/__init__.py, search/__init__.py, evaluation/__init__.py,
+  services/__init__.py)를 수정하지 않는다.
+- pyproject.toml 과 uv.lock 을 수정하지 않는다. 필요하면 NEEDS_DEPENDENCY 로 보고한다.
+- 이 레인에 배정된 디렉터리 밖의 기존 파일을 수정하지 않는다. 특히 domain/ 아래
+  계약 파일은 이미 검토를 거쳤으므로 바꾸지 않는다. 계약이 부족하면 바꾸지 말고
+  최종 메시지에 무엇이 왜 부족한지 보고한다.
+- data/ 아래 원본은 읽기 전용이다.
+- 원래 프롬프트는 PROMPT.md 에 있다. 필요하면 다시 읽는다.'
+
+# `codex exec resume` 는 -C, --add-dir, -s 를 전부 받지 않는다(codex-cli 0.147.0).
+# 즉 worktree 의 실제 git dir 에 쓰기 권한을 줄 방법이 없어 커밋이 실패한다.
+# 이 워크플로에서는 resume 을 쓰지 않는다. 대신 새 세션에 원래 프롬프트와 리뷰 파일
+# 경로를 알려주어 컨텍스트를 스스로 복구하게 한다.
 feedback_codex() {
-  local body="$1"
+  local body="$1
+$CONTEXT_POINTER$BOUNDARY_REMINDER"
   need codex
-  info "codex 되먹임 (resume 시도)"
-  if printf '%s' "$body" | codex exec resume --last -C "$WT" \
-        --add-dir "$GIT_COMMON_DIR" -s workspace-write - \
-        >> "$WT/codex.jsonl" 2>&1; then
-    return 0
-  fi
-  warn "resume 실패 — 새 codex 세션으로 진행"
+  info "codex 되먹임 (새 세션)"
   printf '%s' "$body" | codex exec -C "$WT" \
-    --add-dir "$GIT_COMMON_DIR" -s workspace-write - \
+    --add-dir "$GIT_COMMON_DIR" -s workspace-write \
+    -o "$WT/RESULT.md" - \
     >> "$WT/codex.jsonl" 2>&1
 }
 
