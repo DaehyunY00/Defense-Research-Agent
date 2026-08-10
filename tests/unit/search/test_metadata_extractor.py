@@ -39,7 +39,7 @@ PROCESSED_AT = datetime(2026, 2, 2, 23, 30, 6, 937817)
 TRUNCATED_FILENAME = Path("2019_김의순_국방분야실행아키텍처구현방안연ㄱ.pdf")
 
 FORUM_COVER = """\
-제1983호(24-10)\x01 발행일\x01 2024년\x01 3월\x01 15일
+제1983호(24-10)\x01 2024년\x01 3월\x01 15일
 발행처\x01 한국국방연구원
 발행인\x01 탁성한
 편집인\x01 이재욱
@@ -49,8 +49,21 @@ FORUM_COVER = """\
 jiheekwak@kida.re.kr
 """
 
+FORUM_REORDERED_COVER = """\
+발행처\x01 한국국방연구원
+발행인\x01 김정수
+편집인\x01 박수현
+방산수출 성과와 전망 분석을 통한 정책제언
+김동범
+한국국방연구원 국방자원연구센터
+분석 결과를 토대로 구체적인 정책제언을 도출했다.
+제1999호(24-26)\x01 2024년\x01 7월\x01 12일
+www.kida.re.kr
+KIDA Defense Issues & Analyses
+"""
+
 JOURNAL_COVER = """\
-국방정책연구 게재 2024년 여름(40-2) 통권 제144호 pp. 93-132
+국방정책연구 2024년 여름(40-2) 통권 제144호 pp. 93-132
 http://dx.doi.org/10.22883/jdps.2024.40.2.004
 ISSN 1598-6101(print), 2672-1392(online)
 미래전에 대비한 한국군 인지전 발전 방향:
@@ -63,6 +76,12 @@ Abstract
 The Direction of Korean Military Cognitive Warfare
  This study presents a deterministic fixture paragraph grounded in the observed format.
 Key words: cognitive warfare, cognitive psychology, narrative
+"""
+
+JOURNAL_ACCEPTANCE_BODY = """\
+국방정책연구 제40권 제2호・2024년 여름(통권 제144호)
+심사의견을 반영하여 최종 원고를 제출했다.
+게재 확정: 2024년 5월 17일
 """
 
 REPORT_COVER = """\
@@ -319,18 +338,18 @@ def test_filename_and_published_years_are_both_preserved_as_a_conflict() -> None
     assert metadata.dates.date_evidence.source is MetadataEvidenceSource.COVER_PAGE
 
 
-def test_brief_business_year_does_not_replace_the_published_month() -> None:
-    cover = "2019 사업연도 연구\n발행 2020. 7.\n김의순 책임연구위원\n군사발전연구센터"
+def test_brief_filename_year_is_preserved_without_a_publication_date() -> None:
     metadata = _extract(
         PublicationType.KIDA_BRIEF,
-        [_page(cover)],
+        [_page(BRIEF_TITLE_COVER)],
         Path("2019_김의순_국방분야실행아키텍처구현방안연구.pdf"),
     )
 
     assert metadata.dates.filename_year == 2019
-    assert metadata.dates.published_at == date(2020, 7, 1)
-    assert metadata.dates.published_precision is DatePrecision.MONTH
-    assert metadata.dates.has_year_conflict
+    assert metadata.dates.published_at is None
+    assert metadata.dates.published_precision is None
+    assert metadata.dates.date_evidence is None
+    assert metadata.dates.failure_reason is not None
 
 
 def test_brief_page_one_prose_date_is_not_promoted_to_publication_date() -> None:
@@ -345,7 +364,7 @@ def test_brief_page_one_prose_date_is_not_promoted_to_publication_date() -> None
     assert metadata.dates.published_precision is None
     assert metadata.dates.date_evidence is None
     assert metadata.dates.failure_reason == (
-        "발행 마커 또는 날짜 간기 줄이 아니어서 날짜를 발행일로 확정할 수 없음"
+        "유형별 발행 간기 또는 계절호 머리줄이 아니어서 날짜를 발행일로 확정할 수 없음"
     )
 
 
@@ -361,7 +380,7 @@ def test_brief_page_one_subtitle_period_is_not_promoted_to_publication_date() ->
     assert metadata.dates.published_precision is None
     assert metadata.dates.date_evidence is None
     assert metadata.dates.failure_reason == (
-        "발행 마커 또는 날짜 간기 줄이 아니어서 날짜를 발행일로 확정할 수 없음"
+        "유형별 발행 간기 또는 계절호 머리줄이 아니어서 날짜를 발행일로 확정할 수 없음"
     )
 
 
@@ -376,18 +395,6 @@ def test_page_one_without_cover_structure_is_body_evidence() -> None:
     assert doi.evidence.source is MetadataEvidenceSource.BODY
 
 
-def test_date_on_publication_marker_line_is_confirmed() -> None:
-    metadata = _extract(
-        PublicationType.KIDA_BRIEF,
-        [_page("KIDA Brief 1\n발간일 2020. 7.\n김의순 책임연구위원")],
-    )
-
-    assert metadata.dates.published_at == date(2020, 7, 1)
-    assert metadata.dates.published_precision is DatePrecision.MONTH
-    assert metadata.dates.date_evidence is not None
-    assert metadata.dates.date_evidence.raw_text == "발간일 2020. 7."
-
-
 def test_standalone_colophon_date_line_is_confirmed() -> None:
     metadata = _extract(PublicationType.RESEARCH_REPORT, [_page(REPORT_COVER)])
 
@@ -398,7 +405,11 @@ def test_standalone_colophon_date_line_is_confirmed() -> None:
 
 
 def test_colophon_date_with_imprint_context_on_a_later_page_is_confirmed() -> None:
-    colophon = "머리말\n2023년 2월\n한국국방연구원 원장 김한국"
+    colophon = """\
+연구 수행에 도움을 주신 관계자 여러분께 깊은 감사를 드립니다.
+ 2023년 2월
+ 한국국방연구원 원장 김윤태
+"""
     metadata = _extract(
         PublicationType.RESEARCH_REPORT,
         [_page("연구보고서 자원2023-1"), _page(colophon, page_number=3)],
@@ -408,7 +419,7 @@ def test_colophon_date_with_imprint_context_on_a_later_page_is_confirmed() -> No
     assert metadata.dates.published_precision is DatePrecision.MONTH
     assert metadata.dates.date_evidence is not None
     assert metadata.dates.date_evidence.source is MetadataEvidenceSource.BODY
-    assert metadata.dates.date_evidence.raw_text == "2023년 2월"
+    assert metadata.dates.date_evidence.raw_text == " 2023년 2월"
 
 
 def test_prose_publication_verb_does_not_act_as_a_date_marker() -> None:
@@ -418,13 +429,13 @@ def test_prose_publication_verb_does_not_act_as_a_date_marker() -> None:
     assert metadata.dates.published_at is None
     assert metadata.dates.date_evidence is None
     assert metadata.dates.failure_reason == (
-        "발행 마커 또는 날짜 간기 줄이 아니어서 날짜를 발행일로 확정할 수 없음"
+        "유형별 발행 간기 또는 계절호 머리줄이 아니어서 날짜를 발행일로 확정할 수 없음"
     )
 
 
 def test_conflicting_cover_dates_return_none_with_a_failure_reason() -> None:
-    cover = "발행 2024. 1.\n발행 2025. 2."
-    metadata = _extract(PublicationType.OTHER, [_page(cover)])
+    cover = "연구보고서 군사2024-1\n2024. 1.\n2025. 2.\n한국국방연구원"
+    metadata = _extract(PublicationType.RESEARCH_REPORT, [_page(cover)])
 
     assert metadata.dates.published_at is None
     assert metadata.dates.published_precision is None
@@ -432,14 +443,29 @@ def test_conflicting_cover_dates_return_none_with_a_failure_reason() -> None:
     assert metadata.dates.failure_reason == "발행일 근거가 서로 충돌함"
 
 
-def test_season_precision_and_original_issue_label_are_preserved() -> None:
+def test_journal_season_wins_and_body_acceptance_date_is_ignored() -> None:
     metadata = _extract(
         PublicationType.DEFENSE_POLICY_RESEARCH,
-        [_page(JOURNAL_COVER)],
+        [_page(JOURNAL_COVER), _page(JOURNAL_ACCEPTANCE_BODY, page_number=28)],
     )
 
+    assert metadata.dates.published_at == date(2024, 6, 1)
     assert metadata.dates.published_precision is DatePrecision.SEASON
     assert metadata.dates.issue_label == "2024년 여름(40-2)"
+    assert metadata.dates.date_evidence is not None
+    assert metadata.dates.date_evidence.source is MetadataEvidenceSource.COVER_PAGE
+    assert metadata.dates.date_evidence.page_number == 1
+    assert metadata.dates.date_evidence.raw_text.startswith("국방정책연구 2024년 여름")
+
+
+def test_forum_reordered_cover_still_uses_the_masthead_day() -> None:
+    metadata = _extract(PublicationType.DEFENSE_FORUM, [_page(FORUM_REORDERED_COVER)])
+
+    assert metadata.dates.published_at == date(2024, 7, 12)
+    assert metadata.dates.published_precision is DatePrecision.DAY
+    assert metadata.dates.date_evidence is not None
+    assert metadata.dates.date_evidence.source is MetadataEvidenceSource.COVER_PAGE
+    assert metadata.dates.date_evidence.raw_text == ("제1999호(24-26)\x01 2024년\x01 7월\x01 12일")
 
 
 def test_forum_day_report_month_and_processed_time_stay_separate() -> None:
@@ -630,7 +656,7 @@ def test_unresolved_fields_return_none_with_failure_reasons() -> None:
     assert metadata.dates.published_precision is None
     assert metadata.dates.date_evidence is None
     assert metadata.dates.failure_reason == (
-        "발행 마커 또는 날짜 간기 줄에서 발행일 근거를 찾을 수 없음"
+        "유형별 발행 간기 또는 계절호 머리줄에서 발행일 근거를 찾을 수 없음"
     )
 
 

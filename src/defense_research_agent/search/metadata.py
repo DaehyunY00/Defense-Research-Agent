@@ -39,12 +39,12 @@ from defense_research_agent.domain.publication import (
 METADATA_NORMALIZATION_VERSION: Final = "nfc-whitespace-v1"
 """Version of the Unicode and whitespace normalization rules below."""
 
-RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.5"
+RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.1.0"
 _CONFLICT_REASON: Final = "동일한 우선순위의 메타데이터 근거가 충돌함"
 _DATE_CONFLICT_REASON: Final = "발행일 근거가 서로 충돌함"
-_MISSING_DATE_REASON: Final = "발행 마커 또는 날짜 간기 줄에서 발행일 근거를 찾을 수 없음"
+_MISSING_DATE_REASON: Final = "유형별 발행 간기 또는 계절호 머리줄에서 발행일 근거를 찾을 수 없음"
 _UNQUALIFIED_DATE_REASON: Final = (
-    "발행 마커 또는 날짜 간기 줄이 아니어서 날짜를 발행일로 확정할 수 없음"
+    "유형별 발행 간기 또는 계절호 머리줄이 아니어서 날짜를 발행일로 확정할 수 없음"
 )
 _MISSING_REASONS: Final[dict[MetadataField, str]] = {
     MetadataField.TITLE: "표지, 본문, 파일명에서 제목을 확정할 수 없음",
@@ -74,22 +74,17 @@ _SEASON_RE = re.compile(
     r"(?P<season>봄|여름|가을|겨울)\s*(?:\((?P<issue>[^)]+)\))?"
 )
 _YEAR_RE = re.compile(r"(?<!\d)(?P<year>(?:19|20)\d{2})\s*년(?!\s*(?:월|봄|여름|가을|겨울))")
-_PUBLICATION_MARKER_STEM: Final = r"(?:발\s*행|발\s*간|간\s*행|게\s*재|인\s*쇄)"
-_PUBLICATION_DATE_MARKER_RE = re.compile(
-    rf"(?<![가-힣])(?:"
-    rf"{_PUBLICATION_MARKER_STEM}\s*(?:일자?|년월일?|연월일?|년도?|확정)(?![가-힣])"
-    rf"|{_PUBLICATION_MARKER_STEM}(?=\s*(?:[:\uFF1A-]\s*)?(?:19|20)\d{{2}})"
-    r")"
-)
-_TRAILING_PUBLICATION_DATE_MARKER_RE = re.compile(
-    rf"^\s*{_PUBLICATION_MARKER_STEM}\s*[.\u3002]?\s*$"
-)
 _DOI_RE = re.compile(
     r"(?:https?://(?:dx\.)?doi\.org/)?(?P<doi>10\.\d{4,9}/[-._;()/:A-Z0-9]+)",
     re.IGNORECASE,
 )
 _JOURNAL_ISSUE_RE = re.compile(r"\((?P<volume>\d{1,3})\s*-\s*(?P<issue>\d{1,3})\)")
 _SERIAL_ISSUE_RE = re.compile(r"제\s*(?P<issue>\d+)\s*호(?:\s*\([^)]+\))?")
+_FORUM_MASTHEAD_RE = re.compile(
+    r"^제\s*\d+\s*호\s*\(\s*\d{2}\s*-\s*\d{1,2}\s*\)\s*"
+    r"(?:19|20)\d{2}\s*년\s*(?:1[0-2]|0?[1-9])\s*월\s*"
+    r"(?:3[01]|[12]\d|0?[1-9])\s*일$"
+)
 _EMAIL_RE = re.compile(r"[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}", re.IGNORECASE)
 _JOURNAL_AUTHOR_RE = re.compile(r"(?P<name>[가-힣]{2,5})\s*(?P<marker>\*+)(?:\s*\d+\))?")
 _FOOTNOTE_RE = re.compile(r"^(?P<marker>\*+)\s*(?P<details>.+)$")
@@ -822,17 +817,11 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
                 processed_at=processed_at,
                 failure_reason=failure_reason,
             )
-        issue_label = selected_date.issue_label
-        if issue_label is None and publication.publication_type in {
-            PublicationType.DEFENSE_POLICY_RESEARCH,
-            PublicationType.DEFENSE_FORUM,
-        }:
-            issue_label = _issue_label(publication.publication_type, views)
         return PublicationDates(
             filename_year=filename.year,
             published_at=selected_date.published_at,
             published_precision=selected_date.precision,
-            issue_label=issue_label,
+            issue_label=selected_date.issue_label,
             processed_at=processed_at,
             date_evidence=MetadataEvidence(
                 source=selected_date.source,
@@ -1137,8 +1126,6 @@ def _is_cover_page(
         return False
 
     normalized_lines = tuple(line.normalized for line in lines)
-    if any(_PUBLICATION_DATE_MARKER_RE.search(line) for line in normalized_lines):
-        return True
     if any(_REPORT_IDENTIFIER_RE.fullmatch(line) for line in normalized_lines):
         return True
     if any(_BRIEF_COVER_HEADER_RE.fullmatch(line) for line in normalized_lines):
@@ -1148,11 +1135,8 @@ def _is_cover_page(
     ):
         return True
     if publication_type is PublicationType.DEFENSE_FORUM:
-        has_serial_issue = any(_SERIAL_ISSUE_RE.search(line) for line in normalized_lines[:5])
-        has_imprint = any(
-            line.startswith(("발행처", "발행인", "편집인")) for line in normalized_lines[:10]
-        )
-        if has_serial_issue and has_imprint:
+        has_masthead = any(_FORUM_MASTHEAD_RE.fullmatch(line) for line in normalized_lines)
+        if has_masthead and _has_forum_imprint_block(lines):
             return True
     has_colophon_date = any(_is_standalone_date_line(line) for line in normalized_lines)
     has_organization = any("한국국방연구원" in line for line in normalized_lines)
@@ -1170,39 +1154,97 @@ def _date_candidates(
     publication_type: PublicationType,
     view: _PageView,
 ) -> list[_DateCandidate]:
-    match_order: tuple[re.Pattern[str], ...]
     if publication_type is PublicationType.DEFENSE_POLICY_RESEARCH:
-        match_order = (_SEASON_RE, _DAY_RE, _DOTTED_MONTH_RE, _KOREAN_MONTH_RE)
-    elif publication_type is PublicationType.DEFENSE_FORUM:
-        match_order = (_DAY_RE, _KOREAN_MONTH_RE, _DOTTED_MONTH_RE, _SEASON_RE)
-    else:
-        match_order = (_DAY_RE, _DOTTED_MONTH_RE, _KOREAN_MONTH_RE, _SEASON_RE)
+        return _journal_date_candidates(view)
+    if publication_type is PublicationType.DEFENSE_FORUM:
+        return _forum_date_candidates(view)
+    if publication_type is PublicationType.RESEARCH_REPORT:
+        return _report_date_candidates(view)
+    return []
+
+
+def _journal_date_candidates(view: _PageView) -> list[_DateCandidate]:
+    if view.source is not MetadataEvidenceSource.COVER_PAGE:
+        return []
+
+    candidates: list[_DateCandidate] = []
+    for line in view.lines[:10]:
+        if not line.normalized.startswith("국방정책연구"):
+            continue
+        season_match = _SEASON_RE.search(line.normalized)
+        issue_match = _JOURNAL_ISSUE_RE.search(line.normalized)
+        if season_match is None or issue_match is None:
+            continue
+        season_issue = season_match.group("issue")
+        journal_issue = f"{issue_match.group('volume')}-{issue_match.group('issue')}"
+        if season_issue is None or season_issue.replace(" ", "") != journal_issue:
+            continue
+        season = season_match.group("season")
+        candidates.append(
+            _DateCandidate(
+                published_at=date(
+                    int(season_match.group("year")),
+                    _SEASON_MONTH[season],
+                    1,
+                ),
+                precision=DatePrecision.SEASON,
+                issue_label=normalize_metadata_text(season_match.group(0)),
+                raw_text=line.raw,
+                source=view.source,
+                page_number=view.page_number,
+            )
+        )
+    return candidates
+
+
+def _forum_date_candidates(view: _PageView) -> list[_DateCandidate]:
+    if view.source is not MetadataEvidenceSource.COVER_PAGE or not _has_forum_imprint_block(
+        view.lines
+    ):
+        return []
+
+    candidates: list[_DateCandidate] = []
+    for line in view.lines:
+        if _FORUM_MASTHEAD_RE.fullmatch(line.normalized) is None:
+            continue
+        date_match = _DAY_RE.search(line.normalized)
+        issue_match = _SERIAL_ISSUE_RE.search(line.normalized)
+        if date_match is None or issue_match is None:
+            continue
+        candidates.append(
+            _DateCandidate(
+                published_at=date(
+                    int(date_match.group("year")),
+                    int(date_match.group("month")),
+                    int(date_match.group("day")),
+                ),
+                precision=DatePrecision.DAY,
+                issue_label=normalize_metadata_text(issue_match.group(0)),
+                raw_text=line.raw,
+                source=view.source,
+                page_number=view.page_number,
+            )
+        )
+    return candidates
+
+
+def _report_date_candidates(view: _PageView) -> list[_DateCandidate]:
+    match_order = (_DAY_RE, _DOTTED_MONTH_RE, _KOREAN_MONTH_RE, _SEASON_RE)
 
     candidates: list[_DateCandidate] = []
     for index, line in enumerate(view.lines):
-        has_precise_date = False
         for pattern in match_order:
-            for match in pattern.finditer(line.normalized):
-                has_publication_marker = _has_publication_marker_for_date(
-                    line.normalized,
-                    match,
-                )
-                is_colophon_line = _is_colophon_date_match(view, index, match)
-                if not has_publication_marker and not is_colophon_line:
-                    continue
-                has_precise_date = True
+            match = pattern.fullmatch(line.normalized)
+            if match is not None and _is_colophon_date_match(view, index, match):
                 candidates.append(_date_from_match(pattern, match, line.raw, view))
+                break
+        else:
+            match = None
 
-        if has_precise_date:
+        if match is not None:
             continue
-        year_match = _YEAR_RE.search(line.normalized)
-        has_publication_marker = year_match is not None and _has_publication_marker_for_date(
-            line.normalized, year_match
-        )
-        is_colophon_line = year_match is not None and _is_colophon_date_match(
-            view, index, year_match
-        )
-        if year_match is not None and (has_publication_marker or is_colophon_line):
+        year_match = _YEAR_RE.fullmatch(line.normalized)
+        if year_match is not None and _is_colophon_date_match(view, index, year_match):
             candidates.append(
                 _DateCandidate(
                     published_at=date(int(year_match.group("year")), 1, 1),
@@ -1216,17 +1258,12 @@ def _date_candidates(
     return candidates
 
 
-def _has_publication_marker_for_date(
-    value: str,
-    date_match: re.Match[str],
-) -> bool:
-    if any(
-        marker.end() <= date_match.start() for marker in _PUBLICATION_DATE_MARKER_RE.finditer(value)
-    ):
-        return True
-    return (
-        date_match.start() == 0
-        and _TRAILING_PUBLICATION_DATE_MARKER_RE.fullmatch(value[date_match.end() :]) is not None
+def _has_forum_imprint_block(lines: Sequence[_Line]) -> bool:
+    return any(
+        lines[index].normalized.startswith("발행처")
+        and lines[index + 1].normalized.startswith("발행인")
+        and lines[index + 2].normalized.startswith("편집인")
+        for index in range(len(lines) - 2)
     )
 
 
@@ -1309,23 +1346,6 @@ def _select_date_candidate(
         ),
         None,
     )
-
-
-def _issue_label(
-    publication_type: PublicationType,
-    views: Sequence[_PageView],
-) -> str | None:
-    for view in views:
-        for line in view.lines[:10]:
-            pattern = (
-                _JOURNAL_ISSUE_RE
-                if publication_type is PublicationType.DEFENSE_POLICY_RESEARCH
-                else _SERIAL_ISSUE_RE
-            )
-            match = pattern.search(line.normalized)
-            if match is not None:
-                return match.group(0)
-    return None
 
 
 def _processed_at(publication: ResearchPublication) -> datetime | None:
