@@ -259,11 +259,91 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
 
 ### P1.5 Metadata normalization
 
-- [ ] 제목, 부제, authors, organization, 발행일/정밀도, 권·호, DOI, 초록과 키워드 추출
-- [ ] 원본 표기, normalized value, confidence와 evidence page 보존
-- [ ] 파일명 연도·processed date·published date를 분리
-- [ ] 긴 파일명·불완전 자모에서는 표지 근거를 우선
-- [ ] 추측 대신 `null`과 실패 사유를 반환
+- [x] 제목, 부제, authors, organization, 발행일/정밀도, 권·호, DOI, 초록과 키워드 추출
+- [x] 원본 표기, normalized value, confidence와 evidence page 보존
+- [x] 파일명 연도·processed date·published date를 분리
+- [x] 긴 파일명·불완전 자모에서는 표지 근거를 우선
+- [x] 추측 대신 `null`과 실패 사유를 반환
+
+구현 기록(2026-08-09):
+
+- 입력은 `ResearchPublication`, 페이지 근거가 있는 `Sequence[PublicationPage]`, 선택적
+  `source_path`이며, 출력은 기존 계약의 `ExtractedPublicationMetadata`다. 변경 범위는
+  `search/metadata.py`, 대응 unit test와 이 P1.5 기록뿐이고 새 의존성은 없다.
+- `RuleBasedPublicationMetadataExtractor`는 `cover_page > body > filename >
+  processing_metadata` 순으로 필드별 후보를 선택한다. 강한 후보가 있으면 약한 후보를
+  병합하지 않고 버리며, 같은 강도의 값이 충돌하면 `null`과 실패 사유를 반환한다.
+- 정규화 규칙 `nfc-whitespace-v1`은 NFC 조합, 제어·format 문자의 공백 치환, 연속 공백
+  축약만 수행한다. 불완전 한글 자모를 추측해 완성하지 않으며 extractor provenance version에
+  규칙 버전을 포함한다. `SEASON`의 date 운반값은 봄·여름·가을·겨울을 각각
+  3월·6월·9월·12월 1일로 고정하되 정확한 월·일로 해석하지 않고 precision과 원문
+  `issue_label`을 함께 보존한다.
+- 결정적 offline unit test는 실제 자료에서 관찰된 국방논단 제어문자 표지, 국방정책연구
+  계절호와 `*`/`**` 저자 각주, 연구보고서 월 표기, Brief 저자 표기, 긴·잘린 파일명,
+  동일 강도 충돌, 미확정 필드와 byte-equivalent 재실행을 포함한다. 기본 suite는 실제
+  `data/`나 네트워크를 읽지 않는다.
+- 교차 검토 보완(2026-08-09)으로 extractor version을 `1.0.1`로 올렸다. 연구보고서 표지의
+  `연구보고서 <분류><번호>`, 발행일과 ISBN은 제목이 아닌 구조 헤더로 제외하고, 헤더 뒤
+  제목 블록을 파일명에서 확인한 첫 저자 또는 보수적인 저자 목록 형식 전까지만 채택한다.
+  일련번호 전용 도메인 필드는 현 계약에 추가하지 않았으며 원본 `PublicationPage.text`에
+  보존한다. 국방정책연구 제목은 줄별 `†`/`‡`와 독립·저자 결합형 숫자 각주를 제거하되
+  `MetadataEvidence.raw_text`에는 원문 표기를 유지한다. 지배 연구보고서 레이아웃 두 변형과
+  숫자 각주 두 변형을 deterministic unit fixture로 추가했다.
+- 두 번째 교차 검토 보완(2026-08-09)으로 extractor version을 `1.0.2`로 올렸다. 실제
+  연구보고서의 지배적 요약 헤딩인 `요 약`을 `요약`과 동일하게 인식하고, 여러 줄
+  `Key words` 블록은 국방정책연구 권·호 러닝 헤더 전에 종료한다. 실제 corpus에서
+  관찰된 두 텍스트 형태를 재현하는 경계 unit test로 추출값과 evidence 범위를 고정했다.
+- 세 번째 교차 검토 보완(2026-08-10): 입력은 실제 corpus에서 관찰된 Brief 표지
+  상용구·중복 제목, `- … -` 보고서 부제와 `source_path` 없는 단일 저자 보고서 표지다.
+  출력 계약과 선택적 `source_path` API는 유지하고 `search/metadata.py`, unit test와 이
+  기록만 변경하며 새 의존성은 없다. Brief 표지는 상용구 뒤부터 저자 전까지의 제목을
+  채택하되 연속 중복 줄을 접고, 줄 전체를 감싼 대시는 명시적 부제로 분리한다. 보고서의
+  단일 저자는 보고서 식별 근거, 선행 제목과 후행 메타데이터만 있는 구조에서만 인정한다.
+  세 재현 test와 단일 단어 보고서 제목 음성 경계 test를 추가했다. 읽기 전용 corpus
+  진단에서는 372건을 `source_path` 유무 양쪽으로 모두 처리했고, Brief 지배 레이아웃
+  135/135건에서 상용구를 제거했으며 대시 부제 표지 13/13건에서 부제를 분리했다.
+- 네 번째 교차 검토 보완(2026-08-10): 표지에 발행일이 없는 Brief와 본문에
+  발행일이 아닌 과거 사건 날짜가 있는 입력을 경계 조건으로 삼는다. 발행일은 표지에서
+  명시적으로 확인된 날짜만 채택하고 본문 날짜와 파일명 연도는 승격하지 않는다. 출력의
+  `PublicationDates`에는 미확정 사유를 추가해 값과 실패 사유를 상호 배타적으로 만든다.
+  이는 JSON에 nullable `failure_reason`을 추가하는 계약 변경이며 extractor version은
+  `1.0.4`로 올렸다. 새 의존성은 없다. 실제 지적된 Brief 전체 페이지를 읽기 전용으로
+  재실행해 파일명 연도만 별도 보존되고 발행일은 `null`과 본문 날짜 배제 사유로 반환됨을
+  확인했다. 동일 강도 표지 날짜 충돌과 날짜 모델의 정상·실패 경계도 deterministic unit
+  test로 고정했다.
+- 사람 재확인을 반영한 최종 보완(2026-08-10): 입력은 유형별 간기를 포함한
+  `PublicationPage`와 파일명 연도이고, 출력은 수용된 기존 `PublicationDates`다.
+  국방논단은 같은 page 1의 `발행처/발행인/편집인` 연속 블록으로 구조가
+  확인된 `제N호(YY-MM) YYYY년 M월 D일` 머리줄을 DAY로 확정한다.
+  PDF 텍스트 추출 순서로 머리줄과 간기 블록이 떨어진 변형도 같은 표지
+  내의 구조 근거로 처리한다. 국방정책연구는 page 1 머리줄의
+  `YYYY년 계절(V-I)`만 SEASON으로 확정하고 운반월을 3/6/9/12월 1일로
+  유지하며 원문 계절호를 `issue_label`에 보존한다. BODY의 `게재 확정`은
+  심사 통과일이므로 후보에서 제외한다. 연구보고서는 기존 날짜-only 간기
+  경로를 유지하고 Brief는 발행일을 항상 미확정한다. 유형별 경로가
+  아닌 산문·부제 기간·타 발간물 언급의 날짜는 명시적 사유와 `null`로
+  반환한다. 범용 발행 마커 후보와 사후 `issue_label is None` 보완 가드는
+  제거했다. extractor version은 `1.1.0`이며 `domain/`, 의존성, 배럴 파일은
+  변경하지 않았다.
+- 기본 test는 실제 corpus를 읽지 않는다. deterministic fixture는 실제 page 텍스트
+  모양을 따라 국방논단의 제어문자 간기 블록, 순서가 뒤섞인 표지,
+  국방정책연구의 계절호 머리줄과 BODY `게재 확정` 줄을 함께 포함한다.
+  연구보고서의 표지 MONTH와 원장 서명 인접 BODY MONTH, Brief의 산문
+  날짜와 대시 부제 기간을 각각 양성·음성 지배 경로로 검증한다.
+  완료 조건은 유형별 정밀도·근거 source, `filename_year`, `failure_reason`,
+  `게재 확정` 배제와 deterministic 재실행을 포함한 대응 unit suite 통과다.
+- 읽기 전용 corpus 372건 재측정 결과 확정률은 국방논단
+  100/100(100.0%, 전부 DAY/COVER_PAGE), 국방정책연구 61/61(100.0%, 전부
+  SEASON/COVER_PAGE), 연구보고서 35/38(92.1%, MONTH 35건·COVER_PAGE 34건·BODY
+  1건), Brief 0/173(0.0%), 전체 196/372(52.7%)였다. 모든 미확정건에
+  `failure_reason`이 있고, 국방정책연구 61건 모두 `issue_label`을 보존했다.
+  지적된 `2022_김기범_…`, `2021_박대광_…` 사례도 `published_at=null`을
+  유지했다. 산문 날짜나 파일명 연도를 발행일로 승격하지 않는다.
+- 읽기 전용 corpus smoke 진단에서 문서 JSON 372/372개가 예외 없이 처리됐다. 이는 실행
+  안정성 지표이지 metadata 정확도 지표가 아니다. 정답셋이 없으므로 precision/recall은
+  기록하지 않으며, 기대 영향은 구조화 필드의 근거 추적성과 누락·충돌 가시성 향상이다.
+- extractor는 publication 승인 상태를 바꾸지 않는다. 모호한 값, 파일명/발행 연도 충돌과
+  도메인상 맞는 저자·기관 판정은 계속 사람 검수 대상이다.
 
 ### P1.6 Quality gate
 
