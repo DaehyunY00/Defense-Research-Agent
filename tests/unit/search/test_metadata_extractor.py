@@ -39,7 +39,7 @@ PROCESSED_AT = datetime(2026, 2, 2, 23, 30, 6, 937817)
 TRUNCATED_FILENAME = Path("2019_김의순_국방분야실행아키텍처구현방안연ㄱ.pdf")
 
 FORUM_COVER = """\
-제1983호(24-10)\x01 2024년\x01 3월\x01 15일
+제1983호(24-10)\x01 발행일\x01 2024년\x01 3월\x01 15일
 발행처\x01 한국국방연구원
 발행인\x01 탁성한
 편집인\x01 이재욱
@@ -50,7 +50,7 @@ jiheekwak@kida.re.kr
 """
 
 JOURNAL_COVER = """\
-국방정책연구 2024년 여름(40-2) 통권 제144호 pp. 93-132
+국방정책연구 게재 2024년 여름(40-2) 통권 제144호 pp. 93-132
 http://dx.doi.org/10.22883/jdps.2024.40.2.004
 ISSN 1598-6101(print), 2672-1392(online)
 미래전에 대비한 한국군 인지전 발전 방향:
@@ -123,9 +123,27 @@ KIDA Brief 1
 안보전략연구센터
 """
 
-BRIEF_BODY_WITH_UNRELATED_DATE = """\
-2018년 1월에 공개된 국방전략서는 새로운 안보 환경을 설명했다.
-이 문장은 해당 Brief의 발행일을 나타내지 않는다.
+BRIEF_PAGE_ONE_WITH_PROSE_DATE = """\
+배경과 목적
+수행 결과
+KIDA Brief 1
+미국 핵전략 변화의 확장억제 태세에의 영향
+김기범
+안보전략연구센터
+◎ 2021년 1월, 새로 취임한 해외 정상은 이전 정부와 다른 정책을 펼쳤다.
+No. 2022-안보-4
+"""
+
+BRIEF_PAGE_ONE_WITH_SUBTITLE_PERIOD = """\
+배경과 목적
+수행 결과
+KIDA Brief 1
+회담 이후 최선의 접근법과 정책적 함의
+- 회담 직후부터 2020년 6월까지를 대상으로 -
+박대광, 송화섭
+안보전략연구센터
+연구 대상 기간의 정책 변화를 분석했다.
+No. 2021-안보-1
 """
 
 REPORT_DASH_SUBTITLE_COVER = """\
@@ -315,14 +333,11 @@ def test_brief_business_year_does_not_replace_the_published_month() -> None:
     assert metadata.dates.has_year_conflict
 
 
-def test_brief_body_historical_date_is_not_promoted_to_publication_date() -> None:
+def test_brief_page_one_prose_date_is_not_promoted_to_publication_date() -> None:
     metadata = _extract(
         PublicationType.KIDA_BRIEF,
-        [
-            _page(BRIEF_TITLE_COVER),
-            _page(BRIEF_BODY_WITH_UNRELATED_DATE, page_number=2),
-        ],
-        Path("2022_강석율_미국의3차상쇄전략추진동향과시사점.pdf"),
+        [_page(BRIEF_PAGE_ONE_WITH_PROSE_DATE)],
+        Path("2022_김기범_미국핵전략변화의확장억제태세에의영향.pdf"),
     )
 
     assert metadata.dates.filename_year == 2022
@@ -330,7 +345,80 @@ def test_brief_body_historical_date_is_not_promoted_to_publication_date() -> Non
     assert metadata.dates.published_precision is None
     assert metadata.dates.date_evidence is None
     assert metadata.dates.failure_reason == (
-        "표지 발행일이 없고 본문 날짜는 발행일 근거로 사용할 수 없음"
+        "발행 마커 또는 날짜 간기 줄이 아니어서 날짜를 발행일로 확정할 수 없음"
+    )
+
+
+def test_brief_page_one_subtitle_period_is_not_promoted_to_publication_date() -> None:
+    metadata = _extract(
+        PublicationType.KIDA_BRIEF,
+        [_page(BRIEF_PAGE_ONE_WITH_SUBTITLE_PERIOD)],
+        Path("2021_박대광_회담이후최선의접근법과정책적함의.pdf"),
+    )
+
+    assert metadata.dates.filename_year == 2021
+    assert metadata.dates.published_at is None
+    assert metadata.dates.published_precision is None
+    assert metadata.dates.date_evidence is None
+    assert metadata.dates.failure_reason == (
+        "발행 마커 또는 날짜 간기 줄이 아니어서 날짜를 발행일로 확정할 수 없음"
+    )
+
+
+def test_page_one_without_cover_structure_is_body_evidence() -> None:
+    metadata = _extract(
+        PublicationType.OTHER,
+        [_page("일반 본문의 첫 문단\n참고 DOI 10.1000/body-reference")],
+    )
+
+    doi = _value(metadata, MetadataField.DOI)
+    assert doi.evidence is not None
+    assert doi.evidence.source is MetadataEvidenceSource.BODY
+
+
+def test_date_on_publication_marker_line_is_confirmed() -> None:
+    metadata = _extract(
+        PublicationType.KIDA_BRIEF,
+        [_page("KIDA Brief 1\n발간일 2020. 7.\n김의순 책임연구위원")],
+    )
+
+    assert metadata.dates.published_at == date(2020, 7, 1)
+    assert metadata.dates.published_precision is DatePrecision.MONTH
+    assert metadata.dates.date_evidence is not None
+    assert metadata.dates.date_evidence.raw_text == "발간일 2020. 7."
+
+
+def test_standalone_colophon_date_line_is_confirmed() -> None:
+    metadata = _extract(PublicationType.RESEARCH_REPORT, [_page(REPORT_COVER)])
+
+    assert metadata.dates.published_at == date(2023, 10, 1)
+    assert metadata.dates.published_precision is DatePrecision.MONTH
+    assert metadata.dates.date_evidence is not None
+    assert metadata.dates.date_evidence.raw_text == "2023. 10."
+
+
+def test_colophon_date_with_imprint_context_on_a_later_page_is_confirmed() -> None:
+    colophon = "머리말\n2023년 2월\n한국국방연구원 원장 김한국"
+    metadata = _extract(
+        PublicationType.RESEARCH_REPORT,
+        [_page("연구보고서 자원2023-1"), _page(colophon, page_number=3)],
+    )
+
+    assert metadata.dates.published_at == date(2023, 2, 1)
+    assert metadata.dates.published_precision is DatePrecision.MONTH
+    assert metadata.dates.date_evidence is not None
+    assert metadata.dates.date_evidence.source is MetadataEvidenceSource.BODY
+    assert metadata.dates.date_evidence.raw_text == "2023년 2월"
+
+
+def test_prose_publication_verb_does_not_act_as_a_date_marker() -> None:
+    prose = "2022년 2월에 민간 기업을 대상으로 정보요청서를 발행"
+    metadata = _extract(PublicationType.KIDA_BRIEF, [_page(prose)])
+
+    assert metadata.dates.published_at is None
+    assert metadata.dates.date_evidence is None
+    assert metadata.dates.failure_reason == (
+        "발행 마커 또는 날짜 간기 줄이 아니어서 날짜를 발행일로 확정할 수 없음"
     )
 
 
@@ -341,7 +429,7 @@ def test_conflicting_cover_dates_return_none_with_a_failure_reason() -> None:
     assert metadata.dates.published_at is None
     assert metadata.dates.published_precision is None
     assert metadata.dates.date_evidence is None
-    assert metadata.dates.failure_reason == "동일한 우선순위의 발행일 근거가 충돌함"
+    assert metadata.dates.failure_reason == "발행일 근거가 서로 충돌함"
 
 
 def test_season_precision_and_original_issue_label_are_preserved() -> None:
@@ -541,7 +629,9 @@ def test_unresolved_fields_return_none_with_failure_reasons() -> None:
     assert metadata.dates.published_at is None
     assert metadata.dates.published_precision is None
     assert metadata.dates.date_evidence is None
-    assert metadata.dates.failure_reason == "표지에서 발행일 근거를 찾을 수 없음"
+    assert metadata.dates.failure_reason == (
+        "발행 마커 또는 날짜 간기 줄에서 발행일 근거를 찾을 수 없음"
+    )
 
 
 def test_equal_strength_conflict_is_not_guessed() -> None:

@@ -39,11 +39,13 @@ from defense_research_agent.domain.publication import (
 METADATA_NORMALIZATION_VERSION: Final = "nfc-whitespace-v1"
 """Version of the Unicode and whitespace normalization rules below."""
 
-RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.4"
+RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.5"
 _CONFLICT_REASON: Final = "동일한 우선순위의 메타데이터 근거가 충돌함"
-_DATE_CONFLICT_REASON: Final = "동일한 우선순위의 발행일 근거가 충돌함"
-_MISSING_DATE_REASON: Final = "표지에서 발행일 근거를 찾을 수 없음"
-_BODY_DATE_REJECTED_REASON: Final = "표지 발행일이 없고 본문 날짜는 발행일 근거로 사용할 수 없음"
+_DATE_CONFLICT_REASON: Final = "발행일 근거가 서로 충돌함"
+_MISSING_DATE_REASON: Final = "발행 마커 또는 날짜 간기 줄에서 발행일 근거를 찾을 수 없음"
+_UNQUALIFIED_DATE_REASON: Final = (
+    "발행 마커 또는 날짜 간기 줄이 아니어서 날짜를 발행일로 확정할 수 없음"
+)
 _MISSING_REASONS: Final[dict[MetadataField, str]] = {
     MetadataField.TITLE: "표지, 본문, 파일명에서 제목을 확정할 수 없음",
     MetadataField.SUBTITLE: "명시적인 부제 표기를 찾을 수 없음",
@@ -72,6 +74,16 @@ _SEASON_RE = re.compile(
     r"(?P<season>봄|여름|가을|겨울)\s*(?:\((?P<issue>[^)]+)\))?"
 )
 _YEAR_RE = re.compile(r"(?<!\d)(?P<year>(?:19|20)\d{2})\s*년(?!\s*(?:월|봄|여름|가을|겨울))")
+_PUBLICATION_MARKER_STEM: Final = r"(?:발\s*행|발\s*간|간\s*행|게\s*재|인\s*쇄)"
+_PUBLICATION_DATE_MARKER_RE = re.compile(
+    rf"(?<![가-힣])(?:"
+    rf"{_PUBLICATION_MARKER_STEM}\s*(?:일자?|년월일?|연월일?|년도?|확정)(?![가-힣])"
+    rf"|{_PUBLICATION_MARKER_STEM}(?=\s*(?:[:\uFF1A-]\s*)?(?:19|20)\d{{2}})"
+    r")"
+)
+_TRAILING_PUBLICATION_DATE_MARKER_RE = re.compile(
+    rf"^\s*{_PUBLICATION_MARKER_STEM}\s*[.\u3002]?\s*$"
+)
 _DOI_RE = re.compile(
     r"(?:https?://(?:dx\.)?doi\.org/)?(?P<doi>10\.\d{4,9}/[-._;()/:A-Z0-9]+)",
     re.IGNORECASE,
@@ -262,7 +274,7 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
     ) -> ExtractedPublicationMetadata:
         """Extract traceable metadata without reading or mutating the source file."""
         ordered_pages = sorted(pages, key=lambda page: page.page_number)
-        views = tuple(self._page_view(page) for page in ordered_pages)
+        views = tuple(self._page_view(publication.publication_type, page) for page in ordered_pages)
         filename = self._parse_filename(source_path)
 
         candidates: dict[MetadataField, list[_Candidate]] = {
@@ -293,7 +305,10 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         )
 
     @staticmethod
-    def _page_view(page: PublicationPage) -> _PageView:
+    def _page_view(
+        publication_type: PublicationType,
+        page: PublicationPage,
+    ) -> _PageView:
         lines: list[_Line] = []
         for raw in page.text.splitlines():
             normalized = normalize_metadata_text(raw)
@@ -301,7 +316,7 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
                 lines.append(_Line(raw=raw, normalized=normalized))
         source = (
             MetadataEvidenceSource.COVER_PAGE
-            if page.page_number == 1
+            if _is_cover_page(publication_type, page.page_number, lines)
             else MetadataEvidenceSource.BODY
         )
         return _PageView(page_number=page.page_number, source=source, lines=tuple(lines))
@@ -793,20 +808,14 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
             for view in views
             for candidate in _date_candidates(publication.publication_type, view)
         ]
-        cover_candidates = [
-            candidate
-            for candidate in date_candidates
-            if candidate.source is MetadataEvidenceSource.COVER_PAGE
-        ]
-        selected_date, failure_reason = _select_date_candidate(cover_candidates)
+        selected_date, failure_reason = _select_date_candidate(date_candidates)
         processed_at = _processed_at(publication)
         if selected_date is None:
             if failure_reason is None:
-                has_body_date = any(
-                    candidate.source is MetadataEvidenceSource.BODY for candidate in date_candidates
-                )
                 failure_reason = (
-                    _BODY_DATE_REJECTED_REASON if has_body_date else _MISSING_DATE_REASON
+                    _UNQUALIFIED_DATE_REASON
+                    if _has_unqualified_date(views)
+                    else _MISSING_DATE_REASON
                 )
             return PublicationDates(
                 filename_year=filename.year,
@@ -1119,6 +1128,44 @@ def _nearby_author_details(
     return affiliation, emails, supporting_raw
 
 
+def _is_cover_page(
+    publication_type: PublicationType,
+    page_number: int,
+    lines: Sequence[_Line],
+) -> bool:
+    if page_number != 1:
+        return False
+
+    normalized_lines = tuple(line.normalized for line in lines)
+    if any(_PUBLICATION_DATE_MARKER_RE.search(line) for line in normalized_lines):
+        return True
+    if any(_REPORT_IDENTIFIER_RE.fullmatch(line) for line in normalized_lines):
+        return True
+    if any(_BRIEF_COVER_HEADER_RE.fullmatch(line) for line in normalized_lines):
+        return True
+    if publication_type is PublicationType.DEFENSE_POLICY_RESEARCH and any(
+        line.startswith("국방정책연구") for line in normalized_lines[:5]
+    ):
+        return True
+    if publication_type is PublicationType.DEFENSE_FORUM:
+        has_serial_issue = any(_SERIAL_ISSUE_RE.search(line) for line in normalized_lines[:5])
+        has_imprint = any(
+            line.startswith(("발행처", "발행인", "편집인")) for line in normalized_lines[:10]
+        )
+        if has_serial_issue and has_imprint:
+            return True
+    has_colophon_date = any(_is_standalone_date_line(line) for line in normalized_lines)
+    has_organization = any("한국국방연구원" in line for line in normalized_lines)
+    return has_colophon_date and has_organization
+
+
+def _is_standalone_date_line(value: str) -> bool:
+    return any(
+        pattern.fullmatch(value) is not None
+        for pattern in (_DAY_RE, _DOTTED_MONTH_RE, _KOREAN_MONTH_RE, _SEASON_RE, _YEAR_RE)
+    )
+
+
 def _date_candidates(
     publication_type: PublicationType,
     view: _PageView,
@@ -1131,25 +1178,34 @@ def _date_candidates(
     else:
         match_order = (_DAY_RE, _DOTTED_MONTH_RE, _KOREAN_MONTH_RE, _SEASON_RE)
 
-    for pattern in match_order:
-        candidates: list[_DateCandidate] = []
-        for line in view.lines[:30]:
-            candidates.extend(
-                _date_from_match(pattern, match, line.raw, view)
-                for match in pattern.finditer(line.normalized)
-            )
-        if candidates:
-            return candidates
+    candidates: list[_DateCandidate] = []
+    for index, line in enumerate(view.lines):
+        has_precise_date = False
+        for pattern in match_order:
+            for match in pattern.finditer(line.normalized):
+                has_publication_marker = _has_publication_marker_for_date(
+                    line.normalized,
+                    match,
+                )
+                is_colophon_line = _is_colophon_date_match(view, index, match)
+                if not has_publication_marker and not is_colophon_line:
+                    continue
+                has_precise_date = True
+                candidates.append(_date_from_match(pattern, match, line.raw, view))
 
-    candidates = []
-    for line in view.lines[:12]:
-        if "사업" in line.normalized or "연구" in line.normalized:
+        if has_precise_date:
             continue
-        match = _YEAR_RE.search(line.normalized)
-        if match is not None and (line.normalized == match.group(0) or "발행" in line.normalized):
+        year_match = _YEAR_RE.search(line.normalized)
+        has_publication_marker = year_match is not None and _has_publication_marker_for_date(
+            line.normalized, year_match
+        )
+        is_colophon_line = year_match is not None and _is_colophon_date_match(
+            view, index, year_match
+        )
+        if year_match is not None and (has_publication_marker or is_colophon_line):
             candidates.append(
                 _DateCandidate(
-                    published_at=date(int(match.group("year")), 1, 1),
+                    published_at=date(int(year_match.group("year")), 1, 1),
                     precision=DatePrecision.YEAR,
                     issue_label=None,
                     raw_text=line.raw,
@@ -1158,6 +1214,49 @@ def _date_candidates(
                 )
             )
     return candidates
+
+
+def _has_publication_marker_for_date(
+    value: str,
+    date_match: re.Match[str],
+) -> bool:
+    if any(
+        marker.end() <= date_match.start() for marker in _PUBLICATION_DATE_MARKER_RE.finditer(value)
+    ):
+        return True
+    return (
+        date_match.start() == 0
+        and _TRAILING_PUBLICATION_DATE_MARKER_RE.fullmatch(value[date_match.end() :]) is not None
+    )
+
+
+def _is_colophon_date_match(
+    view: _PageView,
+    line_index: int,
+    date_match: re.Match[str],
+) -> bool:
+    line = view.lines[line_index]
+    if date_match.group(0) != line.normalized:
+        return False
+    if view.source is MetadataEvidenceSource.COVER_PAGE:
+        return True
+
+    nearby_lines = view.lines[max(0, line_index - 2) : line_index + 3]
+    return any(
+        "한국국방연구원" in nearby.normalized
+        and any(marker in nearby.normalized for marker in ("원장", "발행처", "발행인"))
+        for nearby in nearby_lines
+    )
+
+
+def _has_unqualified_date(views: Sequence[_PageView]) -> bool:
+    patterns = (_DAY_RE, _DOTTED_MONTH_RE, _KOREAN_MONTH_RE, _SEASON_RE, _YEAR_RE)
+    return any(
+        pattern.search(line.normalized) is not None
+        for view in views
+        for line in view.lines
+        for pattern in patterns
+    )
 
 
 def _date_from_match(
@@ -1203,7 +1302,13 @@ def _select_date_candidate(
     values = {(candidate.published_at, candidate.precision) for candidate in strongest}
     if len(values) > 1:
         return None, _DATE_CONFLICT_REASON
-    return min(strongest, key=lambda candidate: candidate.page_number), None
+    return (
+        min(
+            strongest,
+            key=lambda candidate: candidate.page_number,
+        ),
+        None,
+    )
 
 
 def _issue_label(
