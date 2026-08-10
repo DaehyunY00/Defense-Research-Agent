@@ -263,3 +263,45 @@ LLM은 구조화된 관찰값과 근거 설명을 제안할 수 있지만 가중
 - `U+0007`을 보유한 29개 문서는 치환 대상이 아니므로 `warning`으로 색인된다.
   공백 대체라는 근거가 확인되면 치환 목록에 추가할 수 있다.
 - 치환 목록 자체가 버전 관리 대상이다. 항목을 바꾸면 `thresholds_version`도 바꾼다.
+
+## ADR-011 — PDF 본문 추출은 pypdfium2로 한다
+
+**Status: Accepted**
+
+### Context
+
+P1.3 PDF extraction에는 PDF 파싱 라이브러리가 필요하다. 현재 의존성에는 없다.
+
+코퍼스가 고유 문서 370개이므로 **속도는 의미 있는 선택 축이 아니다.** 어떤 라이브러리를
+쓰든 전체 추출이 몇 분 안에 끝난다. 실제 축은 추출 정확도와 라이선스다.
+
+| 라이브러리 | 라이선스 | 텍스트 정확도 | 표·레이아웃 |
+|---|---|---|---|
+| PyMuPDF | AGPL-3.0 | 최상 | 좋음 |
+| pypdfium2 | BSD-3-Clause / Apache-2.0 | 최상급 | 보통 |
+| pdfplumber | MIT | 좋음 | 최상 |
+| pypdf | BSD-3-Clause | 보통 | 약함 |
+
+AGPL-3.0 §13은 사용자가 네트워크를 통해 소프트웨어와 상호작용하면 전체 저작물의 대응
+소스를 제공하도록 요구한다. 이 저장소는 `deploy/gcp-app/`에 Cloud Run API를 포함하므로
+PyMuPDF를 쓰면 이 조항이 직접 적용된다. Artifex 상용 라이선스로 회피할 수 있으나
+유료다.
+
+### Decision
+
+`pypdfium2`를 기본 PDF 본문 추출 adapter로 사용한다. Google PDFium(Chrome PDF 엔진)
+바인딩이므로 PyMuPDF급 텍스트 정확도를 permissive 라이선스로 얻는다.
+
+이 결정은 단일 선택을 고정하지 않는다. `DocumentParser` 계약이 복수 adapter와
+`ParserCapability.TABLES`를 지원하므로, 품질 게이트가 표 추출 문제를 실제로 보여주면
+`pdfplumber` adapter를 두 번째로 추가한다. 측정 근거가 나오기 전에 미리 추가하지 않는다.
+
+### Consequences
+
+- Cloud Run API 배포에 소스 공개 의무가 생기지 않는다.
+- 표·도표 추출은 pypdfium2 단독으로는 약하다. 표가 연구 근거로 필요하다는 것이
+  측정으로 확인되면 두 번째 adapter를 추가한다.
+- provider-specific 코드는 adapter 안에 격리한다. `search/parsers/base.py`는 어떤 PDF
+  라이브러리도 import하지 않는다.
+- 추출기가 바뀌면 page text가 달라지므로 `ExtractionProvenance.parser_version`을 올리고
+  품질 임계값을 재측정한다. 임계값은 추출 텍스트를 설명하는 값이다(ADR-010).
