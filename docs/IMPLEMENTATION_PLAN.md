@@ -161,47 +161,92 @@ page range, chunk index, chunking version은 유지된다.
 
 - [x] 현재 `PdfPublicationReader`의 header/checksum 검증을 유지
 - [x] 페이지별 본문 추출 adapter 추가 — 기존 metadata JSON의 `page_texts` 전용
-- [ ] 기존 JSON `page_texts`와 신규 PDF 추출 결과의 선택 정책 정의
-- [ ] 암호화·손상·빈 페이지·비정상 Unicode 실패 보고
-- [ ] 네 publication type의 대표 fixture로 page mapping 검증
+- [x] `pypdfium2` 기반 PDF 본문 직접 추출 adapter 추가
+- [x] 기존 JSON `page_texts`와 신규 PDF 추출 결과의 선택 정책 정의
+- [x] 암호화·손상·빈 페이지·비정상 Unicode 실패/보존 정책 구현
+- [x] 네 publication type의 대표 fixture로 actual PDF page mapping 검증
+- [x] actual PDF page에서 chunk page span으로 citation retrace 통합 테스트
 
-이번 범위의 입력은 읽기 전용 metadata JSON 경로와 호출자가 계산한 SHA-256 checksum이고,
-출력은 기존 `DocumentParser.parse(Path, Checksum) -> ParseResult` 계약을 따르는 정렬된
-`PublicationPage`, `ParserFailure`, `ExtractionProvenance`, `requires_ocr` 신호다. 공개 계약은
-변경하지 않았으며 `JsonPageParser`를 `search.parsers` 배럴에서만 노출한다. adapter의 공개
-식별자는 `name = "json-page-texts"`, `version = "1.0.0"`이고 capability는 `text`,
-`page_text`, `ocr_signal`이다. 새 의존성은 없다.
+입력, 출력, 공개 계약과 의존성:
 
-구현 결정:
+- `PdfiumPdfParser.parse(source_path: Path, source_checksum: Checksum) -> ParseResult`는
+  읽기 전용 PDF 경로와 호출자가 계산한 SHA-256을 받아 정렬된 `PublicationPage`,
+  `ParserFailure`, `ExtractionProvenance`, `requires_ocr`을 반환한다. 기존 `DocumentParser`,
+  `ParseResult`와 오류 taxonomy의 공개 시그니처는 변경하지 않았다.
+- adapter 공개 식별자는 `name = "pypdfium2-pdf"`, `version = "1.0.0"`이다. version은
+  adapter 동작 버전이며 추출 텍스트나 페이지 포함 여부가 달라질 수 있는 변경에서 반드시
+  올린다. capability는 `text`, `page_text`, `ocr_signal`이며 지원하지 않는 `tables`는
+  선언하지 않는다.
+- `select_page_text_result(*, pdf_result: ParseResult | None,
+  json_result: ParseResult | None) -> PageTextSelection`을 parser 배럴에서 공개한다.
+  `PageTextSelection.result`가 선택 결과이고 양쪽 원본 결과, `selected_source`,
+  `sources_match`, `used_fallback`을 함께 보존한다.
+- 기존 의존성 `pypdfium2>=5.12,<6`만 사용한다. provider import는
+  `search/parsers/pdfium_pdf_parser.py` 안에만 있고 `base.py`에는 PDF 라이브러리가 없다.
+  `pyproject.toml`과 `uv.lock`은 변경하지 않았다.
 
-- checksum은 읽은 JSON 바이트로 다시 계산한다. 일치할 때와 불일치할 때 provenance에는
-  실제 checksum을 기록하고, 불일치하면 본문을 처리하지 않고 `CHECKSUM_MISMATCH`를
-  반환한다. 파일 자체를 읽지 못해 실제 checksum을 구할 수 없는 경우에만 계약상 전달된
-  checksum을 provenance에 유지하고 `UNREADABLE_SOURCE`를 반환한다.
-- `char_count`는 파생·권고 값으로 취급하고 신뢰하지 않는다. 원문인 `text`를 그대로
-  보존하며 Python `len(text)`를 유일한 문자 수 기준으로 재계산한다. 불일치 자체로 페이지를
-  버리거나 원문을 자르지 않는다. `PublicationPage` 계약에는 문자 수 필드가 없으므로
-  재계산 값은 별도 상태로 저장하지 않는다.
-- 중복 page 번호는 입력 순서로 하나를 임의 선택하지 않는다. 해당 번호의 모든 후보를
-  제외하고 `CORRUPT_STRUCTURE` failure 하나를 남기며, 다른 정상 페이지는 유지한다.
-- `requires_ocr`은 `page_texts`가 누락·빈 목록이어서 추출 본문이 전혀 없거나 공백뿐인
-  페이지가 하나라도 있을 때만 `True`다. checksum·JSON·필드 구조 오류는 OCR로 고칠 수
-  없으므로 `False`다. 짧지만 유효한 텍스트에 임의 길이 임계값을 적용하지 않는다.
-- `section_title`은 원본에 없으므로 항상 `None`이며 heading을 추측하지 않는다. 결과
-  페이지는 page 번호 오름차순으로 정렬한다.
+PDF 추출 결정:
 
-변경 범위는 `search/parsers/json_page_parser.py`, 같은 패키지 배럴,
-`data/readers/pdf_reader.py`, 대응 unit/integration test와 실제 스키마형 JSON fixture다.
-unit test는 정상·부분 실패·전체 실패·경계·checksum·결정성을, integration test는 adapter
-출력을 `DeterministicPageChunker`에 전달해 page span을 역추적하는 경로를 검증한다. 모두
-로컬 fixture/fake filesystem만 사용하며 외부 API·모델·시간 의존성은 없다. retrieval/ranking
-평가 metric과 승인 상태 전이는 변경하지 않는다. 예상 영향은 실제 corpus page text가
-chunk 품질 검사와 페이지 인용에 도달하는 것이며, 사람 승인 경계는 그대로다.
+- PDF 바이트를 한 번 읽어 실제 checksum을 계산한다. 불일치하면 PDF를 열지 않고 실제
+  checksum provenance와 `CHECKSUM_MISMATCH`를 반환한다. 읽기 실패 때만 전달된 checksum을
+  provenance에 유지하고 `UNREADABLE_SOURCE`를 반환한다. `%PDF-` header 불일치는
+  `CORRUPT_STRUCTURE`다.
+- PDFium의 password/security load error는 `ENCRYPTED`, 그 밖의 load error는
+  `CORRUPT_STRUCTURE`다. 페이지 load/text-page/strict decode 실패는 그 페이지의
+  `DECODE_ERROR`로 남기고 다른 페이지를 계속 추출한다. 공백뿐인 페이지는 `EMPTY_PAGE`로
+  제외하고, 결과 페이지가 하나도 없으면 기존 failure에 `EMPTY_DOCUMENT`를 추가한다.
+- `get_text_bounded(errors="strict")` 결과를 줄바꿈과 C0/C1 문자를 포함해 그대로 보존한다.
+  따라서 관측된 `\r\n`과 U+0001을 parser에서 정규화하지 않는다. 서로게이트가 깨진 UTF-16은
+  조용히 삭제하지 않고 페이지 `DECODE_ERROR`다. Python Unicode DB에서 `Cn`인 미정의
+  코드포인트는 유효한 Unicode scalar이고 Unicode 버전에 따라 향후 배정될 수 있으므로
+  손상 근거로 삼지 않고 byte-equivalent UTF-8로 보존한다. U+0001 치환은 ADR-010대로 품질
+  게이트 측정 단계 책임이다.
+- `section_title`은 항상 `None`이고 제목을 추측하지 않는다. 페이지 번호는 PDFium의
+  zero-based index에 1을 더해 실제 원본 PDF 페이지와 일치시킨다.
+- PDFium에는 파일 경로 대신 이미 읽고 닫은 `bytes`를 전달한다. document, page,
+  text-page는 성공·빈 페이지·페이지 decode 실패 경로 모두 `finally`에서 명시적으로 닫고,
+  close 호출 수를 테스트한다.
 
-`PdfPublicationReader`는 PDF header와 checksum만 검증하고 PDF 본문을 새로 추출하지
-않는다는 사실을 class/method docstring에 명시했다. 따라서 PDF 직접 추출, 기존 JSON과 신규
-PDF 추출 결과의 선택 정책, 암호화·손상 PDF와 모든 비정상 Unicode 처리, 네 publication
-type별 대표 fixture 검증은 아직 미완료다.
+`requires_ocr`과 선택 정책:
+
+- PDF의 `requires_ocr=True` 근거는 **추출 텍스트가 공백이고 단일 image object가 page
+  면적의 80% 이상을 덮는 페이지가 하나 이상 존재**하는 경우다. 이는 텍스트 레이어 없는
+  전면 스캔을 가리키는 결정적 보수 기준이다. 단순 빈 페이지, 작은 로고, checksum/구조
+  오류에는 OCR 필요를 추측하지 않고 `False`다. OCR 실행은 P1.4 범위로 남긴다.
+- 선택은 문서 단위 **PDF 우선**이다. PDF 결과에 유효 페이지가 하나라도 있으면 부분 실패가
+  있어도 PDF 전체 결과를 사용하고 JSON 페이지를 섞지 않는다. PDF를 실행하지 않았거나
+  PDF 결과가 0페이지일 때만 유효한 JSON 결과로 fallback한다. 양쪽 모두 0페이지이면 기본
+  PDF failure를 숨기지 않도록 PDF를 선택한다.
+- 양쪽에 페이지가 있으면 정렬된 `(page_number, text)` 전체를 exact 비교한다. 불일치해도
+  PDF를 선택하되 `sources_match=False`로 명시하며, 계약에 없는 failure code를 만들지 않는다.
+  두 parser provenance를 한 문서 결과에 섞지 않아 재추출과 감사 경계를 유지한다.
+
+변경 파일은 `search/parsers/pdfium_pdf_parser.py`, `page_text_selection.py`, parser 배럴,
+대응 unit/integration test와 `tests/fixtures/pdf_pages/`의 dependency-free 생성기 및 PDF다.
+fixture는 실제 corpus와 외부 API·모델·시간을 사용하지 않는다. 정상 다중 페이지, 빈 페이지
+부분 성공, 모든 페이지 무본문, 손상/header, 암호화, checksum, 페이지 decode 부분 실패,
+비정상 Unicode, OCR signal, 결정성, 원본 hash 불변, 자원 close와 네 publication type page
+mapping을 실행한다. integration test는 PDF 추출 페이지를 `DeterministicPageChunker`에 넣어
+page span을 역추적한다.
+
+이 변경은 retrieval/ranking metric, 점수 계산과 승인 상태를 바꾸지 않는다. 예상 영향은
+PDF 원문 기반 page text가 이후 품질 게이트와 인용 경로의 입력이 되는 것이며, ADR-010에 따라
+parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자동 승인이나 상태 전이는
+추가하지 않아 human approval boundary는 유지된다.
+
+완료 검증(2026-08-10):
+
+- deterministic offline unit/failure/boundary/integration suite를 포함해 `uv run pytest`
+  397개 통과
+- `uv run mypy` strict 156개 source file 통과
+- `uv run ruff check .` 통과, `uv run ruff format --check .` 177개 file 통과
+- package import와 `defense-research-agent health` 통과
+- 기본 suite와 분리한 읽기 전용 corpus smoke check에서 206-page 연구보고서의 page 1 제목,
+  page 2 `EMPTY_PAGE`, 마지막 page 206 locator와 원문 `\r\n` 보존을 확인
+- `data/` 744개 파일의 사전·사후 SHA-256 manifest가 byte-identical이며 집계 checksum은
+  `b41040a3f9e06ecd3f841eed78959eb16a85ec32b4523b00c689214c5220120d`
+- 새 파일에 secret과 실제 `.env`가 없고, 기존 human approval boundary를 변경하지 않음을
+  확인했다. retrieval 변경이 아니므로 retrieval 전용 benchmark 항목은 적용 대상이 아니다.
 
 ### P1.4 OCR fallback boundary
 
