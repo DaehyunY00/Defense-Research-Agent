@@ -411,3 +411,31 @@ P1.5 에서 가장 오래 걸린 항목이다. 워크플로 설계에 직접 영
 - **사람의 측정도 검증 대상이다.** 이 세션에서 사람의 판단 오류를 잡은 것은 전부 교차
   검토였고, 교차 검토의 오탐을 잡은 것은 전부 사람의 실데이터 확인이었다. 어느 한쪽만
   있었다면 잘못된 구현이 base 에 들어갔다.
+
+## 9. 통합 base 전수 검증
+
+레인 6개를 모두 통합한 뒤 `data/` 실코퍼스 372건에 파이프라인 전체를 돌렸다.
+읽기 전용이며 실행 전후 `data/` 전체 해시가 같음을 확인했다.
+
+`JsonPageParser` → `DeterministicPublicationQualityGate` →
+`RuleBasedPublicationMetadataExtractor` → `DeterministicPageChunker` →
+`FakeEmbeddingProvider`
+
+| 단계 | 결과 |
+|---|---|
+| 파싱 | 372/372, 예외 0건 |
+| 품질 게이트 | ready 303, warning 28, low_text 38, duplicate 2, corrupt_text 1 |
+| 색인 대상 | 331 / 제외 41 |
+| 발행일 | 확정 196 (day 100, season 61, month 35), null 176 |
+| chunk | 2,393개 |
+| `data/` 불변 | 확인 |
+
+수치가 ADR 예측과 교차 검증된다.
+
+- ADR-010 이 예측한 저추출 38건과 손상 1건이 그대로 나왔다. 추가된 duplicate 2건은
+  게이트가 문서 간 중복을 실제로 검출한 결과이며 ADR-010 측정에는 없던 항목이다.
+- ADR-012 가 확정한 유형별 발행일 수치(day 100 / season 61 / month 35 / null 176)가
+  정확히 재현됐다.
+
+이 검증은 레인 worktree 가 아니라 **통합된 base** 에서 수행했다. 레인별 검증이 통과해도
+머지 후 동작이 같다는 보장은 없으므로, 통합 시점의 전수 재검증을 절차에 포함한다.
