@@ -123,6 +123,11 @@ KIDA Brief 1
 안보전략연구센터
 """
 
+BRIEF_BODY_WITH_UNRELATED_DATE = """\
+2018년 1월에 공개된 국방전략서는 새로운 안보 환경을 설명했다.
+이 문장은 해당 Brief의 발행일을 나타내지 않는다.
+"""
+
 REPORT_DASH_SUBTITLE_COVER = """\
 연구보고서 군사
 미래우주전에 대한 고찰
@@ -308,6 +313,35 @@ def test_brief_business_year_does_not_replace_the_published_month() -> None:
     assert metadata.dates.published_at == date(2020, 7, 1)
     assert metadata.dates.published_precision is DatePrecision.MONTH
     assert metadata.dates.has_year_conflict
+
+
+def test_brief_body_historical_date_is_not_promoted_to_publication_date() -> None:
+    metadata = _extract(
+        PublicationType.KIDA_BRIEF,
+        [
+            _page(BRIEF_TITLE_COVER),
+            _page(BRIEF_BODY_WITH_UNRELATED_DATE, page_number=2),
+        ],
+        Path("2022_강석율_미국의3차상쇄전략추진동향과시사점.pdf"),
+    )
+
+    assert metadata.dates.filename_year == 2022
+    assert metadata.dates.published_at is None
+    assert metadata.dates.published_precision is None
+    assert metadata.dates.date_evidence is None
+    assert metadata.dates.failure_reason == (
+        "표지 발행일이 없고 본문 날짜는 발행일 근거로 사용할 수 없음"
+    )
+
+
+def test_conflicting_cover_dates_return_none_with_a_failure_reason() -> None:
+    cover = "발행 2024. 1.\n발행 2025. 2."
+    metadata = _extract(PublicationType.OTHER, [_page(cover)])
+
+    assert metadata.dates.published_at is None
+    assert metadata.dates.published_precision is None
+    assert metadata.dates.date_evidence is None
+    assert metadata.dates.failure_reason == "동일한 우선순위의 발행일 근거가 충돌함"
 
 
 def test_season_precision_and_original_issue_label_are_preserved() -> None:
@@ -506,6 +540,8 @@ def test_unresolved_fields_return_none_with_failure_reasons() -> None:
     assert metadata.authors[0].failure_reason
     assert metadata.dates.published_at is None
     assert metadata.dates.published_precision is None
+    assert metadata.dates.date_evidence is None
+    assert metadata.dates.failure_reason == "표지에서 발행일 근거를 찾을 수 없음"
 
 
 def test_equal_strength_conflict_is_not_guessed() -> None:

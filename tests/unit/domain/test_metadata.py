@@ -311,8 +311,26 @@ def test_resolved_date_requires_evidence() -> None:
         PublicationDates(published_at=date(2023, 5, 1), published_precision=DatePrecision.YEAR)
 
 
+def test_missing_publication_date_requires_a_failure_reason() -> None:
+    with pytest.raises(ValidationError, match="must record a failure_reason"):
+        PublicationDates(filename_year=2024)
+
+
+def test_resolved_publication_date_must_not_have_a_failure_reason() -> None:
+    with pytest.raises(ValidationError, match="must not record a failure_reason"):
+        PublicationDates(
+            published_at=date(2024, 1, 1),
+            published_precision=DatePrecision.YEAR,
+            date_evidence=_cover("2024년"),
+            failure_reason="표지에서 발행일 근거를 찾을 수 없음",
+        )
+
+
 def test_a_year_only_filename_reading_alone_is_not_a_conflict() -> None:
-    dates = PublicationDates(filename_year=2024)
+    dates = PublicationDates(
+        filename_year=2024,
+        failure_reason="표지에서 발행일 근거를 찾을 수 없음",
+    )
 
     assert not dates.has_year_conflict
 
@@ -335,7 +353,10 @@ def test_metadata_round_trips_through_json() -> None:
             )
         ],
         authors=[ExtractedAuthor(ordinal=0, name="김의순", evidence=_cover("김의순"))],
-        dates=PublicationDates(filename_year=2019),
+        dates=PublicationDates(
+            filename_year=2019,
+            failure_reason="표지에서 발행일 근거를 찾을 수 없음",
+        ),
     )
 
     restored = ExtractedPublicationMetadata.model_validate_json(metadata.model_dump_json())

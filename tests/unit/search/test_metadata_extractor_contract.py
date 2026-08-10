@@ -155,7 +155,10 @@ class FakeCoverPageExtractor(PublicationMetadataExtractor):
     ) -> PublicationDates:
         stated = self._stated_year(cover)
         if stated is None:
-            return PublicationDates(filename_year=filename_year)
+            return PublicationDates(
+                filename_year=filename_year,
+                failure_reason="표지에서 발행 연도를 찾을 수 없음",
+            )
         assert cover is not None
         return PublicationDates(
             filename_year=filename_year,

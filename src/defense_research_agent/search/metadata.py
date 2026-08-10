@@ -39,8 +39,11 @@ from defense_research_agent.domain.publication import (
 METADATA_NORMALIZATION_VERSION: Final = "nfc-whitespace-v1"
 """Version of the Unicode and whitespace normalization rules below."""
 
-RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.3"
+RULE_BASED_METADATA_EXTRACTOR_VERSION: Final = "1.0.4"
 _CONFLICT_REASON: Final = "동일한 우선순위의 메타데이터 근거가 충돌함"
+_DATE_CONFLICT_REASON: Final = "동일한 우선순위의 발행일 근거가 충돌함"
+_MISSING_DATE_REASON: Final = "표지에서 발행일 근거를 찾을 수 없음"
+_BODY_DATE_REJECTED_REASON: Final = "표지 발행일이 없고 본문 날짜는 발행일 근거로 사용할 수 없음"
 _MISSING_REASONS: Final[dict[MetadataField, str]] = {
     MetadataField.TITLE: "표지, 본문, 파일명에서 제목을 확정할 수 없음",
     MetadataField.SUBTITLE: "명시적인 부제 표기를 찾을 수 없음",
@@ -788,14 +791,27 @@ class RuleBasedPublicationMetadataExtractor(PublicationMetadataExtractor):
         date_candidates = [
             candidate
             for view in views
-            if (candidate := _date_candidate(publication.publication_type, view)) is not None
+            for candidate in _date_candidates(publication.publication_type, view)
         ]
-        selected_date = _select_date_candidate(date_candidates)
+        cover_candidates = [
+            candidate
+            for candidate in date_candidates
+            if candidate.source is MetadataEvidenceSource.COVER_PAGE
+        ]
+        selected_date, failure_reason = _select_date_candidate(cover_candidates)
         processed_at = _processed_at(publication)
         if selected_date is None:
+            if failure_reason is None:
+                has_body_date = any(
+                    candidate.source is MetadataEvidenceSource.BODY for candidate in date_candidates
+                )
+                failure_reason = (
+                    _BODY_DATE_REJECTED_REASON if has_body_date else _MISSING_DATE_REASON
+                )
             return PublicationDates(
                 filename_year=filename.year,
                 processed_at=processed_at,
+                failure_reason=failure_reason,
             )
         issue_label = selected_date.issue_label
         if issue_label is None and publication.publication_type in {
@@ -1103,10 +1119,10 @@ def _nearby_author_details(
     return affiliation, emails, supporting_raw
 
 
-def _date_candidate(
+def _date_candidates(
     publication_type: PublicationType,
     view: _PageView,
-) -> _DateCandidate | None:
+) -> list[_DateCandidate]:
     match_order: tuple[re.Pattern[str], ...]
     if publication_type is PublicationType.DEFENSE_POLICY_RESEARCH:
         match_order = (_SEASON_RE, _DAY_RE, _DOTTED_MONTH_RE, _KOREAN_MONTH_RE)
@@ -1116,25 +1132,32 @@ def _date_candidate(
         match_order = (_DAY_RE, _DOTTED_MONTH_RE, _KOREAN_MONTH_RE, _SEASON_RE)
 
     for pattern in match_order:
+        candidates: list[_DateCandidate] = []
         for line in view.lines[:30]:
-            match = pattern.search(line.normalized)
-            if match is not None:
-                return _date_from_match(pattern, match, line.raw, view)
+            candidates.extend(
+                _date_from_match(pattern, match, line.raw, view)
+                for match in pattern.finditer(line.normalized)
+            )
+        if candidates:
+            return candidates
 
+    candidates = []
     for line in view.lines[:12]:
         if "사업" in line.normalized or "연구" in line.normalized:
             continue
         match = _YEAR_RE.search(line.normalized)
         if match is not None and (line.normalized == match.group(0) or "발행" in line.normalized):
-            return _DateCandidate(
-                published_at=date(int(match.group("year")), 1, 1),
-                precision=DatePrecision.YEAR,
-                issue_label=None,
-                raw_text=line.raw,
-                source=view.source,
-                page_number=view.page_number,
+            candidates.append(
+                _DateCandidate(
+                    published_at=date(int(match.group("year")), 1, 1),
+                    precision=DatePrecision.YEAR,
+                    issue_label=None,
+                    raw_text=line.raw,
+                    source=view.source,
+                    page_number=view.page_number,
+                )
             )
-    return None
+    return candidates
 
 
 def _date_from_match(
@@ -1166,9 +1189,11 @@ def _date_from_match(
     )
 
 
-def _select_date_candidate(candidates: Sequence[_DateCandidate]) -> _DateCandidate | None:
+def _select_date_candidate(
+    candidates: Sequence[_DateCandidate],
+) -> tuple[_DateCandidate | None, str | None]:
     if not candidates:
-        return None
+        return None, None
     strength = max(EVIDENCE_SOURCE_STRENGTH[candidate.source] for candidate in candidates)
     strongest = [
         candidate
@@ -1177,8 +1202,8 @@ def _select_date_candidate(candidates: Sequence[_DateCandidate]) -> _DateCandida
     ]
     values = {(candidate.published_at, candidate.precision) for candidate in strongest}
     if len(values) > 1:
-        return None
-    return min(strongest, key=lambda candidate: candidate.page_number)
+        return None, _DATE_CONFLICT_REASON
+    return min(strongest, key=lambda candidate: candidate.page_number), None
 
 
 def _issue_label(

@@ -223,6 +223,7 @@ class PublicationDates(DomainModel):
     issue_label: Label | None = None
     processed_at: datetime | None = None
     date_evidence: MetadataEvidence | None = None
+    failure_reason: Label | None = None
 
     @property
     def has_year_conflict(self) -> bool:
@@ -244,10 +245,21 @@ class PublicationDates(DomainModel):
         return self
 
     @model_validator(mode="after")
-    def resolved_date_requires_evidence(self) -> "PublicationDates":
-        """Keep a stated publication date traceable to its source text."""
+    def resolved_date_or_failure_reason_must_be_set(self) -> "PublicationDates":
+        """Require either a traceable publication date or an explicit failure."""
+        if self.published_at is None and self.failure_reason is None:
+            raise ValueError("a missing published_at must record a failure_reason")
+        if self.published_at is not None and self.failure_reason is not None:
+            raise ValueError("a resolved published_at must not record a failure_reason")
+        return self
+
+    @model_validator(mode="after")
+    def date_evidence_must_match_resolution(self) -> "PublicationDates":
+        """Keep evidence only for a resolved publication date."""
         if self.published_at is not None and self.date_evidence is None:
             raise ValueError("a resolved published_at must record date_evidence")
+        if self.published_at is None and self.date_evidence is not None:
+            raise ValueError("an unresolved published_at must not record date_evidence")
         return self
 
     @model_validator(mode="after")
@@ -265,7 +277,9 @@ class ExtractedPublicationMetadata(DomainModel):
     provenance: ExtractionProvenance
     values: list[ExtractedMetadataValue] = Field(default_factory=list)
     authors: list[ExtractedAuthor] = Field(default_factory=list)
-    dates: PublicationDates = Field(default_factory=PublicationDates)
+    dates: PublicationDates = Field(
+        default_factory=lambda: PublicationDates(failure_reason="발행일이 제공되지 않음")
+    )
 
     @model_validator(mode="after")
     def field_and_ordinal_must_be_unique(self) -> "ExtractedPublicationMetadata":
