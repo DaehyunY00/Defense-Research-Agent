@@ -1,6 +1,8 @@
 """Tests for deterministic page-aware publication chunking."""
 
+import json
 from hashlib import sha256
+from pathlib import Path
 
 import pytest
 
@@ -11,6 +13,14 @@ from defense_research_agent.domain import (
     ResearchPublication,
 )
 from defense_research_agent.search import DeterministicPageChunker, PublicationChunker
+from defense_research_agent.search.chunking import (
+    CHUNK_MANIFEST_FILENAME,
+    CHUNK_MANIFEST_VERSION,
+    CHUNKS_FILENAME,
+    ChunkArtifactManifest,
+    ChunkingDocument,
+    write_chunk_artifacts,
+)
 
 SOURCE_CHECKSUM = "a" * 64
 PROVENANCE = ExtractionProvenance(
@@ -228,6 +238,46 @@ def test_character_limit_boundary_fires_before_adding_the_next_page() -> None:
     assert [(chunk.page_start, chunk.page_end) for chunk in chunks] == [(1, 1), (2, 2)]
 
 
+def test_no_overlap_keeps_pages_in_exactly_one_chunk() -> None:
+    chunker = DeterministicPageChunker(max_characters=9)
+
+    chunks = chunker.chunk(
+        _publication(),
+        [_page(1, "가" * 4), _page(2, "나" * 4), _page(3, "다" * 4)],
+    )
+
+    assert chunker.settings.overlap_unit == "none"
+    assert chunker.settings.overlap_size == 0
+    assert [span.page_number for chunk in chunks for span in chunk.page_spans] == [1, 2, 3]
+    assert all(
+        chunk.page_spans[0].start_offset == 0 and chunk.page_spans[-1].end_offset == len(chunk.text)
+        for chunk in chunks
+    )
+
+
+def test_structural_looking_text_is_preserved_without_synthetic_boundaries() -> None:
+    pages = [
+        _page(1, "본문\n표 1. 전력 | 수량\n전차 | 10\n1) 표와 같은 페이지의 각주"),
+        _page(2, "참고문헌\n[1] 국방정책연구, 2025."),
+    ]
+
+    chunks = DeterministicPageChunker(max_characters=1_000).chunk(_publication(), pages)
+
+    assert len(chunks) == 1
+    assert chunks[0].text == f"{pages[0].text}\n\n{pages[1].text}"
+    assert [span.page_number for span in chunks[0].page_spans] == [1, 2]
+
+
+def test_ordinary_text_uses_the_same_page_preserving_policy() -> None:
+    pages = [_page(1, "일반 본문 첫 페이지"), _page(2, "일반 본문 둘째 페이지")]
+
+    chunks = DeterministicPageChunker(max_characters=1_000).chunk(_publication(), pages)
+
+    assert len(chunks) == 1
+    assert chunks[0].text == "일반 본문 첫 페이지\n\n일반 본문 둘째 페이지"
+    assert chunks[0].metadata == {}
+
+
 def test_nonconsecutive_pages_create_a_page_gap_boundary() -> None:
     chunks = DeterministicPageChunker(max_characters=1_000).chunk(
         _publication(),
@@ -267,3 +317,98 @@ def test_chunker_rejects_invalid_character_limits(max_characters: int) -> None:
 def test_chunker_rejects_blank_version() -> None:
     with pytest.raises(ValueError, match="must not be blank"):
         DeterministicPageChunker(chunking_version="  ")
+
+
+def test_chunk_artifacts_are_canonical_and_byte_reproducible(tmp_path: Path) -> None:
+    second_provenance = ExtractionProvenance(
+        parser_name="fixture-json",
+        parser_version="2.0.0",
+        source_checksum="b" * 64,
+    )
+    first_document = ChunkingDocument(
+        ResearchPublication(
+            publication_id="pub:kida:a",
+            publication_type=PublicationType.KIDA_BRIEF,
+            title="첫 문서",
+        ),
+        [_page(1, "첫 문서 1쪽"), _page(2, "첫 문서 2쪽")],
+    )
+    second_document = ChunkingDocument(
+        ResearchPublication(
+            publication_id="pub:kida:b",
+            publication_type=PublicationType.RESEARCH_REPORT,
+            title="둘째 문서",
+        ),
+        [_page(1, "둘째 문서", provenance=second_provenance)],
+    )
+    first_output = tmp_path / "first" / "artifacts" / "corpus"
+    second_output = tmp_path / "second" / "artifacts" / "corpus"
+    chunker = DeterministicPageChunker(max_characters=1_000)
+
+    first_manifest = write_chunk_artifacts(
+        [second_document, first_document],
+        first_output,
+        chunker=chunker,
+    )
+    second_manifest = write_chunk_artifacts(
+        [first_document, second_document],
+        second_output,
+        chunker=DeterministicPageChunker(max_characters=1_000),
+    )
+
+    first_chunks = (first_output / CHUNKS_FILENAME).read_bytes()
+    second_chunks = (second_output / CHUNKS_FILENAME).read_bytes()
+    first_manifest_bytes = (first_output / CHUNK_MANIFEST_FILENAME).read_bytes()
+    second_manifest_bytes = (second_output / CHUNK_MANIFEST_FILENAME).read_bytes()
+    assert first_chunks == second_chunks
+    assert first_manifest_bytes == second_manifest_bytes
+    assert first_chunks.endswith(b"\n")
+    assert first_manifest_bytes.endswith(b"\n")
+    assert [json.loads(line)["publication_id"] for line in first_chunks.splitlines()] == [
+        "pub:kida:a",
+        "pub:kida:b",
+    ]
+    assert first_manifest == second_manifest
+    assert ChunkArtifactManifest.model_validate_json(first_manifest_bytes) == first_manifest
+    assert first_manifest.manifest_version == CHUNK_MANIFEST_VERSION
+    assert first_manifest.input_document_count == 2
+    assert first_manifest.input_page_count == 3
+    assert first_manifest.chunk_count == 2
+    assert first_manifest.chunks_sha256 == sha256(first_chunks).hexdigest()
+    assert first_manifest.chunks_size_bytes == len(first_chunks)
+    assert first_manifest.settings == chunker.settings
+    assert [entry.model_dump() for entry in first_manifest.parser_provenance_distribution] == [
+        {
+            "parser_name": "fake-pdf",
+            "parser_version": "1.0.0",
+            "document_count": 1,
+            "page_count": 2,
+            "chunk_count": 1,
+        },
+        {
+            "parser_name": "fixture-json",
+            "parser_version": "2.0.0",
+            "document_count": 1,
+            "page_count": 1,
+            "chunk_count": 1,
+        },
+    ]
+
+
+def test_chunk_artifacts_reject_duplicate_publications_before_writing(tmp_path: Path) -> None:
+    document = ChunkingDocument(_publication(), [_page(1, "본문")])
+    output = tmp_path / "artifacts" / "corpus"
+
+    with pytest.raises(ValueError, match="publication_id must be unique"):
+        write_chunk_artifacts([document, document], output)
+
+    assert not output.exists()
+
+
+def test_chunk_artifacts_reject_output_outside_artifacts_corpus(tmp_path: Path) -> None:
+    document = ChunkingDocument(_publication(), [_page(1, "본문")])
+
+    with pytest.raises(ValueError, match="artifacts/corpus"):
+        write_chunk_artifacts([document], tmp_path / "data" / "corpus")
+
+    assert not (tmp_path / "data").exists()

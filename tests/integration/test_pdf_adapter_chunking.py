@@ -32,3 +32,14 @@ def test_pdf_adapter_pages_create_chunks_traceable_to_original_pdf_pages() -> No
     for page, span in zip(parsed.pages, chunk.page_spans, strict=True):
         assert chunk.text[span.start_offset :].startswith(page.text)
         assert chunk.provenance == page.provenance
+
+        citation = f"page {page.page_number}"
+        citation_offset = chunk.text.index(citation, span.start_offset)
+        matching_spans = [
+            candidate
+            for candidate in chunk.page_spans
+            if candidate.start_offset <= citation_offset < candidate.end_offset
+        ]
+        assert len(matching_spans) == 1
+        assert matching_spans[0].page_number == page.page_number
+        assert chunk.text[citation_offset : citation_offset + len(citation)] == citation
