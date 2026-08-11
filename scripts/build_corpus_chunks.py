@@ -12,16 +12,11 @@ from __future__ import annotations
 
 import json
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 
-from defense_research_agent.data.readers import (
-    JsonPublicationReader,
-    PublicationSource,
-    SkipSourceFile,
-)
 from defense_research_agent.domain import (
     PublicationPage,
     PublicationQualityStatus,
@@ -30,6 +25,7 @@ from defense_research_agent.domain import (
 )
 from defense_research_agent.evaluation.quality import (
     DeterministicPublicationQualityGate,
+    PublicationQualityArtifactWriter,
     select_default_index_publications,
 )
 from defense_research_agent.search.chunking import (
@@ -39,11 +35,10 @@ from defense_research_agent.search.chunking import (
     write_chunk_artifacts,
 )
 from defense_research_agent.search.parsers import JsonPageParser, ParserErrorCode
-from defense_research_agent.services.publication_type import classify_publication_type
+from defense_research_agent.services.ingestion import IngestionOutcome, IngestionService
 
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIRECTORY = REPOSITORY_ROOT / "data"
-METADATA_DIRECTORY = DATA_DIRECTORY / "metadata"
 OUTPUT_DIRECTORY = REPOSITORY_ROOT / "artifacts" / "corpus"
 
 
@@ -67,20 +62,38 @@ def source_tree_digest() -> str:
     return digest.hexdigest()
 
 
-def load_parsed_documents() -> list[ParsedDocument]:
-    """Read document JSON and fail closed on parser losses other than blank pages."""
-    reader = JsonPublicationReader()
+def ingest_publications() -> IngestionOutcome:
+    """Normalize the full corpus through the production ingestion boundary."""
+    outcome = IngestionService().ingest(
+        DATA_DIRECTORY,
+        OUTPUT_DIRECTORY / "normalized",
+        OUTPUT_DIRECTORY / "ingestion_report.json",
+    )
+    if outcome.report.failure_count:
+        details = ", ".join(
+            f"{failure.path}:{failure.error_type}" for failure in outcome.report.failures
+        )
+        raise RuntimeError(f"ingestion reported source failures: {details}")
+    return outcome
+
+
+def load_parsed_documents(
+    publications: Sequence[ResearchPublication],
+) -> list[ParsedDocument]:
+    """Parse ingested JSON lineage and fail closed on unexpected parser losses."""
     parser = JsonPageParser()
     documents: list[ParsedDocument] = []
 
-    for source_path in sorted(METADATA_DIRECTORY.glob("*.json")):
-        try:
-            source = reader.read(source_path, METADATA_DIRECTORY)
-        except SkipSourceFile:
+    for publication in publications:
+        selected_json_source = _selected_json_source(publication)
+        if selected_json_source is None:
+            # A production-ingested orphan PDF deliberately has no JSON pages.
+            # The quality gate excludes it before content-based branches run.
+            documents.append(ParsedDocument(publication, (), 0))
             continue
 
-        publication = _publication_from_source(source_path, source)
-        parse_result = parser.parse(source_path, source.checksum)
+        source_path, source_checksum = selected_json_source
+        parse_result = parser.parse(source_path, source_checksum)
         unexpected_failures = [
             failure
             for failure in parse_result.failures
@@ -120,7 +133,7 @@ def evaluate_quality(
     for document in documents:
         publication = document.publication
         verdict = gate.evaluate(
-            publication,
+            _quality_gate_publication(publication),
             document.pages,
             admitted_content_checksums,
         )
@@ -137,14 +150,14 @@ def evaluate_quality(
 def main() -> None:
     """Build the corpus twice-reproducible artifact and print its audit summary."""
     before_digest = source_tree_digest()
-    documents = load_parsed_documents()
+    ingestion = ingest_publications()
+    documents = load_parsed_documents(ingestion.publications)
     gate, verdicts = evaluate_quality(documents)
-    publications = [document.publication for document in documents]
-    selected_publications = select_default_index_publications(publications, verdicts)
-    documents_by_id = {document.publication.publication_id: document for document in documents}
-    selected_documents = [
-        documents_by_id[publication.publication_id] for publication in selected_publications
-    ]
+    quality_paths = PublicationQualityArtifactWriter(OUTPUT_DIRECTORY / "quality").write(
+        list(verdicts.values()),
+        gate.thresholds,
+    )
+    selected_documents = select_indexable_documents(documents, verdicts)
 
     manifest = write_chunk_artifacts(
         [
@@ -176,6 +189,7 @@ def main() -> None:
                 status.value: status_counts[status.value] for status in PublicationQualityStatus
             },
             "selected_document_count": manifest.input_document_count,
+            "excluded_document_count": len(documents) - manifest.input_document_count,
             "selected_parser_page_count": manifest.input_page_count,
             "selected_dropped_empty_page_count": manifest.dropped_empty_page_count,
             "chunk_count": manifest.chunk_count,
@@ -187,6 +201,12 @@ def main() -> None:
             "manifest": (OUTPUT_DIRECTORY / CHUNK_MANIFEST_FILENAME)
             .relative_to(REPOSITORY_ROOT)
             .as_posix(),
+            "quality_failure_report": quality_paths.failure_report.relative_to(
+                REPOSITORY_ROOT
+            ).as_posix(),
+            "quality_remediation_queue": quality_paths.reextract_ocr_queue.relative_to(
+                REPOSITORY_ROOT
+            ).as_posix(),
         },
         "data_immutable": {
             "before_sha256": before_digest,
@@ -197,26 +217,78 @@ def main() -> None:
     print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
 
 
-def _publication_from_source(
-    source_path: Path,
-    source: PublicationSource,
-) -> ResearchPublication:
-    """Reproduce the established filename-keyed identity of the raw JSON corpus."""
-    publication_id = f"pub:kida:{sha256(source_path.name.encode('utf-8')).hexdigest()[:32]}"
-    return ResearchPublication(
-        publication_id=publication_id,
-        publication_type=classify_publication_type(
-            source_path,
-            source.raw_metadata,
-            source.content,
-        ),
-        title=Path(source.target_filename).stem,
-        local_path=source_path.relative_to(REPOSITORY_ROOT).as_posix(),
-        raw_metadata=source.raw_metadata,
-        content=source.content,
-        created_at=source.created_at,
-        checksum=source.checksum,
+def select_indexable_documents(
+    documents: Sequence[ParsedDocument],
+    verdicts: Mapping[str, PublicationQualityVerdict],
+) -> list[ParsedDocument]:
+    """Apply the production admission boundary without losing parser observations."""
+    documents_by_id = {document.publication.publication_id: document for document in documents}
+    if len(documents_by_id) != len(documents):
+        raise ValueError("parsed documents require unique publication_id values")
+
+    selected_publications = select_default_index_publications(
+        [document.publication for document in documents],
+        verdicts,
     )
+    return [documents_by_id[publication.publication_id] for publication in selected_publications]
+
+
+def _selected_json_source(publication: ResearchPublication) -> tuple[Path, str] | None:
+    """Resolve the production-ingested JSON source and checksum, failing closed."""
+    ingestion = publication.raw_metadata.get("_ingestion")
+    if not isinstance(ingestion, Mapping):
+        raise RuntimeError(f"publication {publication.publication_id} has no ingestion lineage")
+
+    raw_paths = ingestion.get("json_source_paths")
+    raw_checksums = ingestion.get("json_source_checksums")
+    if not isinstance(raw_paths, list) or not isinstance(raw_checksums, list):
+        raise RuntimeError(
+            f"publication {publication.publication_id} has invalid JSON source lineage"
+        )
+    if len(raw_paths) != len(raw_checksums):
+        raise RuntimeError(
+            f"publication {publication.publication_id} has mismatched JSON source lineage"
+        )
+    if not raw_paths:
+        return None
+    if not all(isinstance(path, str) for path in raw_paths) or not all(
+        isinstance(checksum, str) for checksum in raw_checksums
+    ):
+        raise RuntimeError(
+            f"publication {publication.publication_id} has non-string JSON source lineage"
+        )
+    json_source_paths = [path for path in raw_paths if isinstance(path, str)]
+    json_source_checksums = [checksum for checksum in raw_checksums if isinstance(checksum, str)]
+
+    selected_path = ingestion.get("selected_source_path")
+    if not isinstance(selected_path, str) or selected_path not in json_source_paths:
+        raise RuntimeError(f"publication {publication.publication_id} has no selected JSON source")
+    selected_index = json_source_paths.index(selected_path)
+    source_path = (DATA_DIRECTORY / selected_path).resolve()
+    data_root = DATA_DIRECTORY.resolve()
+    if not source_path.is_relative_to(data_root):
+        raise RuntimeError(f"publication {publication.publication_id} JSON source escapes data/")
+    return source_path, json_source_checksums[selected_index]
+
+
+def _quality_gate_publication(publication: ResearchPublication) -> ResearchPublication:
+    """Expose the original source filename to DQ-04 without changing canonical identity.
+
+    The filesystem's linked PDF name may already be NFC-normalized or truncated,
+    while the selected JSON metadata preserves the original NFD filename and its
+    byte length. The production quality gate deliberately evaluates that original
+    filename when the ingestion lineage says the title came from it.
+    """
+    ingestion = publication.raw_metadata.get("_ingestion")
+    source_filename = publication.raw_metadata.get("filename")
+    if (
+        not isinstance(ingestion, Mapping)
+        or ingestion.get("title_source") != "filename"
+        or not isinstance(source_filename, str)
+        or not source_filename.strip()
+    ):
+        return publication
+    return publication.model_copy(update={"local_path": source_filename})
 
 
 def _content_checksum(pages: Sequence[PublicationPage]) -> str:

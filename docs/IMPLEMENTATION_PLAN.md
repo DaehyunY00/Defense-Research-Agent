@@ -422,6 +422,9 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
 - page는 분할하지 않는 원자 단위로 유지한다. section title 변경, page gap, parser
   provenance 변경, 최대 문자 수 초과를 경계로 쓰고 빈 page는 제외하면서 경계로 쓴다.
   단일 page가 최대 길이보다 길면 page 근거 보존을 우선해 그대로 한 chunk로 허용한다.
+- 페이지 단위 OCR fallback은 현행처럼 별도 chunk로 유지한다. 문단 중간의 extractor 변경으로
+  근거 단위가 쪼개질 수 있지만, 서로 다른 extractor 산출물을 한 chunk에 섞으면 단일 provenance를
+  정확히 기록할 수 없으므로 문단 연속성보다 provenance 정확성을 우선한다.
 - overlap은 `none`, 크기 `0`으로 고정한다. 문장/문자 overlap은 원문 page를 분할해야 하고,
   page overlap은 중복 chunk와 중복 citation을 만들며 최대 길이 의미도 흐린다. 현재
   `PublicationPageSpan`의 chunk 내부 무공백·무중첩·전체 길이 partition과 page 원자성을
@@ -466,24 +469,36 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
   표준 `ensure_outside_read_only_data` guard로 `data/` 아래 출력을 파일 생성 전에 거부하며,
   `data/artifacts/corpus` 중첩 우회도 회귀 테스트로 고정했다. duplicate publication ID와 잘못된
   parser 탈락 수치도 기록 전에 거부한다.
-- `scripts/build_corpus_chunks.py`는 `data/metadata`를 `JsonPageParser`로 읽고 production 품질
-  gate의 `ready`/`warning`만 선별한 뒤 `artifacts/corpus`에 artifact를 쓴다. 예상 밖 parser
-  failure는 fail closed하고, 실행 전후 전체 `data/` tree hash를 비교한다. 같은 입력으로 두 번
-  실행한 `chunks.jsonl`과 manifest가 각각 byte-equivalent함을 확인했다.
-- 생성 artifact는 원시 metadata 문서 372건을 기존 품질 게이트로 판정한 뒤 `ready`/`warning`
-  331건(6,357 parser 생존 page, 제외된 빈 page 124건)을 입력으로 사용해 2,393 chunk를
-  기록했다. 따라서 기존 2,393 기준은 변하지 않았다. parser 분포는 `json-page-texts` `1.0.0`
-  331 documents / 6,357 pages / 2,393 chunks다. 경계 발화는 blank page 0, section title 변경
-  0, page gap 103, parser provenance 변경 0, max characters 1,974회다. `chunks.jsonl` SHA-256은
-  `2f59ae59310650134b12620a4109ac8e29180c2fac63d1b5f91bceb7be893de1`이다.
+- `scripts/build_corpus_chunks.py`는 손수 만든 publication을 폐기하고 정식 `IngestionService`의
+  canonical publication ID와 `_ingestion` 계보를 사용한다. 계보의 선택 JSON을
+  `JsonPageParser`로 읽고 production 품질 gate의 `ready`/`warning`만 선별한다. DQ-04는 연결된
+  PDF의 정규화·축약된 파일시스템명 대신 selected JSON metadata가 보존한 원본 NFD filename을
+  판정에 사용한다. 제외 문서는 `artifacts/corpus/quality/failure_report.json`에 상태·사유와 함께
+  남기고, 예상 밖 parser failure는 fail closed하며 실행 전후 전체 `data/` tree hash를 비교한다.
+  같은 입력으로 두 번 실행한 chunk, manifest, failure report가 각각 byte-equivalent함을 확인했다.
+- 생성 artifact는 정식 ingestion publication 371건을 판정한 뒤 `ready` 269건과 `warning` 28건,
+  합계 297건(5,294 parser 생존 page, 제외된 빈 page 123건)만 입력으로 사용해 2,018 chunk를
+  기록했다. `manual_review` 34건을 포함한 74건은 색인에서 제외했다. parser 분포는
+  `json-page-texts` `1.0.0` 297 documents / 5,294 pages / 2,018 chunks다. 경계 발화는 blank page
+  0, section title 변경 0, page gap 103, parser provenance 변경 0, max characters 1,633회다.
+  `chunks.jsonl` SHA-256은
+  `6cf445f99ca2a656a34b769cdf5749e9ef48840650936b4d47b5850106a5309c`이고 manifest SHA-256은
+  `8436ce88aa33d9af91a7bd3974d529bce32413da03b6ebd95becd321a2dd2ba8`이다.
+- 운영 판정 분포는 `ready` 269, `warning` 28, `low_text` 38, `corrupt_text` 1,
+  `manual_review` 34, `orphan_pdf` 1, `duplicate` 0이다. P1.6 재감사의 `low_text` 37 / `duplicate`
+  1과 다른 이유는 같은 18자 본문 두 건이 모두 먼저 `low_text`로 제외되며, duplicate owner는
+  indexable verdict 뒤에만 등록하는 현재 계약 때문이다. 이 차이는 indexable 297건과 사람 승인
+  경계에 영향을 주지 않는다.
 - unit test는 다섯 경계 각각의 발화와 독립 집계, parser 탈락 page 감사 수치, span partition,
   no-overlap, 구조처럼 보이는 text와
   일반 text의 pass-through, canonical artifact 재생성, provenance 분포, 잘못된 순서·설정·중복
-  ID·`data/` 하위 출력 경로를 검증한다. integration test는 생성 PDF를 `PdfiumPdfParser`로 추출하고 실제
-  citation 문자열 offset이 정확히 하나의 `PublicationPageSpan`과 원본 page number로
-  역추적됨을 검증한다.
-- 전체 offline 검증은 Python 3.12에서 `pytest` 440개, `mypy --strict` 157 files,
-  `ruff check`, `ruff format --check` 181 files가 통과했다. 네트워크·외부 API·모델·시간을
+  ID·`data/` 하위 출력 경로를 검증한다. 빌드 진입점 unit test는 manual-review 제외와 사유 보존,
+  371건 감사 fixture의 297건 선별, parser fail-closed, duplicate owner 등록 순서, digest 불일치,
+  정식 ingestion ID·계보를 실제 실행한다. integration test는 생성 PDF를 `PdfiumPdfParser`로
+  추출하고 실제 citation 문자열 offset이 정확히 하나의 `PublicationPageSpan`과 원본 page
+  number로 역추적됨을 검증한다.
+- 전체 offline 검증은 Python 3.12에서 `pytest` 446개, `mypy --strict` 158 files,
+  `ruff check`, `ruff format --check` 182 files가 통과했다. 네트워크·외부 API·모델·시간을
   사용하지 않았고 파일 시스템 test는 fixture와 `tmp_path`로 격리했다. 새 dependency,
   secret, 실제 `.env`, 자동 승인 상태 전이는 추가하지 않았다.
 

@@ -212,6 +212,9 @@ class DeterministicPageChunker(PublicationChunker):
             separator_characters = len(PAGE_SEPARATOR) if pending else 0
             crosses_page_gap = bool(pending and page.page_number != pending[-1].page_number + 1)
             changes_section = bool(pending and page.section_title != pending[0].section_title)
+            # Keep OCR fallback pages in their own chunk. Mixing extractor outputs
+            # would make a chunk's provenance non-singular, so evidence traceability
+            # takes precedence over preserving a paragraph across this boundary.
             changes_provenance = bool(pending and page.provenance != pending[0].provenance)
             exceeds_limit = bool(
                 pending
