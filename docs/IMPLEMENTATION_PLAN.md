@@ -151,11 +151,15 @@ page range, chunk index, chunking version은 유지된다.
 
 ### P1.2 Parser abstraction
 
-- [ ] parser input/output과 stable error taxonomy 정의
-- [ ] parser capability에 text, pages, tables, OCR 필요 신호를 표현
-- [ ] provider-specific 라이브러리를 adapter 내부에 격리
-- [ ] parser version과 source checksum을 결과에 기록
-- [ ] fake parser로 정상·실패·부분 추출 테스트
+- [x] parser input/output과 stable error taxonomy 정의
+- [x] parser capability에 text, pages, tables, OCR 필요 신호를 표현
+- [x] provider-specific 라이브러리를 adapter 내부에 격리
+- [x] parser version과 source checksum을 결과에 기록
+- [x] fake parser로 정상·실패·부분 추출 테스트
+
+계약은 `search/parsers/base.py`, 구현 adapter 는 `json_page_parser.py` 와
+`pdfium_pdf_parser.py` 다. 교차 검토가 5개 항목 전부 met 으로 판정했다. 체크 표기가
+누락돼 있던 것을 통합 담당이 코드 기준으로 갱신했다.
 
 ### P1.3 PDF extraction
 
@@ -412,10 +416,13 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
 
 ### P2.1 `EmbeddingProvider` interface
 
-- [ ] document/query embedding 계약과 batch capability 정의
-- [ ] model ID, dimension, normalization, input checksum과 version metadata 정의
-- [ ] timeout, partial failure와 invalid dimension 오류 모델 정의
-- [ ] secret과 provider 원문을 결과·로그에서 제외
+- [x] document/query embedding 계약과 batch capability 정의
+- [x] model ID, dimension, normalization, input checksum과 version metadata 정의
+- [x] timeout, partial failure와 invalid dimension 오류 모델 정의
+- [x] secret과 provider 원문을 결과·로그에서 제외
+
+계약은 `search/embeddings/base.py` 다. 교차 검토가 4개 항목 전부 met 으로 판정했다.
+체크 표기 누락을 통합 담당이 코드 기준으로 갱신했다.
 
 ### P2.2 `FakeEmbeddingProvider`
 
