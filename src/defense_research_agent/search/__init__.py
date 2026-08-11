@@ -2,9 +2,19 @@
 
 from defense_research_agent.search.base import PublicationSearchAlgorithm, SearchMatch
 from defense_research_agent.search.chunking import (
+    CHUNK_MANIFEST_FILENAME,
+    CHUNK_MANIFEST_VERSION,
+    CHUNKS_FILENAME,
     DEFAULT_CHUNKING_VERSION,
+    PAGE_SEPARATOR,
+    ChunkArtifactManifest,
+    ChunkBoundaryFiringCounts,
+    ChunkingDocument,
+    ChunkingSettings,
     DeterministicPageChunker,
+    ParserProvenanceDistribution,
     PublicationChunker,
+    write_chunk_artifacts,
 )
 from defense_research_agent.search.embeddings import (
     EmbeddingBatchResult,
@@ -56,13 +66,21 @@ from defense_research_agent.search.parsers import (
 )
 
 __all__ = [
+    "CHUNKS_FILENAME",
+    "CHUNK_MANIFEST_FILENAME",
+    "CHUNK_MANIFEST_VERSION",
     "DEFAULT_CHUNKING_VERSION",
     "DEFAULT_MINIMUM_CONFIDENCE",
     "DEFAULT_MINIMUM_PRINTABLE_RATIO",
     "METADATA_NORMALIZATION_VERSION",
     "OCR_FALLBACK_POLICY_VERSION",
     "OCR_REMEDIATION_STATUSES",
+    "PAGE_SEPARATOR",
     "RULE_BASED_METADATA_EXTRACTOR_VERSION",
+    "ChunkArtifactManifest",
+    "ChunkBoundaryFiringCounts",
+    "ChunkingDocument",
+    "ChunkingSettings",
     "DeterministicPageChunker",
     "DocumentParser",
     "EmbeddingBatchResult",
@@ -93,6 +111,7 @@ __all__ = [
     "ParserCapability",
     "ParserErrorCode",
     "ParserFailure",
+    "ParserProvenanceDistribution",
     "PdfiumPdfParser",
     "PublicationChunker",
     "PublicationMetadataExtractor",
@@ -101,4 +120,5 @@ __all__ = [
     "SearchMatch",
     "normalize_metadata_text",
     "select_page_text_result",
+    "write_chunk_artifacts",
 ]
