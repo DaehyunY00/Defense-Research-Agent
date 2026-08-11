@@ -254,12 +254,55 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
 
 ### P1.4 OCR fallback boundary
 
-- [ ] OCR 필요 조건과 허용 문서 상태 정의
-- [ ] OCR provider interface와 fake 구현 설계
-- [ ] 페이지 단위 OCR 실행과 timeout·부분 실패 표현
-- [ ] 기본 추출 대비 품질 개선 시에만 OCR 결과 채택
-- [ ] OCR 원문, confidence, provider/version과 checksum 보존
-- [ ] OCR을 기본 오프라인 suite에서 실제 호출하지 않도록 격리
+- [x] OCR 필요 조건과 허용 문서 상태 정의
+- [x] OCR provider interface와 fake 구현 설계
+- [x] 페이지 단위 OCR 실행과 timeout·부분 실패 표현
+- [x] 기본 추출 대비 품질 개선 시에만 OCR 결과 채택
+- [x] OCR 원문, confidence, provider/version과 checksum 보존
+- [x] OCR을 기본 오프라인 suite에서 실제 호출하지 않도록 격리
+
+구현 기록(2026-08-11):
+
+- 입력은 기존 `ParseResult`, checksum이 검증된 `Sequence[OcrPageInput]`과 선택적
+  `PublicationQualityStatus`이고, 출력은 최종 페이지, 원본 parser failure, 페이지별 시도·거부
+  근거와 OCR 원문을 함께 갖는 `OcrFallbackResult`다. 변경 범위는 신규 `search/ocr/`, 대응
+  unit test와 이 P1.4 기록뿐이다. 표준 라이브러리와 기존 Pydantic만 사용하며 실제 OCR 엔진,
+  외부 프로세스·네트워크·자격증명 의존성은 없다.
+- parser 경로는 문서의 `requires_ocr=True`와 페이지 단위 `EMPTY_PAGE` failure가 모두 있을
+  때만 그 빈 페이지를 시도한다. 현재 parser 계약은 scan 신호를 낸 빈 페이지를 개별 표시하지
+  않으므로 신호가 있는 문서의 모든 `EMPTY_PAGE`가 후보이며, 빈 페이지 오탐은 채택 게이트에서
+  막는다. 별도로 기존 remediation artifact가 OCR을 명시한 `low_text`, `corrupt_text`,
+  `orphan_pdf`만 문서 허용 상태로 사용하고 이때 알려졌거나 렌더링된 모든 페이지를 비교한다.
+  `ready`, `warning`, `manual_review`, `duplicate`는 독립적인 OCR 근거로 쓰지 않는다.
+- 채택 정책 `ocr-fallback-v1`은 provider confidence 0.5 이상, 유효 비공백 문자 1개 이상,
+  출력 가능 문자 비율 0.95 이상을 먼저 요구한다. 기본 페이지에 유효 문자가 없으면 이를 통과한
+  OCR을 개선으로 보고, 그 외에는 정확한 정수 비율 비교로 출력 가능 문자 비율이 더 높거나,
+  비율이 같으면서 유효 문자 수가 엄격히 많을 때만 채택한다. 동률과 악화는 거부한다. 0.95는
+  기존 quality gate의 `min_printable_ratio`와 맞췄으며, 비교·점수·분기는 LLM이 아닌 결정적
+  Python 코드가 수행한다.
+- 모든 시도는 OCR 원문, confidence, provider name/version과 렌더링 입력 SHA-256을
+  `OcrPageResult`에 보존한다. timeout과 provider failure도 페이지 결과이며, 미채택 성공까지
+  `OcrPageDecision`에 기본/OCR 측정값, stable decision code와 사유를 남긴다. 채택 페이지의
+  provenance는 OCR provider name/version과 원본 문서 checksum을 사용하고, 렌더링된 페이지
+  checksum은 OCR 결과에 별도로 남긴다. 따라서 원본 페이지와 섞일 때 기존 chunker의 provenance
+  경계가 실제로 두 chunk를 만든다.
+- `FakeOcrProvider`는 생성 시 복사한 checksum별 fixture를 재생한다. 같은 입력 바이트와 같은
+  fixture에서 직렬화 결과가 byte-identical하며 clock, randomness, process, network, model,
+  credential, locale, filesystem을 사용하지 않는다. pixel 인식, OCR 정확도·레이아웃·언어 지원,
+  실제 latency/cancellation, 실제 provider confidence 또는 렌더러 적합성은 보장하지 않는다.
+- unit/failure/boundary test 37개가 필요 조건의 참·거짓, 개선 채택, 악화·동률·낮은 confidence·
+  낮은 출력 가능 비율 거부와 증거 보존, timeout 뒤 다음 페이지 성공, 누락 입력, provider lineage,
+  혼합 provenance chunk 경계와 전체 결과의 byte 동일성을 실제 분기로 검증한다. 전체 offline
+  suite 467개와 mypy strict, ruff lint/format이 통과했다.
+- 평가 지표는 페이지별 `decision` 분포와 baseline/OCR `printable_ratio`, `usable_character_count`,
+  provider confidence다. 예상 영향은 빈·손상 페이지의 복구 후보를 늘리되 품질 비지배 OCR이나
+  동률의 자동 대체를 0건으로 유지하는 것이다. 이 레인은 retrieval ranking/index를 변경하지
+  않아 retrieval 전용 benchmark와 latency/index-size 항목은 적용 대상이 아니다. 후보 승인
+  상태와 human approval 전이는 전혀 변경하지 않았다.
+- 실제 엔진 연결 전에는 PDF page renderer와 해상도·색상·회전 및 renderer version/checksum
+  lineage, OCR 엔진/provider와 언어·레이아웃 설정, timeout·취소·retry·동시성·resource limit,
+  provider별 confidence 보정, 실제 38개 저추출 corpus의 page ground truth와 채택 임계값 평가,
+  결과 artifact 저장·재실행 정책을 사람이 결정해야 한다.
 
 ### P1.5 Metadata normalization
 
