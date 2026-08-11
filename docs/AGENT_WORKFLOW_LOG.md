@@ -293,52 +293,60 @@ adapter를 추가하면 된다. 측정 없이 미리 고르지 않는다.
 
 ## 7. 현재 상태와 재개 지점
 
-2026-08-10 기준.
+2026-08-12 기준. base 는 `main` 이며 `origin/main` 에 push 돼 있다.
+G0: 489 passed, mypy strict, ruff clean.
 
-base 는 `agent/contracts`, 태그는 `base/document-intelligence`.
-G0: 430 passed, mypy strict 157 files, ruff clean.
+### P1 Document Intelligence — 완료
 
-### 통합 완료 — 레인 6개 전부
+| 섹션 | 상태 |
+|---|---|
+| P1.1 `PublicationChunk` 정비 | 14/15 |
+| P1.2 Parser abstraction | 5/5 |
+| P1.3 PDF extraction | 7/7 |
+| P1.4 OCR fallback boundary | 6/6 |
+| P1.5 Metadata normalization | 5/5 |
+| P1.6 Quality gate | 5/6 |
+| P1.7 Page/section-aware chunking | 6/6 |
 
-| 레인 | 작업 | 교차 검토 |
-|---|---|---|
-| p11-provenance | P1.1 provenance + 페이지 단위 인용 | PASS |
-| a-json-pages | JSON page adapter | PASS |
-| c-quality | P1.6 quality gate | PASS (되먹임 1R) |
-| d-embedding | P2.2 `FakeEmbeddingProvider` | PASS |
-| e-pdf-extraction | P1.3 PDF 본문 추출 | PASS |
-| b-metadata | P1.5 metadata normalization | 실질 PASS (아래) |
+미완 3건은 의존성이 명시 선언된 항목이다. `section_title` 은 P1.3 파서의 heading
+추출이 전제이고, P1.6 인덱스 배선은 P2 에서 붙는다.
 
-머지 충돌은 전 구간 0건이었다. 레인은 최상위 배럴 4개를 한 번도 건드리지 않았고
-배럴 재노출은 통합 시점마다 사람이 일괄 처리했다. 시작 시점 211 passed 에서 430 passed.
+레인 8개를 거쳤고 머지 충돌은 전 구간 0건이었다. 시작 211 passed → 489 passed.
 
-레인 B 의 최종 `VERDICT: BLOCKED` 는 `domain/metadata.py` 경계 위반 1건뿐이었고, 통합
-담당이 판정해 수용한 계약 수정이다(ADR-012). 루브릭 1·2·3 전 항목이 met 이고 완료
-조건도 성립하며, 실코퍼스 372건 전수 검증이 목표와 정확히 일치했다.
+### 사람 작업 대기 중
+
+`artifacts/human_review/` 에 준비돼 있다.
+생성 명령은 `uv run python scripts/prepare_human_review.py`.
+
+1. `manual_review_queue.csv` — 품질 게이트가 제외한 DQ-04 문서 34건.
+   사유·파일명 바이트 길이·표지 미리보기가 들어 있고 `decision`,
+   `confirmed_title`, `reviewer_notes` 를 채우면 된다. 완료 시 색인 코퍼스가
+   297 → 최대 331 건으로 늘어난다.
+2. `golden_candidate_pool.csv` (41건) + `golden_questions_template.csv` —
+   retrieval benchmark 용 golden dataset. **P2 측정 전체가 여기 걸려 있다.**
+   `EVALUATION.md` 규칙상 모델 생성 라벨을 검토 없이 쓸 수 없으므로 사람이 작성한다.
 
 ### 다음 작업 후보
 
-선행 조건이 대부분 해소됐다.
+1. P2.3 `VectorSearchAlgorithm`, P2.4 `HybridSearchAlgorithm`, P2.5 `Reranker`
+   — `FakeEmbeddingProvider` 와 2,018 chunk 로 오프라인 검증 가능.
+   단 golden dataset 없이 품질 주장은 하지 않는다.
+2. P2.6 retrieval benchmark — golden dataset 완료 후
+3. P0 검증 0/19 — P0.3 은 Anthropic·GCP 자격증명이 필요해 사람 소관이다
+4. Brief `2020. 7.` 발행연월이 PDF 직접 추출로 회수되는지 확인.
+   `PageTextSelection` 이 두 소스를 보존하므로 비교 가능하다
 
-1. **P1.4 OCR fallback** — 파서 계약의 `requires_ocr` 가 준비돼 있다
-2. **P1.7 chunking 고도화** — provenance 전파 완료. 현재 2,393 chunk 생성
-3. **P2.3~P2.6 retrieval** — `FakeEmbeddingProvider` 로 vector/hybrid 를 오프라인 검증할
-   수 있다. P2.6 benchmark 는 golden dataset 이 필요하고 이는 전문가 검수 영역이다
-4. Brief 의 `2020. 7.` 발행연월이 PDF 직접 추출로 회수되는지 확인.
-   `PageTextSelection` 이 두 소스를 모두 보존하므로 비교할 수 있다
+### 코퍼스 현황
 
-### 실행 방법
+`artifacts/corpus/chunks.jsonl` — 297 문서, 2,018 chunk, byte 동일 재생성.
+품질 게이트 판정: ready 269 / warning 28 / manual_review 34 / low_text 38 /
+corrupt_text 1 / orphan_pdf 1 = 371.
 
-```bash
-./scripts/lane-new.sh <lane> agent/contracts
-# 전용 프롬프트는 scripts/prompts/ 에 작성 후
-cat scripts/prompts/<file>.md | codex exec -C ~/dev/wt/<lane> \
-  --add-dir "$(git -C ~/dev/wt/<lane> rev-parse --git-common-dir)" \
-  -s workspace-write --json -o ~/dev/wt/<lane>/RESULT.md -
-./scripts/lane-review.sh <lane> agent/contracts '<섹션>' --fix
-```
+### 미정리
 
-worktree 7개가 `~/dev/wt/` 에 남아 있다. 정리는 `git worktree remove`(브랜치는 유지).
+- `.gitattributes` 미추가. CRLF 재발 방지용으로 `* text=auto eol=lf` 권장
+- merge 된 `agent/*` 브랜치 11개 잔존
+- worktree 2개(`f-ocr`, `g-chunking`) 잔존. `git worktree remove` 로 정리 가능
 
 ## 8. 발행일 추출 — 사람이 두 번 틀리고 교차 검토가 두 번 잡은 사례
 
