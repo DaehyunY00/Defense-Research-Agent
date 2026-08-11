@@ -373,10 +373,19 @@ def test_chunk_artifacts_are_canonical_and_byte_reproducible(tmp_path: Path) -> 
     assert first_manifest.manifest_version == CHUNK_MANIFEST_VERSION
     assert first_manifest.input_document_count == 2
     assert first_manifest.input_page_count == 3
+    assert first_manifest.dropped_empty_page_count == 0
     assert first_manifest.chunk_count == 2
+    assert first_manifest.boundary_firing_counts.model_dump() == {
+        "blank_page": 0,
+        "section_title_change": 0,
+        "page_gap": 0,
+        "parser_provenance_change": 0,
+        "max_characters": 0,
+    }
     assert first_manifest.chunks_sha256 == sha256(first_chunks).hexdigest()
     assert first_manifest.chunks_size_bytes == len(first_chunks)
     assert first_manifest.settings == chunker.settings
+    assert "boundary_precedence" not in first_manifest.settings.model_dump()
     assert [entry.model_dump() for entry in first_manifest.parser_provenance_distribution] == [
         {
             "parser_name": "fake-pdf",
@@ -395,6 +404,44 @@ def test_chunk_artifacts_are_canonical_and_byte_reproducible(tmp_path: Path) -> 
     ]
 
 
+def test_chunk_manifest_counts_each_matching_boundary_and_parser_dropped_pages(
+    tmp_path: Path,
+) -> None:
+    fallback_provenance = ExtractionProvenance(
+        parser_name="fixture-ocr",
+        parser_version="3.1.0",
+        source_checksum=SOURCE_CHECKSUM,
+    )
+    document = ChunkingDocument(
+        _publication(),
+        [
+            _page(1, "가" * 4, section_title="서론"),
+            _page(2, " \n", section_title="서론"),
+            _page(3, "나" * 4, section_title="본론"),
+            _page(4, "다" * 4, section_title="결론", provenance=fallback_provenance),
+            _page(6, "라" * 4, section_title="결론", provenance=fallback_provenance),
+            _page(7, "마" * 3, section_title="결론", provenance=fallback_provenance),
+        ],
+        dropped_empty_page_count=7,
+    )
+
+    manifest = write_chunk_artifacts(
+        [document],
+        tmp_path / "artifacts" / "corpus",
+        chunker=DeterministicPageChunker(max_characters=9),
+    )
+
+    assert manifest.dropped_empty_page_count == 7
+    assert manifest.boundary_firing_counts.model_dump() == {
+        "blank_page": 1,
+        "section_title_change": 1,
+        "page_gap": 1,
+        "parser_provenance_change": 1,
+        "max_characters": 3,
+    }
+    assert manifest.chunk_count == 4
+
+
 def test_chunk_artifacts_reject_duplicate_publications_before_writing(tmp_path: Path) -> None:
     document = ChunkingDocument(_publication(), [_page(1, "본문")])
     output = tmp_path / "artifacts" / "corpus"
@@ -405,10 +452,39 @@ def test_chunk_artifacts_reject_duplicate_publications_before_writing(tmp_path: 
     assert not output.exists()
 
 
-def test_chunk_artifacts_reject_output_outside_artifacts_corpus(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "relative_output",
+    [Path("data/corpus"), Path("data/artifacts/corpus")],
+)
+def test_chunk_artifacts_reject_every_output_below_read_only_data(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    relative_output: Path,
+) -> None:
     document = ChunkingDocument(_publication(), [_page(1, "본문")])
+    monkeypatch.chdir(tmp_path)
+    output = tmp_path / relative_output
 
-    with pytest.raises(ValueError, match="artifacts/corpus"):
-        write_chunk_artifacts([document], tmp_path / "data" / "corpus")
+    with pytest.raises(ValueError, match="outside the read-only data"):
+        write_chunk_artifacts([document], output)
 
+    assert not output.exists()
     assert not (tmp_path / "data").exists()
+
+
+@pytest.mark.parametrize("dropped_empty_page_count", [-1, True])
+def test_chunk_artifacts_reject_invalid_dropped_page_count_before_writing(
+    tmp_path: Path,
+    dropped_empty_page_count: int,
+) -> None:
+    document = ChunkingDocument(
+        _publication(),
+        [_page(1, "본문")],
+        dropped_empty_page_count=dropped_empty_page_count,
+    )
+    output = tmp_path / "artifacts" / "corpus"
+
+    with pytest.raises(ValueError, match="non-negative integer"):
+        write_chunk_artifacts([document], output)
+
+    assert not output.exists()

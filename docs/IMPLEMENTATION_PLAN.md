@@ -417,7 +417,8 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
   `chunk_index` 순으로 정렬하고 JSON key 정렬과 LF 종단을 고정한다. 생성 시각은 기록하지
   않는다.
 - 변경 파일은 `search/chunking.py`, chunking unit test, PDF citation retrace integration
-  test와 이 P1.7 절뿐이다. Pydantic은 기존 의존성만 사용하며 추가 외부 의존성은 없다.
+  test, 이 P1.7 절과 재생성 진입점 `scripts/build_corpus_chunks.py`다. Pydantic은 기존
+  의존성만 사용하며 추가 외부 의존성은 없다.
 - page는 분할하지 않는 원자 단위로 유지한다. section title 변경, page gap, parser
   provenance 변경, 최대 문자 수 초과를 경계로 쓰고 빈 page는 제외하면서 경계로 쓴다.
   단일 page가 최대 길이보다 길면 page 근거 보존을 우선해 그대로 한 chunk로 허용한다.
@@ -433,7 +434,11 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
   `data/metadata/*.json`의 `page_texts`는 `{page, text, char_count}`뿐이고 PDF/JSON parser도
   section을 채우지 않으므로 실 corpus에서는 이 경계가 발화하지 않는다. heading 추출은 parser
   책임이며 P1.7 범위 밖이다.
-- 완료 조건은 기존 네 경계 회귀, page span partition, overlap/구조 pass-through 정책,
+- blank page, section 변경, page gap, parser provenance 변경, 최대 문자 수 조건은 서로 우선순위를
+  주장하지 않고 독립적으로 관측한다. 같은 전이에 여러 조건이 맞아도 pending chunk는 한 번만
+  방출하고, 각 predicate 발화 수는 manifest에 별도로 집계한다. parser가 chunker 전달 전에
+  제외한 빈 page 수도 manifest에 기록한다.
+- 완료 조건은 다섯 경계 회귀, page span partition, overlap/구조 pass-through 정책,
   invalid/duplicate 입력 failure path, artifact byte 재현성, 생성 PDF의 실제 추출 text offset을
   source page로 역추적하는 integration test와 전체 pytest/mypy/ruff 통과다. 시간·network·외부
   모델은 사용하지 않고 파일 시스템 출력은 `tmp_path`와 `artifacts/`로 격리한다.
@@ -447,29 +452,38 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
 - 기존 `PublicationChunk`와 `PublicationPageSpan`, `PublicationChunker.chunk()` 계약은 변경하지
   않았다. `DeterministicPageChunker`에 read-only `max_characters`, `chunking_version`, `settings`
   property를 추가하고, `ChunkingDocument`, `ChunkingSettings`,
-  `ParserProvenanceDistribution`, `ChunkArtifactManifest`와
+  `ChunkBoundaryFiringCounts`, `ParserProvenanceDistribution`, `ChunkArtifactManifest`와
   `write_chunk_artifacts(documents, output_directory, *, chunker=None)`를 공개했다. 최상위 barrel은
   통합 경계를 지키기 위해 변경하지 않았다.
 - chunk 동작은 바뀌지 않아 `page-window-v1`과 `publication-chunk:v2` identity를 유지했다.
-  manifest version은 `publication-chunks-manifest-v1`이고 파일명은
+  manifest version은 `publication-chunks-manifest-v2`이고 파일명은
   `chunks.manifest.json`이다. manifest는 `chunking_version`, input document/page 수, chunk 수,
-  parser name/version별 document/page/chunk 분포, 전체 chunking settings, chunk 파일명,
-  SHA-256과 byte 크기를 담는다.
+  parser가 제외한 빈 page 수, 경계별 발화 수, parser name/version별 document/page/chunk 분포,
+  전체 chunking settings, chunk 파일명, SHA-256과 byte 크기를 담는다. 관측 불가능했던
+  `boundary_precedence` 설정은 제거했다.
 - JSONL은 `publication_id`/`chunk_index` 순서, UTF-8, key sort, compact separator와 LF를
   고정했다. manifest도 같은 canonical JSON 규칙을 사용하고 생성 시각을 넣지 않는다.
-  duplicate publication ID와 `artifacts/corpus` 밖의 출력은 파일 생성 전에 거부한다.
+  표준 `ensure_outside_read_only_data` guard로 `data/` 아래 출력을 파일 생성 전에 거부하며,
+  `data/artifacts/corpus` 중첩 우회도 회귀 테스트로 고정했다. duplicate publication ID와 잘못된
+  parser 탈락 수치도 기록 전에 거부한다.
+- `scripts/build_corpus_chunks.py`는 `data/metadata`를 `JsonPageParser`로 읽고 production 품질
+  gate의 `ready`/`warning`만 선별한 뒤 `artifacts/corpus`에 artifact를 쓴다. 예상 밖 parser
+  failure는 fail closed하고, 실행 전후 전체 `data/` tree hash를 비교한다. 같은 입력으로 두 번
+  실행한 `chunks.jsonl`과 manifest가 각각 byte-equivalent함을 확인했다.
 - 생성 artifact는 원시 metadata 문서 372건을 기존 품질 게이트로 판정한 뒤 `ready`/`warning`
-  331건(6,357 page)을 입력으로 사용해 2,393 chunk를 기록했다. 따라서 기존 2,393 기준은
-  변하지 않았다. parser 분포는 `json-page-texts` `1.0.0` 331 documents / 6,357 pages /
-  2,393 chunks다. `chunks.jsonl` SHA-256은
+  331건(6,357 parser 생존 page, 제외된 빈 page 124건)을 입력으로 사용해 2,393 chunk를
+  기록했다. 따라서 기존 2,393 기준은 변하지 않았다. parser 분포는 `json-page-texts` `1.0.0`
+  331 documents / 6,357 pages / 2,393 chunks다. 경계 발화는 blank page 0, section title 변경
+  0, page gap 103, parser provenance 변경 0, max characters 1,974회다. `chunks.jsonl` SHA-256은
   `2f59ae59310650134b12620a4109ac8e29180c2fac63d1b5f91bceb7be893de1`이다.
-- unit test는 네 기존 경계 각각의 발화, span partition, no-overlap, 구조처럼 보이는 text와
+- unit test는 다섯 경계 각각의 발화와 독립 집계, parser 탈락 page 감사 수치, span partition,
+  no-overlap, 구조처럼 보이는 text와
   일반 text의 pass-through, canonical artifact 재생성, provenance 분포, 잘못된 순서·설정·중복
-  ID·출력 경로를 검증한다. integration test는 생성 PDF를 `PdfiumPdfParser`로 추출하고 실제
+  ID·`data/` 하위 출력 경로를 검증한다. integration test는 생성 PDF를 `PdfiumPdfParser`로 추출하고 실제
   citation 문자열 offset이 정확히 하나의 `PublicationPageSpan`과 원본 page number로
   역추적됨을 검증한다.
-- 전체 offline 검증은 Python 3.12에서 `pytest` 436개, `mypy --strict` 157 files,
-  `ruff check`, `ruff format --check` 180 files가 통과했다. 네트워크·외부 API·모델·시간을
+- 전체 offline 검증은 Python 3.12에서 `pytest` 440개, `mypy --strict` 157 files,
+  `ruff check`, `ruff format --check` 181 files가 통과했다. 네트워크·외부 API·모델·시간을
   사용하지 않았고 파일 시스템 test는 fixture와 `tmp_path`로 격리했다. 새 dependency,
   secret, 실제 `.env`, 자동 승인 상태 전이는 추가하지 않았다.
 

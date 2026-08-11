@@ -20,12 +20,21 @@ from defense_research_agent.domain import (
     PublicationPageSpan,
     ResearchPublication,
 )
+from defense_research_agent.path_safety import ensure_outside_read_only_data
 
 DEFAULT_CHUNKING_VERSION = "page-window-v1"
-CHUNK_MANIFEST_VERSION = "publication-chunks-manifest-v1"
+CHUNK_MANIFEST_VERSION = "publication-chunks-manifest-v2"
 CHUNKS_FILENAME = "chunks.jsonl"
 CHUNK_MANIFEST_FILENAME = "chunks.manifest.json"
 PAGE_SEPARATOR = "\n\n"
+
+type _ChunkBoundaryName = Literal[
+    "blank-page",
+    "section-title-change",
+    "page-gap",
+    "parser-provenance-change",
+    "max-characters",
+]
 
 
 class ChunkingDocument(NamedTuple):
@@ -33,6 +42,7 @@ class ChunkingDocument(NamedTuple):
 
     publication: ResearchPublication
     pages: Sequence[PublicationPage]
+    dropped_empty_page_count: int = 0
 
 
 class ChunkingSettings(DomainModel):
@@ -41,24 +51,21 @@ class ChunkingSettings(DomainModel):
     max_characters: PositiveInt
     page_separator: Literal["\n\n"] = "\n\n"
     page_unit: Literal["whole-page"] = "whole-page"
-    boundary_precedence: tuple[
-        Literal["blank-page"],
-        Literal["section-title-change"],
-        Literal["page-gap"],
-        Literal["parser-provenance-change"],
-        Literal["max-characters"],
-    ] = (
-        "blank-page",
-        "section-title-change",
-        "page-gap",
-        "parser-provenance-change",
-        "max-characters",
-    )
     overlap_unit: Literal["none"] = "none"
     overlap_size: Literal[0] = 0
     table_handling: Literal["preserve-in-page-text"] = "preserve-in-page-text"
     footnote_handling: Literal["preserve-in-page-text"] = "preserve-in-page-text"
     bibliography_handling: Literal["preserve-in-page-text"] = "preserve-in-page-text"
+
+
+class ChunkBoundaryFiringCounts(DomainModel):
+    """Observed predicate matches while producing one complete chunk artifact."""
+
+    blank_page: NonNegativeInt = 0
+    section_title_change: NonNegativeInt = 0
+    page_gap: NonNegativeInt = 0
+    parser_provenance_change: NonNegativeInt = 0
+    max_characters: NonNegativeInt = 0
 
 
 class ParserProvenanceDistribution(DomainModel):
@@ -74,16 +81,23 @@ class ParserProvenanceDistribution(DomainModel):
 class ChunkArtifactManifest(DomainModel):
     """Content-bound manifest for a deterministic ``chunks.jsonl`` artifact."""
 
-    manifest_version: Literal["publication-chunks-manifest-v1"] = "publication-chunks-manifest-v1"
+    manifest_version: Literal["publication-chunks-manifest-v2"] = "publication-chunks-manifest-v2"
     chunking_version: Label
     input_document_count: NonNegativeInt
     input_page_count: NonNegativeInt
+    dropped_empty_page_count: NonNegativeInt
     chunk_count: NonNegativeInt
+    boundary_firing_counts: ChunkBoundaryFiringCounts
     parser_provenance_distribution: list[ParserProvenanceDistribution]
     settings: ChunkingSettings
     chunks_filename: Literal["chunks.jsonl"] = "chunks.jsonl"
     chunks_sha256: Checksum
     chunks_size_bytes: NonNegativeInt
+
+
+class _ChunkingRun(NamedTuple):
+    chunks: list[PublicationChunk]
+    boundary_firings: Counter[_ChunkBoundaryName]
 
 
 class PublicationChunker(ABC):
@@ -140,8 +154,17 @@ class DeterministicPageChunker(PublicationChunker):
         pages: Sequence[PublicationPage],
     ) -> list[PublicationChunk]:
         """Build stable chunks while preserving exact page text and page ranges."""
+        return self._chunk_with_boundary_firings(publication, pages).chunks
+
+    def _chunk_with_boundary_firings(
+        self,
+        publication: ResearchPublication,
+        pages: Sequence[PublicationPage],
+    ) -> _ChunkingRun:
+        """Build chunks and independently count every matching boundary predicate."""
         _validate_page_order(pages)
         chunks: list[PublicationChunk] = []
+        boundary_firings: Counter[_ChunkBoundaryName] = Counter()
         pending: list[PublicationPage] = []
         pending_characters = 0
 
@@ -182,6 +205,7 @@ class DeterministicPageChunker(PublicationChunker):
 
         for page in pages:
             if not page.text.strip():
+                boundary_firings["blank-page"] += 1
                 emit_pending()
                 continue
 
@@ -194,10 +218,17 @@ class DeterministicPageChunker(PublicationChunker):
                 and pending_characters + separator_characters + len(page.text)
                 > self._max_characters
             )
-            # Section changes are the highest-priority content boundary. The
-            # remaining predicates are still evaluated without classifying or
-            # rewriting parser text, so tables, footnotes, and bibliographies
-            # remain attached to their source pages.
+            # Every predicate is observed independently because more than one can
+            # match the same page transition. One emission is sufficient regardless
+            # of how many match, and parser text is never classified or rewritten.
+            if changes_section:
+                boundary_firings["section-title-change"] += 1
+            if crosses_page_gap:
+                boundary_firings["page-gap"] += 1
+            if changes_provenance:
+                boundary_firings["parser-provenance-change"] += 1
+            if exceeds_limit:
+                boundary_firings["max-characters"] += 1
             if changes_section or crosses_page_gap or changes_provenance or exceeds_limit:
                 emit_pending()
                 separator_characters = 0
@@ -205,10 +236,11 @@ class DeterministicPageChunker(PublicationChunker):
             pending.append(page)
             pending_characters += separator_characters + len(page.text)
             if pending_characters >= self._max_characters:
+                boundary_firings["max-characters"] += 1
                 emit_pending()
 
         emit_pending()
-        return chunks
+        return _ChunkingRun(chunks=chunks, boundary_firings=boundary_firings)
 
 
 def write_chunk_artifacts(
@@ -217,34 +249,48 @@ def write_chunk_artifacts(
     *,
     chunker: DeterministicPageChunker | None = None,
 ) -> ChunkArtifactManifest:
-    """Write canonical chunks and a content-bound manifest under ``artifacts/corpus``.
+    """Write canonical chunks and a content-bound manifest outside read-only ``data/``.
 
-    The output directory must resolve to a directory named ``corpus`` directly
-    below one named ``artifacts``. Documents are sorted by publication ID, so
-    caller iteration order cannot affect artifact bytes. Duplicate publication
-    IDs are rejected because they would make per-publication chunk indexes
-    ambiguous.
+    Documents are sorted by publication ID, so caller iteration order cannot affect
+    artifact bytes. Duplicate publication IDs and invalid parser-drop counts are
+    rejected because they would make the manifest's audit totals ambiguous.
     """
+    ensure_outside_read_only_data(output_directory)
     resolved_output = output_directory.resolve()
-    if resolved_output.name != "corpus" or resolved_output.parent.name != "artifacts":
-        raise ValueError("output_directory must be an artifacts/corpus directory")
 
     selected_chunker = chunker or DeterministicPageChunker()
     ordered_documents = sorted(documents, key=lambda document: document.publication.publication_id)
     publication_ids = [document.publication.publication_id for document in ordered_documents]
     if len(publication_ids) != len(set(publication_ids)):
         raise ValueError("publication_id must be unique within chunk artifacts")
+    for document in ordered_documents:
+        if (
+            isinstance(document.dropped_empty_page_count, bool)
+            or not isinstance(document.dropped_empty_page_count, int)
+            or document.dropped_empty_page_count < 0
+        ):
+            raise ValueError("dropped_empty_page_count must be a non-negative integer")
 
     chunks: list[PublicationChunk] = []
+    boundary_firings: Counter[_ChunkBoundaryName] = Counter()
     for document in ordered_documents:
-        chunks.extend(selected_chunker.chunk(document.publication, document.pages))
+        chunking_run = selected_chunker._chunk_with_boundary_firings(
+            document.publication,
+            document.pages,
+        )
+        chunks.extend(chunking_run.chunks)
+        boundary_firings.update(chunking_run.boundary_firings)
 
     chunks_payload = b"".join(_canonical_json_line(chunk) for chunk in chunks)
     manifest = ChunkArtifactManifest(
         chunking_version=selected_chunker.chunking_version,
         input_document_count=len(ordered_documents),
         input_page_count=sum(len(document.pages) for document in ordered_documents),
+        dropped_empty_page_count=sum(
+            document.dropped_empty_page_count for document in ordered_documents
+        ),
         chunk_count=len(chunks),
+        boundary_firing_counts=_boundary_firing_counts(boundary_firings),
         parser_provenance_distribution=_parser_provenance_distribution(
             ordered_documents,
             chunks,
@@ -259,6 +305,18 @@ def write_chunk_artifacts(
     _atomic_write_bytes(resolved_output / CHUNKS_FILENAME, chunks_payload)
     _atomic_write_bytes(resolved_output / CHUNK_MANIFEST_FILENAME, manifest_payload)
     return manifest
+
+
+def _boundary_firing_counts(
+    counts: Counter[_ChunkBoundaryName],
+) -> ChunkBoundaryFiringCounts:
+    return ChunkBoundaryFiringCounts(
+        blank_page=counts["blank-page"],
+        section_title_change=counts["section-title-change"],
+        page_gap=counts["page-gap"],
+        parser_provenance_change=counts["parser-provenance-change"],
+        max_characters=counts["max-characters"],
+    )
 
 
 def _canonical_json_line(model: DomainModel) -> bytes:
