@@ -29,6 +29,10 @@ from defense_research_agent.evaluation.quality import (
     PublicationQualityArtifactWriter,
     select_default_index_publications,
 )
+from defense_research_agent.human_review import (
+    apply_review_decisions,
+    load_review_decisions,
+)
 from defense_research_agent.search.chunking import (
     CHUNK_MANIFEST_FILENAME,
     CHUNKS_FILENAME,
@@ -41,6 +45,7 @@ from defense_research_agent.services.ingestion import IngestionOutcome, Ingestio
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIRECTORY = REPOSITORY_ROOT / "data"
 OUTPUT_DIRECTORY = REPOSITORY_ROOT / "artifacts" / "corpus"
+REVIEW_DECISIONS_PATH = REPOSITORY_ROOT / "artifacts" / "human_review" / "manual_review_queue.csv"
 
 
 @dataclass(frozen=True, slots=True)
@@ -146,7 +151,19 @@ def main() -> None:
     """Build the corpus twice-reproducible artifact and print its audit summary."""
     before_digest = source_tree_digest()
     ingestion = ingest_publications()
-    documents = load_parsed_documents(ingestion.publications)
+
+    # A reviewer-confirmed cover title promotes a DQ-04 publication out of
+    # manual_review. Absent the decision file nothing is promoted, so the
+    # default remains the conservative one.
+    approved_titles: dict[str, str] = {}
+    if REVIEW_DECISIONS_PATH.exists():
+        approved_titles = load_review_decisions(REVIEW_DECISIONS_PATH).approved_titles
+    reviewed = [
+        apply_review_decisions(publication, approved_titles)
+        for publication in ingestion.publications
+    ]
+
+    documents = load_parsed_documents(reviewed)
     gate, verdicts = evaluate_quality(documents)
     quality_paths = PublicationQualityArtifactWriter(OUTPUT_DIRECTORY / "quality").write(
         list(verdicts.values()),
