@@ -1,6 +1,8 @@
 """Deterministic chunk-level vector search contracts and local implementation."""
 
 from defense_research_agent.search.vector.algorithm import (
+    LEGACY_COSINE_SCORE_MAPPING,
+    LegacyVectorSearchMatch,
     PublicationChunkFactory,
     PublicationVectorSearchAdapter,
     VectorQueryEmbeddingError,
@@ -19,22 +21,27 @@ from defense_research_agent.search.vector.index import (
 )
 from defense_research_agent.search.vector.models import (
     VECTOR_ENTRIES_FILENAME,
+    VECTOR_INDEX_FAILURE_POLICY,
     VECTOR_INDEX_MANIFEST_VERSION,
     VECTOR_MANIFEST_FILENAME,
     VECTOR_SIMILARITY_METRIC,
     VECTOR_TIE_BREAKER,
     VectorIndexManifest,
+    VectorIndexSkippedChunk,
     VectorNormalization,
     VectorSearchMatch,
 )
 
 __all__ = [
+    "LEGACY_COSINE_SCORE_MAPPING",
     "VECTOR_ENTRIES_FILENAME",
+    "VECTOR_INDEX_FAILURE_POLICY",
     "VECTOR_INDEX_MANIFEST_VERSION",
     "VECTOR_MANIFEST_FILENAME",
     "VECTOR_SIMILARITY_METRIC",
     "VECTOR_TIE_BREAKER",
     "InMemoryVectorIndex",
+    "LegacyVectorSearchMatch",
     "PublicationChunkFactory",
     "PublicationVectorSearchAdapter",
     "VectorIndex",
@@ -42,6 +49,7 @@ __all__ = [
     "VectorIndexError",
     "VectorIndexManifest",
     "VectorIndexNotBuiltError",
+    "VectorIndexSkippedChunk",
     "VectorNormalization",
     "VectorQueryEmbeddingError",
     "VectorSearchAlgorithm",

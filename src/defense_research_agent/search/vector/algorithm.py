@@ -1,8 +1,9 @@
 """Chunk-level vector search with explicit legacy-result projection."""
 
 from collections.abc import Collection, Sequence
+from dataclasses import dataclass
 from hashlib import sha256
-from typing import Protocol
+from typing import Final, Literal, Protocol
 
 from defense_research_agent.domain import PublicationChunk, ResearchPublication, SearchField
 from defense_research_agent.search.base import PublicationSearchAlgorithm, SearchMatch
@@ -26,6 +27,24 @@ class VectorSearchConfigurationError(VectorSearchError):
 
 class VectorQueryEmbeddingError(VectorSearchError):
     """Raised when a query cannot produce one attributable compatible vector."""
+
+
+LEGACY_COSINE_SCORE_MAPPING: Final[Literal["(cosine + 1) / 2"]] = "(cosine + 1) / 2"
+
+
+@dataclass(frozen=True, slots=True)
+class LegacyVectorSearchMatch(SearchMatch):
+    """Legacy-compatible score plus the original cosine and mapping disclosure.
+
+    The legacy repository contract requires a non-negative score, while cosine
+    spans ``[-1, 1]``. ``score`` therefore uses ``(cosine + 1) / 2``, a monotonic
+    affine mapping into ``[0, 1]``. ``cosine_score`` retains the source value and
+    ``score_mapping`` makes the boundary transformation explicit. Chunk-level
+    :class:`VectorSearchMatch` values remain unchanged raw cosine results.
+    """
+
+    cosine_score: float
+    score_mapping: Literal["(cosine + 1) / 2"] = LEGACY_COSINE_SCORE_MAPPING
 
 
 class PublicationChunkFactory(Protocol):
@@ -142,13 +161,16 @@ class VectorSearchAlgorithm:
         query: str,
         allowed_publication_ids: Collection[str] | None,
         limit: int,
-    ) -> list[SearchMatch]:
+    ) -> list[LegacyVectorSearchMatch]:
         """Project each publication's best chunk into the legacy result shape.
 
         This projection intentionally discards chunk/page provenance. Callers
         that cite evidence must use ``search`` and retain ``VectorSearchMatch``.
-        Embeddings expose no matched lexical terms, so ``matched_terms`` is empty
-        and the source field is reported as publication content.
+        The raw cosine is monotonically mapped from ``[-1, 1]`` to the legacy
+        score contract's ``[0, 1]`` with ``(cosine + 1) / 2`` and retained as
+        ``cosine_score`` on the returned subtype. Embeddings expose no matched
+        lexical terms, so ``matched_terms`` is empty and the source field is
+        reported as publication content.
         """
         if limit <= 0 or not query.strip():
             return []
@@ -160,18 +182,19 @@ class VectorSearchAlgorithm:
             allowed_publication_ids,
             manifest.indexed_chunk_count,
         )
-        publication_matches: list[SearchMatch] = []
+        publication_matches: list[LegacyVectorSearchMatch] = []
         seen_publication_ids: set[str] = set()
         for match in chunk_matches:
             if match.publication_id in seen_publication_ids:
                 continue
             seen_publication_ids.add(match.publication_id)
             publication_matches.append(
-                SearchMatch(
+                LegacyVectorSearchMatch(
                     publication_id=match.publication_id,
-                    score=match.score,
+                    score=(match.score + 1.0) / 2.0,
                     matched_fields=(SearchField.CONTENT,),
                     matched_terms=(),
+                    cosine_score=match.score,
                 )
             )
             if len(publication_matches) == limit:
@@ -245,8 +268,11 @@ class PublicationVectorSearchAdapter(PublicationSearchAlgorithm):
         limit: int,
     ) -> list[SearchMatch]:
         """Return each publication's best vector chunk in the legacy result shape."""
-        return self._algorithm.search_publications(
-            query,
-            allowed_publication_ids,
-            limit,
+        matches: list[SearchMatch] = list(
+            self._algorithm.search_publications(
+                query,
+                allowed_publication_ids,
+                limit,
+            )
         )
+        return matches

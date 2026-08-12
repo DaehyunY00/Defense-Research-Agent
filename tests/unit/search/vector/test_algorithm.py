@@ -11,10 +11,14 @@ from defense_research_agent.domain import (
     ResearchPublication,
     SearchField,
 )
+from defense_research_agent.repositories import InMemoryResearchPublicationRepository
 from defense_research_agent.search.base import PublicationSearchAlgorithm
+from defense_research_agent.search.embeddings import FakeEmbeddingProvider
 from defense_research_agent.search.vector import (
+    LEGACY_COSINE_SCORE_MAPPING,
     VECTOR_TIE_BREAKER,
     InMemoryVectorIndex,
+    LegacyVectorSearchMatch,
     PublicationVectorSearchAdapter,
     VectorIndexNotBuiltError,
     VectorQueryEmbeddingError,
@@ -51,6 +55,38 @@ def test_equal_scores_use_declared_publication_chunk_tie_breaker() -> None:
         ("pub:b", 0),
     ]
     assert manifest.tie_breaker == VECTOR_TIE_BREAKER
+
+
+def test_fake_provider_top_k_is_deterministic_when_tie_crosses_limit() -> None:
+    chunks = [
+        make_chunk("pub:z", 0, "text-13"),  # cosine 1
+        make_chunk("pub:d", 0, "text-0"),  # cosine 0
+        make_chunk("pub:a", 0, "text-1"),  # cosine 0
+        make_chunk("pub:c", 0, "text-2"),  # cosine 0
+        make_chunk("pub:b", 0, "text-3"),  # cosine 0
+        make_chunk("pub:y", 0, "text-4"),  # cosine -1
+    ]
+    algorithm = VectorSearchAlgorithm(
+        FakeEmbeddingProvider(normalized=True),
+        chunking_version=CHUNKING_VERSION,
+    )
+    algorithm.build_index(list(reversed(chunks)))
+
+    chunk_results = algorithm.search("query", None, 4)
+    publication_results = algorithm.search_publications("query", None, 3)
+
+    assert [(match.publication_id, match.score) for match in chunk_results] == [
+        ("pub:z", 1.0),
+        ("pub:a", 0.0),
+        ("pub:b", 0.0),
+        ("pub:c", 0.0),
+    ]
+    assert [match.publication_id for match in publication_results] == [
+        "pub:z",
+        "pub:a",
+        "pub:b",
+    ]
+    assert [match.cosine_score for match in publication_results] == [1.0, 0.0, 0.0]
 
 
 def test_result_resolves_chunk_offset_to_original_page_provenance() -> None:
@@ -148,8 +184,37 @@ def test_publication_projection_keeps_best_chunk_in_legacy_shape() -> None:
 
     assert [result.publication_id for result in results] == ["pub:a", "pub:b"]
     assert results[0].score == 1.0
+    assert results[0].cosine_score == 1.0
+    assert results[0].score_mapping == LEGACY_COSINE_SCORE_MAPPING
     assert results[0].matched_fields == (SearchField.CONTENT,)
     assert results[0].matched_terms == ()
+
+
+def test_legacy_score_mapping_preserves_raw_cosine_rank() -> None:
+    vectors = {
+        "query": (1.0, 0.0),
+        "positive": (1.0, 0.0),
+        "orthogonal": (0.0, 1.0),
+        "negative": (-1.0, 0.0),
+    }
+    algorithm = VectorSearchAlgorithm(
+        StaticEmbeddingProvider(vectors=vectors),
+        chunking_version=CHUNKING_VERSION,
+    )
+    algorithm.build_index(
+        [
+            make_chunk("pub:negative", 0, "negative"),
+            make_chunk("pub:positive", 0, "positive"),
+            make_chunk("pub:orthogonal", 0, "orthogonal"),
+        ]
+    )
+
+    raw = algorithm.search("query", None, 3)
+    projected = algorithm.search_publications("query", None, 3)
+
+    assert [match.publication_id for match in projected] == [match.publication_id for match in raw]
+    assert [match.cosine_score for match in projected] == [1.0, 0.0, -1.0]
+    assert [match.score for match in projected] == [1.0, 0.5, 0.0]
 
 
 def test_legacy_abc_adapter_uses_explicit_chunk_factory() -> None:
@@ -187,6 +252,39 @@ def test_legacy_abc_adapter_uses_explicit_chunk_factory() -> None:
 
     assert isinstance(adapter, PublicationSearchAlgorithm)
     assert [result.publication_id for result in results] == ["pub:a", "pub:b"]
+
+
+def test_fake_vector_adapter_runs_through_repository_with_negative_cosine() -> None:
+    publication = ResearchPublication(
+        publication_id="pub:negative",
+        publication_type=PublicationType.KIDA_BRIEF,
+        title="음수 코사인 회귀",
+    )
+
+    def chunk_factory(
+        publications: Sequence[ResearchPublication],
+    ) -> Sequence[PublicationChunk]:
+        assert publications == (publication,)
+        return [make_chunk("pub:negative", 0, "text-4")]
+
+    algorithm = VectorSearchAlgorithm(
+        FakeEmbeddingProvider(normalized=True),
+        chunking_version=CHUNKING_VERSION,
+    )
+    adapter = PublicationVectorSearchAdapter(algorithm, chunk_factory)
+    repository = InMemoryResearchPublicationRepository([publication], adapter)
+
+    raw_result = algorithm.search("query", None, 1)[0]
+    adapter_result = adapter.search("query", None, 1)[0]
+    repository_result = repository.search("query", limit=1)[0]
+
+    assert raw_result.score == -1.0
+    assert isinstance(adapter_result, LegacyVectorSearchMatch)
+    assert adapter_result.cosine_score == -1.0
+    assert adapter_result.score == 0.0
+    assert adapter_result.score_mapping == LEGACY_COSINE_SCORE_MAPPING
+    assert repository_result.publication == publication
+    assert repository_result.score == 0.0
 
 
 def test_legacy_adapter_rejects_chunk_from_unsupplied_publication() -> None:

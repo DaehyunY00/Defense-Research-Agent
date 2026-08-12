@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from defense_research_agent.search.embeddings import FakeEmbeddingProvider
 from defense_research_agent.search.vector import (
     VECTOR_ENTRIES_FILENAME,
+    VECTOR_INDEX_FAILURE_POLICY,
     VECTOR_INDEX_MANIFEST_VERSION,
     VECTOR_MANIFEST_FILENAME,
     VECTOR_SIMILARITY_METRIC,
@@ -70,6 +71,9 @@ def test_same_inputs_and_settings_write_byte_identical_manifest_and_index(
     assert first_manifest.chunking_version == CHUNKING_VERSION
     assert first_manifest.input_chunk_count == 3
     assert first_manifest.indexed_chunk_count == 3
+    assert first_manifest.skipped_chunk_count == 0
+    assert first_manifest.skipped_chunks == []
+    assert first_manifest.failure_policy == VECTOR_INDEX_FAILURE_POLICY
     assert first_manifest.vector_entries_sha256 == sha256(first_entries).hexdigest()
     assert first_manifest.vector_entries_size_bytes == len(first_entries)
     assert first_manifest.similarity_metric == VECTOR_SIMILARITY_METRIC
@@ -142,10 +146,10 @@ def test_writer_rejects_output_below_read_only_data(
         write_vector_index_artifacts(index, tmp_path / "data" / "vector-index")
 
 
-def test_build_fails_closed_on_embedding_partial_failure() -> None:
+def test_build_fails_closed_on_operational_embedding_failure() -> None:
     index = InMemoryVectorIndex()
 
-    with pytest.raises(VectorIndexBuildError, match="failed for input positions"):
+    with pytest.raises(VectorIndexBuildError, match="input position 0: provider_error"):
         index.build(
             [make_chunk("pub:a", 0, "fixture")],
             StaticEmbeddingProvider(fail_documents=True),

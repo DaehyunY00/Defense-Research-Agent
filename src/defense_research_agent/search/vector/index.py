@@ -15,15 +15,19 @@ from defense_research_agent.domain.publication import PublicationChunk
 from defense_research_agent.path_safety import ensure_outside_read_only_data
 from defense_research_agent.search.embeddings.base import (
     EmbeddingBatchResult,
+    EmbeddingErrorCode,
+    EmbeddingFailure,
     EmbeddingProvider,
 )
 from defense_research_agent.search.vector.models import (
     VECTOR_ENTRIES_FILENAME,
+    VECTOR_INDEX_FAILURE_POLICY,
     VECTOR_INDEX_MANIFEST_VERSION,
     VECTOR_MANIFEST_FILENAME,
     VECTOR_SIMILARITY_METRIC,
     VECTOR_TIE_BREAKER,
     VectorIndexManifest,
+    VectorIndexSkippedChunk,
     VectorNormalization,
     VectorSearchMatch,
 )
@@ -34,11 +38,19 @@ class VectorIndexError(ValueError):
 
 
 class VectorIndexBuildError(VectorIndexError):
-    """Raised when a complete, attributable index cannot be built."""
+    """Raised when an attributable index cannot be built under its failure policy."""
 
 
 class VectorIndexNotBuiltError(VectorIndexError):
     """Raised when an operation needs an index manifest that does not exist."""
+
+
+_SKIPPABLE_EMBEDDING_FAILURES = frozenset(
+    {
+        EmbeddingErrorCode.EMPTY_INPUT,
+        EmbeddingErrorCode.INPUT_TOO_LONG,
+    }
+)
 
 
 class _VectorIndexRecord(DomainModel):
@@ -76,7 +88,7 @@ class VectorIndex(ABC):
         *,
         chunking_version: str,
     ) -> VectorIndexManifest:
-        """Replace the index with vectors for every supplied chunk, fail-closed."""
+        """Replace the index with attributable vectors and recorded input skips."""
 
     @abstractmethod
     def nearest(
@@ -118,7 +130,15 @@ class InMemoryVectorIndex(VectorIndex):
         *,
         chunking_version: str,
     ) -> VectorIndexManifest:
-        """Embed every chunk in deterministic order and atomically replace state."""
+        """Embed chunks in deterministic order and atomically replace state.
+
+        Content-attributable ``empty_input`` and ``input_too_long`` failures are
+        skipped because retrying the same exact text cannot make them valid. Each
+        omission is bound into the manifest with chunk identity, checksum, byte
+        size, code, and message. Batch-level and operational failures still abort
+        the complete build so transient provider trouble cannot silently become a
+        partial index.
+        """
         normalized_chunking_version = chunking_version.strip()
         if not normalized_chunking_version:
             raise VectorIndexBuildError("chunking_version must not be blank")
@@ -127,6 +147,7 @@ class InMemoryVectorIndex(VectorIndex):
         provider_settings = _provider_settings(embedding_provider)
 
         records: list[_VectorIndexRecord] = []
+        skipped_chunks: list[VectorIndexSkippedChunk] = []
         max_batch_size = embedding_provider.max_batch_size
         if (
             isinstance(max_batch_size, bool)
@@ -143,7 +164,7 @@ class InMemoryVectorIndex(VectorIndex):
                 raise VectorIndexBuildError(
                     "embedding provider failed while building the vector index"
                 ) from error
-            _validate_embedding_result(
+            failures_by_index = _validate_embedding_result(
                 result,
                 expected_settings=provider_settings,
                 expected_input_count=len(batch),
@@ -151,6 +172,27 @@ class InMemoryVectorIndex(VectorIndex):
             )
             vectors_by_index = {vector.input_index: vector for vector in result.vectors}
             for input_index, chunk in enumerate(batch):
+                failure = failures_by_index.get(input_index)
+                if failure is not None:
+                    if failure.code not in _SKIPPABLE_EMBEDDING_FAILURES:
+                        raise VectorIndexBuildError(
+                            "document embedding failed for input position "
+                            f"{input_index}: {failure.code.value}"
+                        )
+                    skipped_chunks.append(
+                        VectorIndexSkippedChunk(
+                            chunk_id=chunk.chunk_id,
+                            publication_id=chunk.publication_id,
+                            chunk_index=chunk.chunk_index,
+                            chunk_checksum=chunk.checksum,
+                            input_size_bytes=len(
+                                chunk.text.encode("utf-8", errors="surrogatepass")
+                            ),
+                            failure_code=failure.code,
+                            failure_message=failure.message,
+                        )
+                    )
+                    continue
                 vector = vectors_by_index[input_index]
                 if vector.input_checksum != chunk.checksum:
                     raise VectorIndexBuildError(
@@ -171,6 +213,9 @@ class InMemoryVectorIndex(VectorIndex):
             "input_chunk_count": len(ordered_chunks),
             "input_chunks_sha256": sha256(chunks_payload).hexdigest(),
             "indexed_chunk_count": len(records),
+            "skipped_chunk_count": len(skipped_chunks),
+            "skipped_chunks": [skipped.model_dump(mode="json") for skipped in skipped_chunks],
+            "failure_policy": VECTOR_INDEX_FAILURE_POLICY,
             "vector_entries_filename": VECTOR_ENTRIES_FILENAME,
             "vector_entries_sha256": sha256(entries_payload).hexdigest(),
             "vector_entries_size_bytes": len(entries_payload),
@@ -324,7 +369,7 @@ def _validate_embedding_result(
     expected_settings: dict[str, object],
     expected_input_count: int,
     operation: str,
-) -> None:
+) -> dict[int, EmbeddingFailure]:
     observed_settings = {
         "embedding_model_id": result.embedding_model_id,
         "embedding_version": result.embedding_version,
@@ -336,19 +381,31 @@ def _validate_embedding_result(
             raise VectorIndexBuildError(
                 f"{operation} embedding {field_name} does not match provider settings"
             )
-    if result.failures:
-        failure_locations = ",".join(
-            "batch" if failure.input_index is None else str(failure.input_index)
-            for failure in result.failures
-        )
+    if any(failure.input_index is None for failure in result.failures):
+        raise VectorIndexBuildError(f"{operation} embedding returned a batch-level failure")
+    failure_indexes = [
+        failure.input_index for failure in result.failures if failure.input_index is not None
+    ]
+    if len(failure_indexes) != len(set(failure_indexes)):
         raise VectorIndexBuildError(
-            f"{operation} embedding failed for input positions: {failure_locations}"
+            f"{operation} embedding returned duplicate failure input positions"
         )
-    indexes = {vector.input_index for vector in result.vectors}
-    if indexes != set(range(expected_input_count)):
+    vector_indexes = {vector.input_index for vector in result.vectors}
+    failure_index_set = set(failure_indexes)
+    if vector_indexes & failure_index_set:
         raise VectorIndexBuildError(
-            f"{operation} embedding did not return exactly one vector per input"
+            f"{operation} embedding returned both a vector and failure for one input"
         )
+    expected_indexes = set(range(expected_input_count))
+    if vector_indexes | failure_index_set != expected_indexes:
+        raise VectorIndexBuildError(
+            f"{operation} embedding did not return exactly one outcome per input"
+        )
+    return {
+        failure.input_index: failure
+        for failure in result.failures
+        if failure.input_index is not None
+    }
 
 
 def _normalization_name(normalized: bool) -> VectorNormalization:
