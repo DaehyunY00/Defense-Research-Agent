@@ -19,14 +19,18 @@ from collections import Counter, defaultdict
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
+from unicodedata import category
 
+from defense_research_agent.data_integrity import corpus_digest
 from defense_research_agent.domain import (
+    MetadataField,
     PublicationQualityStatus,
     ResearchPublication,
 )
 from defense_research_agent.evaluation.quality import (
     DeterministicPublicationQualityGate,
 )
+from defense_research_agent.search.metadata import RuleBasedPublicationMetadataExtractor
 from defense_research_agent.search.parsers import JsonPageParser
 from defense_research_agent.services.ingestion import IngestionService
 
@@ -57,14 +61,8 @@ GOLDEN_COLUMNS = (
 
 
 def source_tree_digest() -> str:
-    """Content hash over every file under ``data/`` for the immutability check."""
-    digest = sha256()
-    for path in sorted(DATA_DIRECTORY.rglob("*")):
-        if not path.is_file():
-            continue
-        digest.update(str(path.relative_to(DATA_DIRECTORY)).encode("utf-8"))
-        digest.update(sha256(path.read_bytes()).digest())
-    return digest.hexdigest()
+    """Content hash over the research corpus. See defense_research_agent.data_integrity."""
+    return corpus_digest(DATA_DIRECTORY)
 
 
 def _quality_gate_publication(publication: ResearchPublication) -> ResearchPublication:
@@ -88,11 +86,48 @@ def _publication_year(publication: ResearchPublication) -> str:
     return "unknown"
 
 
+def _sanitize(text: str) -> str:
+    """Drop C0/C1 controls for display only. Stored page text is never rewritten.
+
+    The corpus carries U+0001 as a space substitute (ADR-010). Leaving it in a
+    CSV makes the file unreadable to spreadsheet software.
+    """
+    stripped = "".join(" " if category(ch) in {"Cc", "Cf"} else ch for ch in text)
+    return " ".join(stripped.split())
+
+
 def _cover_preview(pages: list[Any]) -> str:
     if not pages:
         return ""
-    text = " ".join(pages[0].text.split())
-    return text[:COVER_PREVIEW_CHARACTERS]
+    return _sanitize(pages[0].text)[:COVER_PREVIEW_CHARACTERS]
+
+
+def _suggest_title(metadata: Any) -> tuple[str, str, str]:
+    """Return (suggested_title, evidence_source, confidence) from the P1.5 extractor.
+
+    This is a proposal for human verification, never an authoritative title.
+    ``EVALUATION.md`` forbids using a machine label without review.
+    """
+    for value in metadata.values:
+        if value.field is not MetadataField.TITLE:
+            continue
+        if value.normalized is None:
+            return "", "", value.failure_reason or "제목 미확정"
+        source = value.evidence.source.value if value.evidence else ""
+        return _sanitize(value.normalized), source, f"{value.confidence:.2f}"
+    return "", "", "제목 후보 없음"
+
+
+def _write_excel_tsv(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Write a UTF-16LE tab-separated copy that macOS Excel opens correctly."""
+    if not rows:
+        return
+    columns = list(rows[0])
+    lines = ["\t".join(columns)]
+    lines.extend(
+        "\t".join(str(row[column]).replace("\t", " ") for column in columns) for row in rows
+    )
+    path.write_text("\r\n".join(lines) + "\r\n", encoding="utf-16-le")
 
 
 def main() -> None:
@@ -106,6 +141,7 @@ def main() -> None:
     )
     parser = JsonPageParser()
     gate = DeterministicPublicationQualityGate()
+    extractor = RuleBasedPublicationMetadataExtractor()
 
     manual_rows: list[dict[str, Any]] = []
     indexable: list[tuple[ResearchPublication, int]] = []
@@ -133,6 +169,8 @@ def main() -> None:
         status_counts[verdict.status.value] += 1
 
         if verdict.status is PublicationQualityStatus.MANUAL_REVIEW:
+            extracted = extractor.extract(publication, result.pages, source)
+            suggested, evidence_source, confidence = _suggest_title(extracted)
             manual_rows.append(
                 {
                     "publication_id": publication.publication_id,
@@ -144,6 +182,9 @@ def main() -> None:
                     "review_reasons": " | ".join(verdict.reasons),
                     "page_count": verdict.measurements.page_count,
                     "character_count": verdict.measurements.character_count,
+                    "suggested_title": suggested,
+                    "suggestion_evidence": evidence_source,
+                    "suggestion_confidence": confidence,
                     "cover_page_preview": _cover_preview(result.pages),
                     "decision": "",
                     "confirmed_title": "",
@@ -162,6 +203,10 @@ def main() -> None:
         if writer is not None:
             writer.writeheader()
             writer.writerows(manual_rows)
+
+    # macOS Excel misreads UTF-8 CSV even with a BOM. UTF-16LE TSV opens
+    # correctly there, so both forms are written and the reviewer picks one.
+    _write_excel_tsv(OUTPUT_DIRECTORY / "manual_review_queue.tsv", manual_rows)
 
     # --- 2. golden dataset scaffolding -----------------------------------------
     by_stratum: dict[tuple[str, str], list[tuple[ResearchPublication, int]]] = defaultdict(list)

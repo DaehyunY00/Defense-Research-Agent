@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 
+from defense_research_agent.data_integrity import corpus_digest
 from defense_research_agent.domain import (
     PublicationPage,
     PublicationQualityStatus,
@@ -52,14 +53,8 @@ class ParsedDocument:
 
 
 def source_tree_digest() -> str:
-    """Return a content-and-relative-path digest over every file in ``data/``."""
-    digest = sha256()
-    for path in sorted(DATA_DIRECTORY.rglob("*")):
-        if not path.is_file():
-            continue
-        digest.update(path.relative_to(DATA_DIRECTORY).as_posix().encode("utf-8"))
-        digest.update(sha256(path.read_bytes()).digest())
-    return digest.hexdigest()
+    """Content hash over the research corpus. See defense_research_agent.data_integrity."""
+    return corpus_digest(DATA_DIRECTORY)
 
 
 def ingest_publications() -> IngestionOutcome:

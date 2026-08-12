@@ -16,6 +16,8 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
+from defense_research_agent.data_integrity import corpus_digest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "data"
 METADATA_DIR = DATA_DIR / "metadata"
@@ -25,14 +27,8 @@ ALLOWED_CONTROL = {"\n", "\t", "\r"}
 
 
 def source_tree_digest() -> str:
-    """Content hash over every file under ``data/``, for an immutability check."""
-    digest = sha256()
-    for path in sorted(DATA_DIR.rglob("*")):
-        if not path.is_file():
-            continue
-        digest.update(str(path.relative_to(DATA_DIR)).encode("utf-8"))
-        digest.update(sha256(path.read_bytes()).digest())
-    return digest.hexdigest()
+    """Content hash over the research corpus. See defense_research_agent.data_integrity."""
+    return corpus_digest(DATA_DIR)
 
 
 def is_control(character: str) -> bool:
