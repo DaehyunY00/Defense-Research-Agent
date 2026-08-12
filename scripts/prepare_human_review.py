@@ -41,7 +41,11 @@ from defense_research_agent.services.ingestion import IngestionService
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIRECTORY = REPOSITORY_ROOT / "data"
 OUTPUT_DIRECTORY = REPOSITORY_ROOT / "artifacts" / "human_review"
-REVIEW_DECISIONS_PATH = OUTPUT_DIRECTORY / "manual_review_queue.csv"
+REVIEW_DECISIONS_PATH = OUTPUT_DIRECTORY / "manual_review_decisions.csv"
+"""Reviewer-authored input. This script reads it and never writes it.
+
+A completed review is irreplaceable human work. Regenerating the queue once
+truncated it to zero bytes because no publication was held out any more."""
 
 DATASET_VERSION = "golden-retrieval-v1-draft"
 TARGET_QUESTION_COUNT = 40
@@ -212,15 +216,20 @@ def main() -> None:
 
     # --- 1. manual review queue -------------------------------------------------
     queue_path = OUTPUT_DIRECTORY / "manual_review_queue.csv"
-    with queue_path.open("w", encoding="utf-8-sig", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(manual_rows[0])) if manual_rows else None
-        if writer is not None:
+    if queue_path == REVIEW_DECISIONS_PATH:  # pragma: no cover - guarded by naming
+        raise SystemExit("the generated queue must not share a path with reviewer input")
+    if not manual_rows:
+        print(f"\n검토 대기 문서가 없습니다. {queue_path.name} 을 새로 쓰지 않습니다.")
+    if manual_rows:
+        with queue_path.open("w", encoding="utf-8-sig", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=list(manual_rows[0]))
             writer.writeheader()
             writer.writerows(manual_rows)
 
     # macOS Excel misreads UTF-8 CSV even with a BOM. UTF-16LE TSV opens
     # correctly there, so both forms are written and the reviewer picks one.
-    _write_excel_tsv(OUTPUT_DIRECTORY / "manual_review_queue.tsv", manual_rows)
+    if manual_rows:
+        _write_excel_tsv(OUTPUT_DIRECTORY / "manual_review_queue.tsv", manual_rows)
 
     # --- 2. golden dataset scaffolding -----------------------------------------
     by_stratum: dict[tuple[str, str], list[tuple[ResearchPublication, int]]] = defaultdict(list)

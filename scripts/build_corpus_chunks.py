@@ -45,7 +45,8 @@ from defense_research_agent.services.ingestion import IngestionOutcome, Ingestio
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIRECTORY = REPOSITORY_ROOT / "data"
 OUTPUT_DIRECTORY = REPOSITORY_ROOT / "artifacts" / "corpus"
-REVIEW_DECISIONS_PATH = REPOSITORY_ROOT / "artifacts" / "human_review" / "manual_review_queue.csv"
+REVIEW_DECISIONS_FILENAME = "manual_review_decisions.csv"
+"""Reviewer-authored decisions. No script writes this file."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,9 +156,12 @@ def main() -> None:
     # A reviewer-confirmed cover title promotes a DQ-04 publication out of
     # manual_review. Absent the decision file nothing is promoted, so the
     # default remains the conservative one.
+    # Derived from REPOSITORY_ROOT rather than a module constant so a test that
+    # relocates the repository root is not affected by the real review file.
+    decisions_path = REPOSITORY_ROOT / "artifacts" / "human_review" / REVIEW_DECISIONS_FILENAME
     approved_titles: dict[str, str] = {}
-    if REVIEW_DECISIONS_PATH.exists():
-        approved_titles = load_review_decisions(REVIEW_DECISIONS_PATH).approved_titles
+    if decisions_path.exists():
+        approved_titles = load_review_decisions(decisions_path).approved_titles
     reviewed = [
         apply_review_decisions(publication, approved_titles)
         for publication in ingestion.publications

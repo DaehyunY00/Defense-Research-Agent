@@ -530,3 +530,20 @@ def test_ingest_publications_uses_canonical_identity_and_filename_lineage(
     ingestion = cast(dict[str, object], publication.raw_metadata["_ingestion"])
     assert ingestion["title_source"] == "filename"
     assert ingestion["selected_source_path"] == "metadata/document.json"
+
+
+def test_main_ignores_the_real_review_file_when_the_root_is_relocated(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The decisions path is derived from REPOSITORY_ROOT, not a module constant.
+
+    A module-level absolute path let the repository's own completed review leak
+    into every test that ran main(), which broke two of them.
+    """
+    monkeypatch.setattr(build, "REPOSITORY_ROOT", tmp_path)
+
+    derived = build.REPOSITORY_ROOT / "artifacts" / "human_review" / build.REVIEW_DECISIONS_FILENAME
+
+    assert not derived.exists()
+    assert tmp_path in derived.parents
