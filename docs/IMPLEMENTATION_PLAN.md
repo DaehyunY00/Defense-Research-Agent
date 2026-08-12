@@ -593,11 +593,59 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
 
 ### P2.3 `VectorSearchAlgorithm`
 
-- [ ] 기존 `PublicationSearchAlgorithm`을 최대한 유지하는 adapter 설계
-- [ ] vector index abstraction과 content-addressed manifest 정의
-- [ ] publication/chunk/page provenance 반환
-- [ ] 동일 점수의 결정적 tie-breaker 정의
-- [ ] index/model/chunking version 불일치 차단
+- [x] 기존 `PublicationSearchAlgorithm`을 최대한 유지하는 adapter 설계
+- [x] vector index abstraction과 content-addressed manifest 정의
+- [x] publication/chunk/page provenance 반환
+- [x] 동일 점수의 결정적 tie-breaker 정의
+- [x] index/model/chunking version 불일치 차단
+
+구현 계획(2026-08-12):
+
+- 입력은 검증된 `PublicationChunk` sequence, `EmbeddingProvider`, 기대 chunking version과
+  query/filter/limit이다. 출력은 content-addressed index manifest, canonical vector payload와
+  publication/chunk/page span·parser provenance를 보존하는 chunk 검색 결과다.
+- 변경 파일은 신규 `search/vector/`, 대응 unit test와 이 P2.3 절뿐이다. 기존
+  `PublicationSearchAlgorithm`, lexical baseline, domain model과 다른 retrieval lane은 수정하지
+  않는다. 표준 라이브러리와 기존 Pydantic 계약만 사용하며 새 dependency는 없다.
+- 완료 조건은 manifest byte 동일성, 실제 동점 정렬, model ID/version/dimension/normalization 및
+  chunking version 불일치의 개별 차단, offset의 원본 page 역추적, 빈 입력과 limit/filter 경계를
+  deterministic fixture로 실행하고 전체 offline 품질 명령을 통과하는 것이다.
+- `FakeEmbeddingProvider`는 계약·결정성 검증에만 사용한다. 의미 유사도나 검색 품질을 제공하지
+  않으므로 이 lane에서는 Recall/MRR, lexical 대비 개선, latency/resource 개선을 주장하거나
+  측정하지 않는다. golden dataset 기반 품질·성능 평가는 P2.6에서 수행한다.
+
+구현 기록(2026-08-12):
+
+- 기존 ABC는 publication과 `SearchMatch`만 받아 page-aware chunk를 표현할 수 없어 수정하거나
+  거짓 subtype으로 만들지 않았다. `VectorSearchAlgorithm.build_index(chunks)`와 provenance-rich
+  `search`를 나란히 두고 query/filter/limit 인자는 유지했다. 기존 호출자는 명시적
+  `PublicationChunkFactory`를 주입한 `PublicationVectorSearchAdapter`로 원래 ABC를 사용하며,
+  publication별 최고 chunk를 `SearchMatch`로 투영한다. 이 투영은 citation provenance를 버리므로
+  근거 제시 호출자는 `VectorSearchMatch`를 보존해야 한다.
+- `VectorIndex`와 결정적 exact-cosine `InMemoryVectorIndex`를 정의했다. manifest schema/version은
+  `vector-index-manifest-v1`이며 embedding model ID/version, dimension, `l2|none` normalization,
+  chunking version, input/indexed chunk 수, canonical input chunk SHA-256, canonical `vectors.jsonl`
+  SHA-256·byte 크기, cosine metric, tie-breaker와 이 전체를 묶는 `content_address`를 기록한다.
+  wall-clock·절대 경로가 없어 같은 입력·설정·결정적 provider의 manifest와 vector payload가 byte
+  동일하며, 생성 경로는 공용 `ensure_outside_read_only_data`로 검사한다.
+- 점수는 Python 표준 라이브러리로 cosine을 계산한다. 정렬은 score 내림차순 뒤 publication ID,
+  chunk index, chunk ID 오름차순이다. unit test가 실제 동일 점수 `1.0` 세 건으로 이 분기를
+  실행한다. 질의 전 manifest와 현재 model ID, embedding version, dimension, normalization,
+  chunking version을 각각 비교하고 하나라도 다르면 provider 호출 전에 거부한다. provider 결과의
+  metadata·입력 checksum·dimension·failure도 다시 검증하며 partial index는 남기지 않는다.
+- 결과는 완전한 `PublicationChunk`를 포함해 publication/chunk ID, 원문 text/checksum, page range,
+  `PublicationPageSpan`, parser/source provenance와 chunking version을 보존한다.
+  `page_number_for_offset`으로 half-open chunk offset을 원본 page number에 역추적한다.
+- 신규 unit test 23개가 canonical artifact 동일성·content-address tamper, empty index/query,
+  zero/negative/excess limit, filter 적용/미적용, build/query failure, duplicate/checksum/version 오류,
+  실제 동점, page offset과 legacy adapter를 deterministic fixture로 실행한다. 실제 `data/`나 corpus
+  artifact, network, credential, 외부 API·모델·시간은 사용하지 않아 별도 integration test는
+  필요하지 않다. ignored human-review 입력을 제외한 source snapshot에서 `pytest` 534개와
+  `mypy --strict` 177 files, `ruff check`, `ruff format --check`가 통과했다.
+- 변경은 신규 `search/vector/`, 대응 unit test와 이 P2.3 절뿐이며 표준 라이브러리와 기존
+  Pydantic만 사용한다. lexical baseline, 점수 외 Python 분기, human approval 상태 전이, secret,
+  실제 `.env`, `data/` 원본을 변경하지 않았다. 품질·latency·memory/index size/build time과
+  lexical 비교는 golden dataset과 실제 embedding provider가 필요한 P2.6 미해결 항목이다.
 
 ### P2.4 `HybridSearchAlgorithm`
 
