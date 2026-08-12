@@ -609,11 +609,43 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
 
 ### P2.5 `Reranker` abstraction
 
-- [ ] 입력 candidate 수와 반환 계약 정의
-- [ ] deterministic fake reranker 제공
-- [ ] provider/model/version과 latency·cost trace 기록
-- [ ] reranker 실패 시 원래 hybrid 순위 보존 여부를 정책화
-- [ ] untrusted text와 prompt injection 경계 테스트
+- [x] 입력 candidate 수와 반환 계약 정의
+- [x] deterministic fake reranker 제공
+- [x] provider/model/version과 latency·cost trace 기록
+- [x] reranker 실패 시 원래 hybrid 순위 보존 여부를 정책화
+- [x] untrusted text와 prompt injection 경계 테스트
+
+구현 기록(2026-08-12):
+
+- 공개 입력은 검색 구현과 독립적인 `RerankCandidate(candidate_id, text, source_score)` 목록과
+  query이며, 호출은 `Reranker.rerank(query, candidates) -> RerankExecution`이다. provider별
+  `max_candidates`가 상한이다. `RerankResult`의 Pydantic validator가 출력 수를 입력 이하로
+  제한하고 입력에 없는 ID, 중복 ID, 잘못된 원래/새 순위를 거부한다. 공용 실행 경계도
+  provider가 선언한 입력 ID와 실제 호출 입력 스냅샷의 일치를 재검증한다.
+- 결과는 provider name/version, model ID, 입력 ID, 원래/새 순위와 선택적 rerank score를
+  보존한다. latency, USD cost와 선택적 input/output unit은 별도 `RerankExecution.trace`에
+  기록하고 dataclass equality에서 `compare=False`로 제외했다. 결정적 비교와 직렬화 대상은
+  `RerankExecution.result`이므로 실제 provider의 비결정적 측정값이 byte 비교를 깨지 않는다.
+- 실패 정책은 fail-open이다. candidate 상한 초과, provider 예외, 실제 입력과 다른 응답은
+  모두 `FAILED` 상태와 안정된 error code를 남기고 전달받은 전체 순서를 그대로 반환한다.
+  reranking은 검색 뒤의 선택적 개선 단계이므로 upstream 결과의 가용성을 유지하되, 실패한
+  부분 결과나 바뀐 순위를 성공처럼 노출하지 않기 위한 선택이다. 예외 원문은 secret이나
+  비결정적 내용을 누출할 수 있어 결과에 복사하지 않는다.
+- `FakeReranker`는 query와 untrusted candidate text를 읽지 않는 identity ordering이다. 외부
+  model, network, credential, clock, randomness, locale, filesystem 없이 같은 입력·설정의
+  `RerankResult` JSON bytes, 명시적 simulated failure, provider latency/cost 0만 보장한다.
+  relevance score, 순위 또는 검색 품질 개선과 실제 provider 동작은 보장하지 않는다.
+- 변경 파일은 `search/rerank/base.py`, `fake.py`, 같은 package의 `__init__.py`, 전용 unit
+  test와 이 P2.5 기록뿐이다. 표준 라이브러리와 기존 Pydantic만 사용해 새 의존성은 없으며,
+  다른 search 구현과 결합하지 않아 integration test는 필요하지 않다. unit test는 byte
+  동일성, 초과·외부 후보 validator, candidate 상한, 빈 목록, provider 예외와 simulated
+  failure, 실패 순서 불변, prompt injection 무시, trace equality 분리를 실제 분기로 실행한다.
+- 이 contract-only fake는 ranking을 변경하지 않으므로 평가 metric의 예상 영향은 없다.
+  golden dataset이 필요한 versioned benchmark, lexical baseline, Recall@5/10, MRR,
+  p50/p95 latency, resource와 query-slice 회귀는 실행하거나 충족했다고 주장하지 않으며 P2.6에
+  남긴다. 다만 향후 비교를 위한 `rerank_score`와 provider/model/version trace 계약은 보존한다.
+  연구 후보 승인이나 상태 전이를 수행하지 않아 human approval boundary를 유지하고, `data/`
+  원본과 secret·실제 `.env`를 읽거나 기록하지 않는다.
 
 ### P2.6 Retrieval benchmark
 
