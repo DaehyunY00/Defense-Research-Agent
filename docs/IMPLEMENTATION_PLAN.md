@@ -665,11 +665,90 @@ parser version 변경 시 corpus 품질 임계값을 재측정해야 한다. 자
 
 ### P2.4 `HybridSearchAlgorithm`
 
-- [ ] lexical score와 vector score를 별도 보존
-- [ ] Reciprocal Rank Fusion 또는 명시적 fusion 전략 선택
-- [ ] fusion version과 parameter를 결과에 기록
-- [ ] filter를 ranking 전후 어디에 적용하는지 명시
-- [ ] lexical-only fallback과 부분 실패 처리
+- [x] lexical score와 vector score를 별도 보존
+- [x] Reciprocal Rank Fusion 또는 명시적 fusion 전략 선택
+- [x] fusion version과 parameter를 결과에 기록
+- [x] filter를 ranking 전후 어디에 적용하는지 명시
+- [x] lexical-only fallback과 부분 실패 가시성
+- [x] source별 후보 절단 검증과 절단 여부 노출
+- [ ] 실제 embedding 상한 확정 후 partial-index coverage 손실 해소 (별도 레인)
+
+구현 계획(2026-08-12):
+
+- 입력은 주입된 publication-level lexical 검색기, chunk-level vector 검색기와
+  query/`allowed_publication_ids`/limit이다. 출력은 publication별 융합 순위와 점수, 두 source의
+  원점수·순위, lexical 일치 정보, 대표 vector chunk provenance, fusion/fallback trace를 담은 검증된
+  `HybridSearchResult`다. hybrid는 서로 다른 build 입력 publication/chunk를 다시 조정하지 않고 이미
+  구축된 두 검색기의 query 경계만 조합한다.
+- fusion은 점수 척도를 섞지 않는 publication-level Reciprocal Rank Fusion을 사용한다. 기본 `k=60`,
+  버전은 `rrf-publication-v1`이며 source별 후보 깊이는 기본 100이고 요청 limit보다 작지 않게 확장한다.
+  vector chunk 결과는 원래 vector 순위에서 가장 먼저 나온 chunk를 publication 대표로 선택한 뒤
+  publication rank를 연속으로 다시 부여한다. 대표 chunk 전체를 결과에 남겨 citation provenance를
+  보존한다. 최종 정렬은 fusion score 내림차순, publication ID 오름차순이다.
+- filter는 fusion 전에 두 검색 호출에 동일하게 전달한다. 따라서 허용되지 않은 publication은 각 source
+  candidate/rank와 RRF 계산에 들어오지 않는다. vector index 미build 또는 vector query 실패 시 lexical
+  rank만으로 같은 RRF 식을 적용하고 결과 status, stable failure code/message에 fallback을 표시한다.
+  lexical 실패는 필수 baseline 실패이므로 성공 결과로 숨기지 않고 호출자에게 전파한다.
+- source depth 절단 여부는 결과 수가 상한과 같은지만으로 추측하지 않는다. lexical은 상한보다 1개 더
+  조회하는 probe로 절단 여부를 판별하고, vector는 전체 chunk 결과를 publication으로 투영하면서 상한
+  밖 publication의 존재를 기록한다. 결과에는 source별 절단 여부를 명시한다.
+- 성공한 vector 검색에서 각 반환 publication의 coverage를 `ranked`, `source_depth_truncated`,
+  `not_indexed`로 구분하고, fallback에서는 `unavailable`로 기록한다. 절단 전 관측 vector publication
+  rank와 manifest의 publication별 skipped chunk 수도 함께 남겨 benchmark가 RRF 전략과 vector coverage
+  결손을 분리할 수 있게 한다. chunk 재분할과 provider 상한 변경은 이 레인에서 하지 않는다.
+- 변경 파일은 신규 `search/hybrid/`, 전용 unit/integration test와 이 P2.4 절뿐이다. 표준 라이브러리와
+  기존 Pydantic만 사용하며 새 dependency는 없다. 완료 조건은 교차 순위·양방향 단독 결과, vector
+  미build/실패, pre-fusion filter, 실제 동점, 후보 절단, 원점수·순위·대표 chunk 보존과 byte 동일성을
+  offline fixture로 실행하고 전체 품질 명령을 통과하는 것이다. integration fixture는 실코퍼스 중앙값에
+  가까운 약 7,000-byte chunk를 사용하며 실제 `data/`와 corpus artifact는 읽지 않는다.
+- `FakeEmbeddingProvider`나 고정 vector fixture는 fusion 계약과 결정성만 검증한다. 검색 품질 향상,
+  lexical baseline 비교, Recall@5/10, MRR, latency와 resource 지표는 golden dataset이 준비되는 P2.6까지
+  미해결로 남기고 이 lane의 완료로 주장하지 않는다. 검색 결과는 사람 승인 상태를 변경하지 않는다.
+
+구현 기록(2026-08-12):
+
+- 공개 검색 계약은
+  `HybridSearchAlgorithm(lexical_search, vector_search, *, rrf_k=60,
+  candidate_limit_per_source=100).search(query, allowed_publication_ids, limit) ->
+  HybridSearchResult`다. 두 주입 경계는 `LexicalPublicationSearch`와 `ChunkVectorSearch` protocol이며
+  서로 다른 build 단위를 hybrid가 재구축하지 않는다. 결과는 Pydantic model로 검증하고 점수 계산,
+  상태 분기, 정렬과 절단은 전부 결정적 Python 코드가 수행한다.
+- fusion은 raw score가 아닌 source rank만 사용하는 `reciprocal_rank_fusion`, 버전
+  `rrf-publication-v1`, 기본 `k=60`이다. 각 source 후보 깊이는 기본 100이며 요청 limit가 더 크면 그
+  값까지 확장하고 실제 값을 결과 trace에 남긴다. 최종 score는 각 존재하는 source에 대해
+  `1 / (k + source_rank)`를 `math.fsum`한 값이다. 동점은 publication ID 오름차순으로 결정한 뒤
+  limit를 적용한다. lexical은 source depth보다 1개 더 조회해 실제 초과 여부를 판별하고 vector는 전체
+  검색 결과의 publication 투영 수로 판별한다. 결과의 `lexical_candidates_truncated`와
+  `vector_publication_candidates_truncated`가 후보 수가 상한과 정확히 같은 경우와 절단된 경우를 구분한다.
+- chunk-level vector 결과는 vector 전체 순서에서 publication별 첫 chunk, 즉 최고-ranked chunk 하나로
+  접고 publication rank를 연속으로 다시 부여한다. 결과에는 lexical 원점수·순위·일치 필드·용어와
+  raw cosine, vector publication rank, 원 chunk rank, 대표 `PublicationChunk` 전체를 모두 보존한다.
+  따라서 fusion 이유와 page/parser provenance를 함께 설명할 수 있다. 각 match는 vector rank가 있으면
+  `ranked`, source depth 밖이면 `source_depth_truncated`, indexed chunk가 없으면 `not_indexed`, vector
+  fallback이면 `unavailable`을 기록한다. 절단 전 관측 publication rank와 publication별 skipped chunk
+  수도 함께 보존한다. manifest의 input/indexed/skipped 총계도 결과에 복사한다.
+- filter는 `pre_fusion`으로 고정했다. 정렬된 immutable ID snapshot을 두 source에 먼저 전달하므로
+  허용되지 않은 publication은 source candidate/rank와 RRF에 참여하지 않는다. vector index가 없으면
+  `vector_index_not_built`, query/index 실행이 예외를 내면 `vector_search_failed`를 stable failure로
+  기록하고 lexical rank만으로 결과를 반환한다. vector 검색이 성공했지만 어떤 publication이 vector에
+  없으면 그 match의 vector score/rank/chunk가 `null`이고 coverage status가 원인을 구분한다. lexical
+  실패는 필수 baseline 실패라서 vector-only 성공으로 가장하지 않고 예외를 전파한다.
+- unit test 18개가 교차 source 순위, 양방향 단독 결과, 다중 chunk 투영, index 미build, vector query
+  실패, pre-fusion filter, 실제 RRF 동점과 publication-ID tie-breaker, 후보 수보다 작은 limit 절단,
+  lexical/vector source depth 실제 초과와 정확히 상한인 대조군, 절단 경계의 RRF 순위, byte 동일 결과,
+  빈 query/filter와 non-positive limit, lexical 실패 및 parameter 경계를 실행한다.
+  integration test 1개는 7,073B chunk 4개와 8,712B chunk 1개를 생성해 실제 lexical/vector 구현을
+  연결하고 1개 `input_too_long` 누락 publication의 `not_indexed`와 skipped count, 5개 fusion 결과의 byte
+  동일성을 검증한다. 실제 `data/`, corpus artifact, network, credential, 외부 API·모델·시간은 사용하지
+  않는다.
+- 변경은 신규 `search/hybrid/`, 대응 unit/integration test와 이 P2.4 절뿐이다. 새 dependency,
+  artifact, secret, 실제 `.env`, 자동 승인 상태 전이는 추가하지 않았다. Python 3.12에서 전체 offline
+  검증은 `pytest` 577개, `mypy --strict` 190 source files, `ruff check`, `ruff format --check` 218 files, package
+  import와 CLI health가 통과했다.
+- 이 결과는 fusion 계약과 결정성만 입증한다. `FakeEmbeddingProvider`는 의미 유사도를 제공하지 않으므로
+  lexical 대비 품질 개선 여부, versioned benchmark, Recall@5/10, MRR, p50/p95 latency, memory/index
+  size/build time, query slice 회귀와 대표 실패 사례는 측정하거나 완료로 주장하지 않는다. 전문가 golden
+  dataset과 실제 provider가 준비된 뒤 P2.6에서 판단할 항목이다.
 
 ### P2.5 `Reranker` abstraction
 
