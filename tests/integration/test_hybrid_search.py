@@ -10,7 +10,11 @@ from defense_research_agent.domain import (
     ResearchPublication,
 )
 from defense_research_agent.search.embeddings import FakeEmbeddingProvider
-from defense_research_agent.search.hybrid import HybridSearchAlgorithm, HybridSearchStatus
+from defense_research_agent.search.hybrid import (
+    HybridSearchAlgorithm,
+    HybridSearchStatus,
+    HybridVectorCoverageStatus,
+)
 from defense_research_agent.search.lexical import LocalLexicalSearchAlgorithm
 from defense_research_agent.search.vector import VectorSearchAlgorithm
 
@@ -74,8 +78,9 @@ def test_realistic_chunk_sizes_flow_through_both_searches_with_visible_partial_c
     manifest = vector.build_index(chunks)
     algorithm = HybridSearchAlgorithm(lexical, vector)
 
-    first = algorithm.search("방위", None, 3)
-    second = algorithm.search("방위", None, 3)
+    first = algorithm.search("방위", None, 5)
+    second = algorithm.search("방위", None, 5)
+    by_id = {match.publication_id: match for match in first.matches}
 
     assert manifest.input_chunk_count == 5
     assert manifest.indexed_chunk_count == 4
@@ -84,13 +89,22 @@ def test_realistic_chunk_sizes_flow_through_both_searches_with_visible_partial_c
     assert first.vector_index is not None
     assert first.vector_index.skipped_chunk_count == 1
     assert first.lexical_candidate_count == 5
+    assert first.lexical_candidates_truncated is False
     assert first.vector_publication_candidate_count == 4
+    assert first.vector_publication_candidates_truncated is False
     assert first.fusion_candidate_count == 5
-    assert len(first.matches) == 3
+    assert len(first.matches) == 5
     assert all(match.lexical_score is not None for match in first.matches)
     assert all(
         match.vector_chunk is None
         or len(match.vector_chunk.text.encode("utf-8")) == MEDIAN_CHUNK_SIZE_BYTES
         for match in first.matches
     )
+    missing_vector = by_id[publication_ids[-1]]
+    assert missing_vector.vector_rank is None
+    assert missing_vector.vector_coverage_status is HybridVectorCoverageStatus.NOT_INDEXED
+    assert missing_vector.vector_observed_publication_rank is None
+    assert missing_vector.vector_skipped_chunk_count == 1
+    assert by_id[publication_ids[0]].vector_coverage_status is (HybridVectorCoverageStatus.RANKED)
+    assert by_id[publication_ids[0]].vector_skipped_chunk_count == 0
     assert first.model_dump_json().encode("utf-8") == second.model_dump_json().encode("utf-8")

@@ -19,6 +19,7 @@ from defense_research_agent.search.hybrid.models import (
     HybridSearchMatch,
     HybridSearchResult,
     HybridSearchStatus,
+    HybridVectorCoverageStatus,
     HybridVectorIndexTrace,
     HybridVectorStatus,
 )
@@ -39,6 +40,7 @@ __all__ = [
     "HybridSearchMatch",
     "HybridSearchResult",
     "HybridSearchStatus",
+    "HybridVectorCoverageStatus",
     "HybridVectorIndexTrace",
     "HybridVectorStatus",
     "LexicalPublicationSearch",

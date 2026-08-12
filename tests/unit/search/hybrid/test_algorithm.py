@@ -16,6 +16,7 @@ from defense_research_agent.search.hybrid import (
     HybridFailureCode,
     HybridSearchAlgorithm,
     HybridSearchStatus,
+    HybridVectorCoverageStatus,
     HybridVectorStatus,
 )
 from defense_research_agent.search.vector import VectorSearchAlgorithm
@@ -174,6 +175,7 @@ def test_unbuilt_vector_index_returns_visible_lexical_only_fallback() -> None:
     assert [match.publication_id for match in result.matches] == ["pub:a"]
     assert result.matches[0].fusion_score == 1 / (DEFAULT_RRF_K + 1)
     assert result.matches[0].vector_score is None
+    assert result.matches[0].vector_coverage_status is HybridVectorCoverageStatus.UNAVAILABLE
 
 
 def test_vector_query_failure_returns_visible_lexical_only_fallback() -> None:
@@ -231,6 +233,78 @@ def test_equal_fusion_score_uses_publication_id_tie_breaker_and_limit_truncates(
     assert len(result.matches) == 1
     assert result.matches[0].publication_id == "pub:a"
     assert result.matches[0].fusion_score == 1 / (DEFAULT_RRF_K + 1)
+
+
+def test_source_depth_truncation_is_visible_and_changes_rrf_boundary() -> None:
+    lexical = _StaticLexicalSearch(
+        [
+            _lexical_match("pub:a", 40.0),
+            _lexical_match("pub:b", 30.0),
+            _lexical_match("pub:c", 20.0),
+            _lexical_match("pub:cut-both", 10.0),
+        ]
+    )
+    vector = _vector_algorithm(
+        [
+            ("pub:b", 0, "bravo", 0.95),
+            ("pub:c", 0, "charlie", 0.90),
+            ("pub:vector-boundary", 0, "vector-boundary", 0.85),
+            ("pub:a", 0, "alpha", 0.80),
+            ("pub:cut-both", 0, "cut-both", 0.75),
+        ]
+    )
+    algorithm = HybridSearchAlgorithm(
+        lexical,
+        vector,
+        candidate_limit_per_source=3,
+    )
+
+    result = algorithm.search("query", None, 3)
+    by_id = {match.publication_id: match for match in result.matches}
+
+    assert result.lexical_candidate_count == 3
+    assert result.lexical_candidates_truncated is True
+    assert result.vector_publication_candidate_count == 3
+    assert result.vector_publication_candidates_truncated is True
+    assert result.vector_chunk_candidate_count == 5
+    assert result.fusion_candidate_count == 4
+    assert [match.publication_id for match in result.matches] == ["pub:b", "pub:c", "pub:a"]
+    assert by_id["pub:c"].lexical_rank == 3
+    assert by_id["pub:a"].vector_rank is None
+    assert by_id["pub:a"].vector_coverage_status is (
+        HybridVectorCoverageStatus.SOURCE_DEPTH_TRUNCATED
+    )
+    assert by_id["pub:a"].vector_observed_publication_rank == 4
+    assert by_id["pub:a"].fusion_score == 1 / (DEFAULT_RRF_K + 1)
+    assert "pub:cut-both" not in result.model_dump_json()
+
+
+def test_exact_source_depth_is_not_misreported_as_truncated() -> None:
+    lexical = _StaticLexicalSearch(
+        [
+            _lexical_match("pub:a", 30.0),
+            _lexical_match("pub:b", 20.0),
+            _lexical_match("pub:c", 10.0),
+        ]
+    )
+    vector = _vector_algorithm(
+        [
+            ("pub:c", 0, "charlie", 0.9),
+            ("pub:b", 0, "bravo", 0.8),
+            ("pub:a", 0, "alpha", 0.7),
+        ]
+    )
+
+    result = HybridSearchAlgorithm(
+        lexical,
+        vector,
+        candidate_limit_per_source=3,
+    ).search("query", None, 3)
+
+    assert result.lexical_candidate_count == 3
+    assert result.lexical_candidates_truncated is False
+    assert result.vector_publication_candidate_count == 3
+    assert result.vector_publication_candidates_truncated is False
 
 
 def test_same_input_and_fusion_version_produce_byte_identical_result() -> None:

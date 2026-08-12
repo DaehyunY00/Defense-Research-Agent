@@ -41,6 +41,15 @@ class HybridVectorStatus(StrEnum):
     NOT_RUN = "not_run"
 
 
+class HybridVectorCoverageStatus(StrEnum):
+    """Why one returned publication did or did not receive a vector rank."""
+
+    RANKED = "ranked"
+    SOURCE_DEPTH_TRUNCATED = "source_depth_truncated"
+    NOT_INDEXED = "not_indexed"
+    UNAVAILABLE = "unavailable"
+
+
 class HybridFailureCode(StrEnum):
     """Stable vector failure categories that activate lexical-only fallback."""
 
@@ -98,6 +107,9 @@ class HybridSearchMatch(DomainModel):
     vector_rank: PositiveInt | None = None
     vector_chunk_rank: PositiveInt | None = None
     vector_chunk: PublicationChunk | None = None
+    vector_coverage_status: HybridVectorCoverageStatus
+    vector_observed_publication_rank: PositiveInt | None = None
+    vector_skipped_chunk_count: NonNegativeInt = 0
 
     @model_validator(mode="after")
     def source_fields_must_be_complete(self) -> "HybridSearchMatch":
@@ -125,6 +137,18 @@ class HybridSearchMatch(DomainModel):
             and self.vector_chunk.publication_id != self.publication_id
         ):
             raise ValueError("vector chunk publication_id must match the hybrid publication")
+        if self.vector_coverage_status is HybridVectorCoverageStatus.RANKED:
+            if not has_vector:
+                raise ValueError("ranked vector coverage requires a vector contribution")
+            if self.vector_observed_publication_rank != self.vector_rank:
+                raise ValueError("ranked vector coverage must preserve the observed vector rank")
+        elif has_vector:
+            raise ValueError("an unranked vector coverage status cannot have a vector contribution")
+        elif self.vector_coverage_status is HybridVectorCoverageStatus.SOURCE_DEPTH_TRUNCATED:
+            if self.vector_observed_publication_rank is None:
+                raise ValueError("source-depth truncation requires an observed vector rank")
+        elif self.vector_observed_publication_rank is not None:
+            raise ValueError("only ranked or source-truncated coverage can have an observed rank")
         if not has_lexical and not has_vector:
             raise ValueError("hybrid match must come from at least one search source")
         return self
@@ -138,8 +162,10 @@ class HybridSearchResult(DomainModel):
     fusion: HybridFusionTrace
     vector_index: HybridVectorIndexTrace | None = None
     lexical_candidate_count: NonNegativeInt
+    lexical_candidates_truncated: bool
     vector_chunk_candidate_count: NonNegativeInt
     vector_publication_candidate_count: NonNegativeInt
+    vector_publication_candidates_truncated: bool
     fusion_candidate_count: NonNegativeInt
     matches: list[HybridSearchMatch] = Field(default_factory=list)
     failure: HybridSearchFailure | None = None
@@ -152,6 +178,11 @@ class HybridSearchResult(DomainModel):
                 raise ValueError("fused search requires a successful vector search")
             if self.failure is not None:
                 raise ValueError("fused search must not include a failure")
+            if any(
+                match.vector_coverage_status is HybridVectorCoverageStatus.UNAVAILABLE
+                for match in self.matches
+            ):
+                raise ValueError("successful vector search cannot report unavailable coverage")
         elif self.status is HybridSearchStatus.LEXICAL_ONLY_FALLBACK:
             if self.vector_status not in {
                 HybridVectorStatus.INDEX_NOT_BUILT,
@@ -162,11 +193,20 @@ class HybridSearchResult(DomainModel):
                 raise ValueError("lexical-only fallback must expose its failure")
             if self.vector_chunk_candidate_count or self.vector_publication_candidate_count:
                 raise ValueError("failed vector search cannot report vector candidates")
+            if self.vector_publication_candidates_truncated:
+                raise ValueError("failed vector search cannot report vector candidate truncation")
+            if any(
+                match.vector_coverage_status is not HybridVectorCoverageStatus.UNAVAILABLE
+                for match in self.matches
+            ):
+                raise ValueError("vector fallback matches must report unavailable coverage")
         else:
             if self.vector_status is not HybridVectorStatus.NOT_RUN:
                 raise ValueError("not-run search requires a not-run vector status")
             if self.failure is not None or self.matches:
                 raise ValueError("not-run search cannot contain a failure or matches")
+            if self.lexical_candidates_truncated or self.vector_publication_candidates_truncated:
+                raise ValueError("not-run search cannot report candidate truncation")
             if any(
                 (
                     self.lexical_candidate_count,
@@ -176,6 +216,19 @@ class HybridSearchResult(DomainModel):
                 )
             ):
                 raise ValueError("not-run search cannot report candidates")
+
+        source_limit = self.fusion.candidate_limit_per_source
+        if self.lexical_candidate_count > source_limit:
+            raise ValueError("lexical candidate count cannot exceed its source limit")
+        if self.vector_publication_candidate_count > source_limit:
+            raise ValueError("vector publication candidate count cannot exceed its source limit")
+        if self.lexical_candidates_truncated and self.lexical_candidate_count != source_limit:
+            raise ValueError("lexical truncation requires a full source candidate window")
+        if (
+            self.vector_publication_candidates_truncated
+            and self.vector_publication_candidate_count != source_limit
+        ):
+            raise ValueError("vector truncation requires a full source candidate window")
 
         if self.fusion_candidate_count < len(self.matches):
             raise ValueError("returned matches cannot exceed the fusion candidate count")
@@ -192,4 +245,24 @@ class HybridSearchResult(DomainModel):
             ]
             if match.fusion_score != math.fsum(contributions):
                 raise ValueError("fusion_score must equal the recorded RRF rank contributions")
+            if match.vector_coverage_status is HybridVectorCoverageStatus.RANKED:
+                if match.vector_rank is None or match.vector_rank > source_limit:
+                    raise ValueError("ranked vector contribution must be within the source limit")
+            elif match.vector_coverage_status is HybridVectorCoverageStatus.SOURCE_DEPTH_TRUNCATED:
+                if not self.vector_publication_candidates_truncated:
+                    raise ValueError("source-depth coverage requires vector truncation")
+                if (
+                    match.vector_observed_publication_rank is None
+                    or match.vector_observed_publication_rank <= source_limit
+                ):
+                    raise ValueError(
+                        "source-truncated vector rank must be outside the source limit"
+                    )
+
+        skipped_chunk_count = sum(match.vector_skipped_chunk_count for match in self.matches)
+        if self.vector_index is None:
+            if skipped_chunk_count:
+                raise ValueError("publication skip counts require vector index metadata")
+        elif skipped_chunk_count > self.vector_index.skipped_chunk_count:
+            raise ValueError("publication skip counts cannot exceed the vector index total")
         return self
