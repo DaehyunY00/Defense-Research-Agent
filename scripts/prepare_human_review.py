@@ -30,6 +30,10 @@ from defense_research_agent.domain import (
 from defense_research_agent.evaluation.quality import (
     DeterministicPublicationQualityGate,
 )
+from defense_research_agent.human_review import (
+    apply_review_decisions,
+    load_review_decisions,
+)
 from defense_research_agent.search.metadata import RuleBasedPublicationMetadataExtractor
 from defense_research_agent.search.parsers import JsonPageParser
 from defense_research_agent.services.ingestion import IngestionService
@@ -37,6 +41,7 @@ from defense_research_agent.services.ingestion import IngestionService
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIRECTORY = REPOSITORY_ROOT / "data"
 OUTPUT_DIRECTORY = REPOSITORY_ROOT / "artifacts" / "human_review"
+REVIEW_DECISIONS_PATH = OUTPUT_DIRECTORY / "manual_review_queue.csv"
 
 DATASET_VERSION = "golden-retrieval-v1-draft"
 TARGET_QUESTION_COUNT = 40
@@ -149,7 +154,16 @@ def main() -> None:
     orphan_publication_ids: list[str] = []
     seen: dict[str, str] = {}
 
-    for publication in sorted(outcome.publications, key=lambda p: p.publication_id):
+    # Completed review decisions promote held-out publications, so the candidate
+    # pool reflects the corpus a question writer will actually search.
+    approved_titles: dict[str, str] = {}
+    if REVIEW_DECISIONS_PATH.exists():
+        approved_titles = load_review_decisions(REVIEW_DECISIONS_PATH).approved_titles
+    reviewed = [
+        apply_review_decisions(publication, approved_titles) for publication in outcome.publications
+    ]
+
+    for publication in sorted(reviewed, key=lambda p: p.publication_id):
         # The ingestion lineage records which document JSON was selected and its
         # checksum. Never re-derive this from file names — DQ-04 truncation and
         # DQ-07 normalization make name matching unreliable.
