@@ -48,6 +48,8 @@ OUTPUT_DIRECTORY = REPOSITORY_ROOT / "artifacts" / "human_review"
 DRAFTS_PATH = OUTPUT_DIRECTORY / "golden_questions_drafts.csv"
 QUESTION_DECISIONS_PATH = OUTPUT_DIRECTORY / "golden_question_decisions.csv"
 REVIEW_DECISIONS_PATH = OUTPUT_DIRECTORY / "manual_review_decisions.csv"
+PAGE_DECISIONS_PATH = OUTPUT_DIRECTORY / "golden_page_decisions.csv"
+"""Reviewer-confirmed page labels. No script writes this file."""
 
 MAX_PROPOSED_PAGES = 3
 EVIDENCE_CHARACTERS = 220
@@ -228,6 +230,16 @@ def main() -> None:
                 "notes": decision.get("notes", ""),
             }
         )
+
+    if PAGE_DECISIONS_PATH.exists():
+        decided = {
+            row["case_id"]
+            for row in csv.DictReader(PAGE_DECISIONS_PATH.open(encoding="utf-8-sig"))
+            if (row.get("relevant_pages") or "").strip()
+        }
+        for row in rows:
+            if row["case_id"] in decided:
+                row["decision_basis"] = "(decided)"
 
     rows.sort(key=lambda row: (row["proposal_confidence"] != "strong", row["case_id"]))
     output_path = OUTPUT_DIRECTORY / "golden_accepted_page_review.csv"
