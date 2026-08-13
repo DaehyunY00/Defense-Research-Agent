@@ -65,6 +65,12 @@ REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIRECTORY = REPOSITORY_ROOT / "data"
 OUTPUT_DIRECTORY = REPOSITORY_ROOT / "artifacts" / "human_review"
 DRAFTS_PATH = OUTPUT_DIRECTORY / "golden_questions_drafts.csv"
+DECISIONS_PATH = OUTPUT_DIRECTORY / "golden_question_decisions.csv"
+"""Reviewer-authored verdicts. No script writes this file.
+
+The generated audit and the human decisions are separate files on purpose. An
+earlier generator overwrote a completed review with an empty file because the
+queue it regenerated had become empty."""
 REVIEW_DECISIONS_PATH = OUTPUT_DIRECTORY / "manual_review_decisions.csv"
 
 GROUNDING_FLAG_THRESHOLD = 0.5
@@ -268,6 +274,16 @@ def main() -> None:
     for rank, row in enumerate(rows, start=1):
         row["risk_rank"] = rank
         row.pop("_flag_count")
+
+    if DECISIONS_PATH.exists():
+        decided = {
+            row["case_id"]
+            for row in csv.DictReader(DECISIONS_PATH.open(encoding="utf-8-sig"))
+            if (row.get("question_verdict") or "").strip()
+        }
+        for row in rows:
+            if row["case_id"] in decided:
+                row["question_verdict"] = "(decided)"
 
     output_path = OUTPUT_DIRECTORY / "golden_question_audit.csv"
     with output_path.open("w", encoding="utf-8-sig", newline="") as handle:

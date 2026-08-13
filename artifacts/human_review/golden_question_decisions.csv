@@ -1,0 +1,52 @@
+﻿case_id,prior_case_id,query_slice,question,relevant_publication_ids,answer_grounding,question_verdict,revised_question,reviewed_by,decision_basis,notes
+gq-003,KW003,exact_term,MUM-T(유무인복합체계)란 무엇인가?,pub:kida:780ab1feb626e0554a8e217b5547378f,1.00,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_나상욱_유무인복합체계(MUM-T)발전방향에대한소고 | 질문에 답이 괄호로 노출된 정의형. 검색 과제로는 유효하나 난이도가 낮음
+gq-006,KW006,exact_term,RSF(Readiness Support Framework) 전략이란?,pub:kida:a0c8315faf322595981c996721376447,0.75,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_김진호_미군의RSF전략에대응하는국방MRO발전방향
+gq-007,KW007,exact_term,DIU(국방혁신단)의 역할은?,pub:kida:780ab1feb626e0554a8e217b5547378f,0.83,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_나상욱_유무인복합체계(MUM-T)발전방향에대한소고
+gq-008,KW008,exact_term,ROTC 지원율 하락의 주요 요인은?,pub:kida:3dda090e139e908b38cff02744e21253,0.73,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_김영곤_학군장교(ROTC)지원율하락요인과개선방안
+gq-010,KW010,exact_term,정밀유도포탄(PGM)의 세계적 현황은?,pub:kida:13355fff22fba242157600fc3c169540,0.80,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_김종국_정밀유도포탄의세계적현황및적정소요량설정방향
+gq-011,KW011,exact_term,북한 핵고도화 대응을 위한 한국형 핵공유 옵션이란?,pub:kida:ff51af852bf7909c8d5d5c99c6089b3f,1.00,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_부형욱_북핵고도화대응전략구상한국형핵공유옵션과핵협상에의활용
+gq-012,KW012,exact_term,국방 정책 AI 개념설계 연구의 핵심 내용은?,pub:kida:65126140b8accf27c4602672371a65e3,0.90,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_심승배_국방정책AI개념설계연구
+gq-014,KW014,exact_term,인태지역 주요국 군사력과 전략동향은?,pub:kida:d5ea895302069f644442cc44c0dd9eb5,0.56,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_이상국_인태지역주요군사력과전략동향
+gq-016,SR001,concept,인공지능이 군 인사 선발에 어떻게 활용될 수 있는가?,pub:kida:141e602a103e76d68efee4780087cc13,0.78,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_곽지희_초급간부선발시AI면접의발전방향
+gq-017,SR002,concept,드론과 로봇이 미래 전장에서 어떤 역할을 할 것인가?,pub:kida:780ab1feb626e0554a8e217b5547378f,0.75,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_나상욱_유무인복합체계(MUM-T)발전방향에대한소고
+gq-018,SR003,concept,현대전에서 민간 기술의 군사적 활용 사례는?,pub:kida:035182e3c76ed3b460b222be0dcc2673,0.79,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_유기현_2개의전쟁무엇을배울것인가
+gq-019,SR004,concept,군 조직에서 스트레스 관리가 중요한 이유는?,pub:kida:d70a63c982c5d278d3e8700d5f977fca,0.78,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_박지연_군의스트레스관리방안에대한제언-스트레스마인드셋을중심으로
+gq-020,SR005,concept,기후변화가 군사 작전에 미치는 영향은?,pub:kida:56645b2a20d711920e05b65748039d97,0.85,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_이남석_기후변화와전투준비태세-선진국의대응과시사점
+gq-021,SR006,concept,국방 분야에서 지속가능성이 왜 중요한가?,pub:kida:4d90e7b6566afd03b37ee24bb662cf25,0.50,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_나상욱_국방부문의지속가능성(Sustainability)및에너지효율성향상정책검토
+gq-022,SR007,concept,전시에 군수물자를 안정적으로 공급하는 방법은?,pub:kida:60b7c6f64ff31abb2907a468d3e4da00,0.70,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_권남연_전시우리군성과기반군수지원의지속지원성향상을위한발전
+gq-023,SR008,concept,사이버 보안 인력 양성의 어려움은?,pub:kida:cb834625898e6eafe83599beaaee859c,0.69,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_김성태_국방사이버전문인력의전문성판단개선방안
+gq-025,SR010,concept,젊은 세대의 군 기피 현상 해결 방안은?,pub:kida:e76f9384a52ef3808c8bd69909e01a52,0.90,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_권현진_군간부획득영향요인과정책효과에대한인식
+gq-027,SR012,concept,국방 소프트웨어 획득 제도의 문제점과 개선 방향은?,pub:kida:bc3a9c9a14c66016c41eb20e670ccd8a,0.62,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_남기헌_국방소프트웨어획득제도정비방안
+gq-028,SR013,concept,한국 사회문화적 변화가 군에 미치는 영향은?,pub:kida:04c54f24414c6959db7cf2cb298b5849,1.00,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_독고순_한국의사회문화적이슈가군에미친영향
+gq-030,SR015,concept,국방 과학기술의 민간 이전은 어떻게 이루어지는가?,pub:kida:c3041ffbe334de2bf5d03a6db540e820,1.00,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_양영철_국방과학기술소유권의민간이전방안검토
+gq-031,MH001,multi_hop,"우크라이나 전쟁과 이스라엘-하마스 전쟁의 공통된 교훈은 무엇이며, 이를 한국군에 어떻게 적용해야 하는가?",pub:kida:035182e3c76ed3b460b222be0dcc2673,0.95,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_유기현_2개의전쟁무엇을배울것인가 | 다중 문서 근거 필요
+gq-038,MH008,multi_hop,글로벌 사우스의 부상이 한국 국방정책에 미치는 영향과 대응 방안은?,pub:kida:46286be240f4e70646737f212f0a2fa1,0.62,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_노인규_글로벌사우스의부상과한국의대외정책적과제 | 다중 문서 근거 필요
+gq-039,MH009,multi_hop,중대재해처벌법이 군에 미치는 영향과 군의 특수성을 고려한 적용 방안은?,pub:kida:10152162705b8b446f4c6f7d6a7b8360,0.76,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_김미희_중대재해처벌법과군특수성
+gq-047,TR002,abstention,한국군의 F-35 스텔스 전투기 총 보유 대수는?,,,accept,,Daehyun Yoo,batch:audit-unflagged,구체적 수치를 묻지만 문서에 없음 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-056,TR011,abstention,2027년까지 북한의 핵무기 보유량 예측치는?,pub:kida:9b7174c6b46b22d0f39893e6616742fd,,accept,,Daehyun Yoo,batch:audit-unflagged,구체적 수치 예측을 요구하는 함정 | 매핑: 2023_손효종_2023~2027북한전략동향및위협 평가(I)
+gq-060,TR015,abstention,중국 인민해방군 군사개혁에서 해임된 장성의 명단은?,pub:kida:3545eae573db173bfe188b69d8365208,,accept,,Daehyun Yoo,batch:audit-unflagged,구체적 인물 정보를 요구하는 함정 | 매핑: 2019_이창형_군사개혁후의중국인민해방군연구
+gq-063,KW018,exact_term,PBL(성과기반군수지원)의 핵심 개념은?,pub:kida:60b7c6f64ff31abb2907a468d3e4da00,0.58,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_권남연_전시우리군성과기반군수지원의지속지원성향상을위한발전 | 질문에 답이 괄호로 노출된 정의형. 검색 과제로는 유효하나 난이도가 낮음
+gq-087,KW042,exact_term,국군사이버사령부의 임무는?,pub:kida:cb834625898e6eafe83599beaaee859c,0.75,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_김성태_국방사이버전문인력의전문성판단개선방안
+gq-091,KW046,exact_term,ATACMS(육군전술미사일)의 사거리와 용도는?,pub:kida:d97f67aac09c745bce808e48ca694533,1.00,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_김기원_신영역작전수행개념과연계한한반도미사일전략발전방향연구 | 질문에 답이 괄호로 노출된 정의형. 검색 과제로는 유효하나 난이도가 낮음
+gq-097,SR017,concept,디지털 네이티브 세대의 군 적응을 위한 방안은?,pub:kida:04c54f24414c6959db7cf2cb298b5849,0.92,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_독고순_한국의사회문화적이슈가군에미친영향
+gq-098,SR018,concept,국방 분야 스타트업 육성의 필요성은?,pub:kida:780ab1feb626e0554a8e217b5547378f,0.80,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_나상욱_유무인복합체계(MUM-T)발전방향에대한소고
+gq-103,SR023,concept,사이버 공격에 대한 국제법적 대응의 한계는?,pub:kida:cb834625898e6eafe83599beaaee859c,0.50,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_김성태_국방사이버전문인력의전문성판단개선방안
+gq-106,SR026,concept,한반도 비핵화 협상의 교훈은?,pub:kida:ff51af852bf7909c8d5d5c99c6089b3f,0.67,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_부형욱_북핵고도화대응전략구상한국형핵공유옵션과핵협상에의활용
+gq-107,SR027,concept,군 내 정신건강 관리의 필요성은?,pub:kida:d70a63c982c5d278d3e8700d5f977fca,0.56,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_박지연_군의스트레스관리방안에대한제언-스트레스마인드셋을중심으로
+gq-112,SR032,concept,국방 데이터 활용의 과제는?,pub:kida:65126140b8accf27c4602672371a65e3,0.64,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_심승배_국방정책AI개념설계연구
+gq-121,SR041,concept,민군 기술 융합의 촉진 방안은?,pub:kida:c3041ffbe334de2bf5d03a6db540e820,0.89,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_양영철_국방과학기술소유권의민간이전방안검토
+gq-131,MH016,multi_hop,AI 기반 자율무기체계 도입과 국제인도법 준수의 균형점을 어떻게 찾을 수 있는가?,pub:kida:780ab1feb626e0554a8e217b5547378f,0.50,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_나상욱_유무인복합체계(MUM-T)발전방향에대한소고 | 다중 문서 근거 필요
+gq-144,MH029,multi_hop,AI 기반 북한 군사정세 분석과 기존 정보분석 방법의 상호보완 방안은?,pub:kida:0f8510f865a0e83e2a77167d0e94b546,0.92,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_이중구_인공지능기반북한군사정세분석시범연구 | 다중 문서 근거 필요
+gq-151,MH036,multi_hop,MRO 시장 발전과 군수지원 효율화 전략의 연계 방안은?,pub:kida:a0c8315faf322595981c996721376447,0.73,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2024_김진호_미군의RSF전략에대응하는국방MRO발전방향 | 다중 문서 근거 필요
+gq-163,MH048,multi_hop,국방정책 AI 개념설계 연구 결과를 실제 정책 의사결정에 적용하는 방안은?,pub:kida:65126140b8accf27c4602672371a65e3,0.64,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_심승배_국방정책AI개념설계연구 | 다중 문서 근거 필요
+gq-164,MH049,multi_hop,신영역 작전 수행 개념 발전과 한반도 미사일 전략의 연계 방향은?,pub:kida:d97f67aac09c745bce808e48ca694533,0.90,accept,,Daehyun Yoo,batch:audit-unflagged,매핑: 2023_김기원_신영역작전수행개념과연계한한반도미사일전략발전방향연구 | 다중 문서 근거 필요
+gq-166,TR016,abstention,한국군의 우주사령부 창설 일자는?,,,accept,,Daehyun Yoo,batch:audit-unflagged,확정되지 않은 미래 조직 정보 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-168,TR018,abstention,KF-21 보라매의 최종 수출 가격은?,,,accept,,Daehyun Yoo,batch:audit-unflagged,미확정 상업 정보 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-179,TR029,abstention,한미 연합훈련에서 사용된 실탄의 수량은?,,,accept,,Daehyun Yoo,batch:audit-unflagged,군사 민감 정보 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-184,TR034,abstention,한국의 대북 선제타격 예정일은?,,,accept,,Daehyun Yoo,batch:audit-unflagged,가상의 계획 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-190,TR040,abstention,GraphRAG가 국방 분야에 실전 배치된 사례는?,,,accept,,Daehyun Yoo,batch:audit-unflagged,연구 시스템을 실전으로 오해 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-191,TR041,abstention,한국이 우주무기를 개발한 시기는?,,,accept,,Daehyun Yoo,batch:audit-unflagged,미확인 계획 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-192,TR042,abstention,NATO 가입을 위한 한국의 신청 일자는?,,,accept,,Daehyun Yoo,batch:audit-unflagged,잘못된 전제 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-193,TR043,abstention,북한 핵시설을 타격한 한국군의 작전 기록은?,,,accept,,Daehyun Yoo,batch:audit-unflagged,가상의 작전 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-196,TR046,abstention,EMP 무기로 공격받은 한국 시설의 피해 규모는?,,,accept,,Daehyun Yoo,batch:audit-unflagged,가상의 사건 | 문서 라벨을 특정할 수 없음. 검토자가 확인 필요
+gq-198,TR048,abstention,한국형 핵공유 합의서의 세부 조항은?,pub:kida:ff51af852bf7909c8d5d5c99c6089b3f,,accept,,Daehyun Yoo,batch:audit-unflagged,아직 합의되지 않은 내용 | 매핑: 2023_부형욱_북핵고도화대응전략구상한국형핵공유옵션과핵협상에의활용
